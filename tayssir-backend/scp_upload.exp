@@ -1,0 +1,26 @@
+#!/usr/bin/expect -f
+set timeout 30
+
+# Upload LandingController
+spawn scp -P 65002 -o StrictHostKeyChecking=no app/Http/Controllers/API/V1/LandingController.php u477314974@46.202.172.117:domains/tayssir-bac.com/public_html/app/Http/Controllers/API/V1/
+expect {
+    -re "password:" {
+        send "Tayssir@admin01\r"
+        exp_continue
+    }
+    eof {
+        # OK
+    }
+}
+
+# Upload v1.php
+spawn scp -P 65002 -o StrictHostKeyChecking=no routes/api/v1.php u477314974@46.202.172.117:domains/tayssir-bac.com/public_html/routes/api/
+expect {
+    -re "password:" {
+        send "Tayssir@admin01\r"
+        exp_continue
+    }
+    eof {
+        exit 0
+    }
+}

@@ -1,0 +1,13 @@
+#!/usr/bin/expect -f
+set timeout 60
+
+set password "Tayssir@admin01"
+set server "u477314974@46.202.172.117"
+set remote_path "domains/tayssir-bac.com/public_html/291013"
+
+spawn ssh -p 65002 -o StrictHostKeyChecking=no $server "cd $remote_path && php artisan optimize:clear"
+expect "password:"
+send "$password\r"
+expect eof
+
+puts "Server cache cleared successfully."

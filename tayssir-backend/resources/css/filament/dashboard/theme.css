@@ -1,0 +1,88 @@
+@import "/vendor/filament/filament/resources/css/theme.css";
+@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200..700&display=swap');
+@source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
+
+@config 'tailwind.config.js';
+
+[dir="rtl"],
+[dir="rtl"] * {
+    font-family: 'Readex Pro', sans-serif !important;
+}
+
+.fi-sidebar-nav {
+    @apply bg-transparent shadow-none ring-0 !important;
+}
+
+/* Base Dashboard Background */
+.fi-panel-dashboard,
+.fi-main-ctn,
+.fi-content,
+.fi-main {
+    background-color: #0b1120 !important;
+}
+
+.dark .fi-panel-dashboard,
+.dark .fi-main-ctn,
+.dark .fi-content,
+.dark .fi-main {
+    background-color: #0b1120 !important;
+}
+
+/* Topbar matching */
+.fi-topbar,
+.fi-sidebar-header {
+    background-color: #101729 !important;
+    @apply border-b border-white/5 shadow-sm backdrop-blur-lg !important;
+}
+
+/* Sidebar matching */
+.fi-sidebar {
+    background-color: #101729 !important;
+    @apply border-r border-white/5 shadow-none !important;
+}
+
+/* Styled Table Rows */
+.fi-ta-row:hover {
+    @apply bg-white/5 transition-colors duration-150;
+}
+
+/* SURGICAL CLEANING: Only remove backgrounds, keep layout/spacing */
+.fi-panel-dashboard .fi-section,
+.fi-panel-dashboard .fi-section-header,
+.fi-panel-dashboard .fi-section-content,
+.fi-panel-dashboard .fi-wi-stats-overview {
+    background-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    ring: 0 !important;
+}
+
+/* Fix the spacing between cards */
+.fi-wi-stats-overview > div {
+    @apply gap-6 !important;
+}
+
+/* Card matching - only cards have color */
+.fi-wi-stats-overview-stat,
+.fi-ta-ctn,
+.fi-wi-chart,
+.fi-card {
+    background-color: #101729 !important;
+    @apply ring-1 ring-white/5 rounded-xl shadow-lg !important;
+    margin: 0.5rem !important; /* Ensure they don't touch */
+}
+
+/* Fix title colors and remove any background strips */
+.fi-section-header-heading,
+.fi-header-heading {
+    @apply text-white font-bold !important;
+    background: transparent !important;
+    padding-top: 1rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+/* Ensure the header container itself is transparent */
+.fi-header {
+    background: transparent !important;
+}

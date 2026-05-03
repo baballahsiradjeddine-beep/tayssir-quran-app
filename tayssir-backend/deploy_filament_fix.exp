@@ -1,0 +1,32 @@
+#!/usr/bin/expect -f
+set timeout 60
+
+set password "Tayssir@admin01"
+set server "u477314974@46.202.172.117"
+set remote_base "domains/tayssir-bac.com/public_html/291013"
+
+# 1. Upload AdminNavigation.php
+spawn scp -P 65002 -o StrictHostKeyChecking=no app/Filament/Admin/AdminNavigation.php $server:$remote_base/app/Filament/Admin/
+expect "password:"
+send "$password\r"
+expect eof
+
+# 2. Upload AdminPanelProvider.php
+spawn scp -P 65002 -o StrictHostKeyChecking=no app/Providers/Filament/AdminPanelProvider.php $server:$remote_base/app/Providers/Filament/
+expect "password:"
+send "$password\r"
+expect eof
+
+# 3. Upload custom.php
+spawn scp -P 65002 -o StrictHostKeyChecking=no lang/ar/custom.php $server:$remote_base/lang/ar/
+expect "password:"
+send "$password\r"
+expect eof
+
+# 4. Upload QuestionResource.php
+spawn scp -P 65002 -o StrictHostKeyChecking=no app/Filament/Admin/Resources/QuestionResource.php $server:$remote_base/app/Filament/Admin/Resources/
+expect "password:"
+send "$password\r"
+expect eof
+
+puts "Deployment to 291013 completed successfully."

@@ -1,0 +1,111 @@
+[
+  {
+    "unit": "مدخل إلى رواية ورش",
+    "topics": [
+      {
+        "title": "التعريف والسند",
+        "chapters": [
+          {
+            "name": "التعريف بالإمام نافع وورش",
+            "type": "lesson",
+            "level": "beginner",
+            "content": [ { "elements": [ { "type": "text", "data": { "content": "ورش هو عثمان بن سعيد المصري، شيخه نافع المدني." } } ] } ]
+          },
+          {
+            "name": "تحدي السند والطريق",
+            "type": "exercise",
+            "level": "beginner",
+            "questions": [
+              { "q": "من هو شيخ الإمام ورش؟", "type": "multiple_choices", "opt": { "choices": [ { "option": "نافع", "is_correct": true }, { "option": "عاصم", "is_correct": false } ] } },
+              { "q": "طريق الأزرق هو المعتمد لورش.", "type": "true_or_false", "opt": { "correct": true } },
+              { "q": "صل اللقب بصاحبه:", "type": "match_with_arrows", "opt": { "pairs": [ { "first": "ورش", "second": "لقب لبياضه" }, { "first": "نافع", "second": "إمام المدينة" } ] } },
+              { "q": "استخرج الاسم الغريب:", "type": "pick_the_intruder", "opt": { "words": [ { "word": "نافع", "is_intruder": false }, { "word": "ورش", "is_intruder": false }, { "word": "حفص", "is_intruder": true } ] } },
+              { "q": "رحل ورش إلى المدينة ليلقى نافعاً.", "type": "fill_in_the_blanks", "opt": { 
+                "paragraph": "رحل ورش إلى ([1]) ليلقى نافعاً.", 
+                "blanks": [ { "correct_word": "المدينة", "position": 1 } ],
+                "suggestions": ["المدينة", "مكة", "القاهرة"]
+              } }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "unit": "أحكام النون والميم الساكنة",
+    "topics": [
+      {
+        "title": "الإظهار والإدغام",
+        "chapters": [
+          { "name": "شرح الإظهار والإدغام", "type": "lesson", "level": "beginner", "content": [ { "elements": [ { "type": "text", "data": { "content": "الإظهار (أ هـ ع ح غ خ). الإدغام (يرملون)." } } ] } ] },
+          {
+            "name": "تحدي النون والميم",
+            "type": "exercise",
+            "level": "beginner",
+            "questions": [
+              { "q": "ما حكم النون في (مِنْ حَكِيم)؟", "type": "multiple_choices", "opt": { "choices": [ { "option": "إظهار", "is_correct": true }, { "option": "إدغام", "is_correct": false } ] } },
+              { "q": "حروف الإظهار تخرج من الحلق.", "type": "true_or_false", "opt": { "correct": true } },
+              { "q": "صل الحكم بالكلمة:", "type": "match_with_arrows", "opt": { "pairs": [ { "first": "إظهار", "second": "مِنْ أَهْل" }, { "first": "إدغام", "second": "مِنْ مَال" } ] } },
+              { "q": "استخرج الكلمة التي فيها إظهار شفوي:", "type": "pick_the_intruder", "opt": { "words": [ { "word": "أَمْ لَمْ تُنذِرْهُمْ", "is_intruder": false }, { "word": "تَرْمِيهِم بِحِجَارَة", "is_intruder": true } ] } },
+              { "q": "يسمى إخفاء الميم عند الباء بالإخفاء الشفوي.", "type": "fill_in_the_blanks", "opt": { 
+                "paragraph": "يسمى إخفاء الميم عند الباء بالإخفاء ([1]).", 
+                "blanks": [ { "correct_word": "الشفوي", "position": 1 } ],
+                "suggestions": ["الشفوي", "الحلقي", "القمري"]
+              } }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "unit": "محيط المدود",
+    "topics": [
+      {
+        "title": "المدود المشبعة",
+        "chapters": [
+          { "name": "شرح المدود الكبرى", "type": "lesson", "level": "intermediate", "content": [ { "elements": [ { "type": "text", "data": { "content": "ورش يشبع المتصل والمنفصل بـ 6 حركات." } } ] } ] },
+          {
+            "name": "تحدي الإشباع",
+            "type": "exercise",
+            "level": "intermediate",
+            "questions": [
+              { "q": "طول المد المنفصل عند ورش؟", "type": "multiple_choices", "opt": { "choices": [ { "option": "6 حركات", "is_correct": true }, { "option": "4 حركات", "is_correct": false } ] } },
+              { "q": "المد المتصل يمد 6 حركات وجوباً.", "type": "true_or_false", "opt": { "correct": true } },
+              { "q": "أطول مد عند ورش هو 6 حركات.", "type": "fill_in_the_blanks", "opt": { 
+                "paragraph": "أطول مد عند ورش هو ([1]) حركات.", 
+                "blanks": [ { "correct_word": "6", "position": 1 } ],
+                "suggestions": ["2", "4", "6"]
+              } }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "unit": "الإمالة والتحريرات",
+    "topics": [
+      {
+        "title": "التقليل والتحريرات",
+        "chapters": [
+          { "name": "شرح التقليل والتحريرات", "type": "lesson", "level": "advanced", "content": [ { "elements": [ { "type": "text", "data": { "content": "التقليل في رؤوس الآي." } } ] } ] },
+          {
+            "name": "تحدي التحريرات",
+            "type": "exercise",
+            "level": "advanced",
+            "questions": [
+              { "q": "حكم (مُوسَى)؟", "type": "multiple_choices", "opt": { "choices": [ { "option": "فتح وتقليل", "is_correct": true }, { "option": "فتح فقط", "is_correct": false } ] } },
+              { "q": "ورش يقلل ذوات الياء.", "type": "true_or_false", "opt": { "correct": true } },
+              { "q": "الإمالة الصغرى تسمى التقليل.", "type": "fill_in_the_blanks", "opt": { 
+                "paragraph": "الإمالة الصغرى تسمى ([1]).", 
+                "blanks": [ { "correct_word": "التقليل", "position": 1 } ],
+                "suggestions": ["التقليل", "الإمالة", "الفتح"]
+              } }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
