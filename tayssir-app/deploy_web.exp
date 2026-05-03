@@ -1,0 +1,47 @@
+#!/usr/bin/expect -f
+set timeout 300
+
+set password "Tayssir@admin01"
+set server "u477314974@46.202.172.117"
+set remote_path "domains/tayssir-bac.com/public_html/"
+
+# Upload the zip
+spawn scp -P 65002 -o StrictHostKeyChecking=no web_build.zip $server:$remote_path
+expect "password:"
+send "$password\r"
+expect eof
+
+# Connect via SSH to unzip and clean up
+spawn ssh -p 65002 $server
+expect "password:"
+send "$password\r"
+expect -re "(%|#|\\$) $"
+
+# Commands on server
+send "cd domains/tayssir-bac.com/public_html/\r"
+expect -re "(%|#|\\$) $"
+
+# Remove old backup if exists
+send "rm -rf app_old\r"
+expect -re "(%|#|\\$) $"
+
+# Backup current app
+send "mv app app_old\r"
+expect -re "(%|#|\\$) $"
+
+# Unzip (note: this creates build/web)
+send "unzip -o web_build.zip\r"
+expect -re "(%|#|\\$) $"
+
+# Move contents to app/
+send "mv build/web app\r"
+expect -re "(%|#|\\$) $"
+
+# Clean up
+send "rm web_build.zip\r"
+expect -re "(%|#|\\$) $"
+send "rm -rf build\r"
+expect -re "(%|#|\\$) $"
+
+send "exit\r"
+expect eof

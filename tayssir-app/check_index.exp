@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+set timeout 20
+spawn ssh -p 65002 -o StrictHostKeyChecking=no u477314974@46.202.172.117
+expect {
+    -re "password:" {
+        send "Tayssir@admin01\r"
+        exp_continue
+    }
+    -re "(%|#|\\$) $" {
+        send "cd domains/tayssir-bac.com/public_html && head -n 20 index.html\r"
+        expect -re "(%|#|\\$) $"
+        send "exit\r"
+    }
+}

@@ -1,0 +1,38 @@
+# دليل فتح المواد يدوياً عبر قاعدة البيانات (SQL)
+
+عندما ترغب في فتح مادة كاملة لمستخدم معين كأنه حلها يدوياً، اتبع الخطوات التالية:
+
+### 1. جلب البيانات المطلوبة:
+- رقم المستخدم (USER_ID):
+  SELECT id FROM users WHERE email = 'email@example.com';
+- رقم المادة (MATERIAL_ID):
+  SELECT id, name FROM materials WHERE name LIKE '%اسم_المادة%';
+
+### 2. الكود البرمجي (SQL Template):
+قم بنسخ هذا الكود واستبدال القيم الموجودة بين القوسين [ ] بالقيم الحقيقية:
+
+--------------------------------------------------
+-- الخطوة أ: تنظيف أي بيانات قديمة للمادة (اختياري)
+DELETE FROM user_answers WHERE user_id = [USER_ID] AND material_id = [MATERIAL_ID];
+
+-- الخطوة ب: إدخال سطر واحد لكل فصل لفتح التقدم 100%
+INSERT INTO user_answers (user_id, question_id, chapter_id, unit_id, material_id, points_earned, created_at, updated_at)
+SELECT 
+    [USER_ID], 
+    MIN(cq.question_id), 
+    cq.chapter_id, 
+    cu.unit_id, 
+    [MATERIAL_ID], 
+    1, 
+    NOW(), 
+    NOW()
+FROM chapter_question cq
+JOIN chapter_unit cu ON cq.chapter_id = cu.chapter_id
+GROUP BY cq.chapter_id, cu.unit_id;
+--------------------------------------------------
+
+### شرح منطق الكود:
+- يقوم الكود بالبحث عن كل فصل (Chapter) متاح في النظام.
+- يأخذ سؤالاً واحداً فقط من كل فصل (لضمان عدم حدوث خطأ في النسبة المئوية).
+- يسجل السؤال في جدول الإجابات باسم المستخدم والمادة المحددة.
+- يضمن استخدام GROUP BY عدم تكرار الإدخال لنفس الفصل.

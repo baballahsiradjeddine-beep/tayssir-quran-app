@@ -1,0 +1,15 @@
+#!/usr/bin/expect -f
+set timeout 60
+spawn ssh -p 65002 -o StrictHostKeyChecking=no u477314974@46.202.172.117
+expect {
+    -re "password:" {
+        send "Tayssir@admin01\r"
+        exp_continue
+    }
+    -re "(%|#|\\$) $" {
+        send "cat << 'EOF' > domains/tayssir-bac.com/public_html/291013/storage/app/public/.htaccess\n<IfModule mod_headers.c>\n    Header set Access-Control-Allow-Origin \"*\" always\n    Header set Access-Control-Allow-Methods \"GET, OPTIONS\"\n    Header set Access-Control-Allow-Headers \"Origin, X-Requested-With, Content-Type, Accept\"\n</IfModule>\nEOF\n"
+        expect -re "(%|#|\\$) $"
+        
+        send "exit\r"
+    }
+}

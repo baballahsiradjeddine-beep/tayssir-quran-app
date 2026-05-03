@@ -1,0 +1,15 @@
+#!/usr/bin/expect -f
+set timeout 120
+spawn ssh -p 65002 -o StrictHostKeyChecking=no u477314974@46.202.172.117
+expect {
+    -re "password:" {
+        send "Tayssir@admin01\r"
+        exp_continue
+    }
+    -re "(%|#|\\$) $" {
+        send "cd domains/tayssir-bac.com/public_html && rm -rf main.dart.js flutter.js flutter_bootstrap.js flutter_service_worker.js flutter_bootstrap_diagnostic.js firebase-messaging-sw.js manifest.json version.json canvaskit/ assets/ index.html\r"
+        expect -re "(%|#|\\$) $"
+        puts "\nCleaned up the polluted root directory.\n"
+        send "exit\r"
+    }
+}

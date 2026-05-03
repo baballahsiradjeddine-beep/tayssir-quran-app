@@ -1,0 +1,38 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "tayssir-8081a",
+                    "appId": "1:616903115406:android:76174102c87dd7d4b1bfdf",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "tayssir-8081a",
+                    "appId": "1:616903115406:ios:181dec0990b9fd5c65a0ec",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "macos": {
+                "default": {
+                    "projectId": "tayssir-8081a",
+                    "appId": "1:616903115406:ios:181dec0990b9fd5c65a0ec",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "macos/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "tayssir-8081a",
+                    "configurations": {
+                        "android": "1:616903115406:android:76174102c87dd7d4b1bfdf",
+                        "ios": "1:616903115406:ios:181dec0990b9fd5c65a0ec"
+                    }
+                }
+            }
+        }
+    }
+}

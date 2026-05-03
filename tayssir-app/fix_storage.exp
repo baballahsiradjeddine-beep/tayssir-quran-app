@@ -1,0 +1,16 @@
+#!/usr/bin/expect -f
+set timeout 60
+set password "Tayssir@admin01"
+spawn ssh -p 65002 u477314974@46.202.172.117
+expect {
+    -nocase "password:" {
+        send "$password\r"
+        exp_continue
+    }
+    -re "(%|#|\\$) $" {
+        send "ln -sf ../storage domains/tayssir-bac.com/public_html/app/storage\r"
+        expect -re "(%|#|\\$) $"
+        send "exit\r"
+    }
+}
+expect eof

@@ -1,0 +1,52 @@
+#!/usr/bin/expect -f
+set timeout 600
+set password "Tayssir@admin01"
+set server "u477314974@46.202.172.117"
+set remote_path "domains/tayssir-bac.com/public_html/"
+
+# Upload the zip
+puts "\nUploading web_build.zip...\n"
+spawn scp -P 65002 -o StrictHostKeyChecking=no web_build.zip $server:$remote_path
+expect {
+    "password:" {
+        send "$password\r"
+        exp_continue
+    }
+    eof
+}
+
+# Connect via SSH to unzip and organize
+puts "\nOrganizing files on server...\n"
+spawn ssh -p 65002 $server
+expect {
+    "password:" {
+        send "$password\r"
+        exp_continue
+    }
+    -re "(%|#|\\$) $" {
+        send "cd domains/tayssir-bac.com/public_html/\r"
+        expect -re "(%|#|\\$) $"
+        
+        # Unzip the build
+        send "unzip -o web_build.zip\r"
+        expect -re "(%|#|\\$) $"
+        
+        # Ensure 'app' doesn't exist (already cleaned up, but safe)
+        send "rm -rf app\r"
+        expect -re "(%|#|\\$) $"
+        
+        # Move build/web to app
+        send "mv build/web app\r"
+        expect -re "(%|#|\\$) $"
+        
+        # Clean up
+        send "rm web_build.zip\r"
+        expect -re "(%|#|\\$) $"
+        send "rm -rf build\r"
+        expect -re "(%|#|\\$) $"
+        
+        puts "\nDeployment complete! App is now in public_html/app/\n"
+        send "exit\r"
+    }
+}
+expect eof

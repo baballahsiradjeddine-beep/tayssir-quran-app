@@ -1,0 +1,33 @@
+spawn ssh -p 65002 -o StrictHostKeyChecking=no u477314974@46.202.172.117
+u477314974@46.202.172.117's password: 
+Last failed login: Tue Apr 14 14:23:49 UTC 2026 from 154.242.48.45 on ssh:notty
+There were 6 failed login attempts since the last successful login.
+[0;35m
+   HHHH               HHHH
+   HHHHHHHH           HHHHHHHH
+   HHHHHHHH           HHHHHHHH
+   HHHHHHHH           HHHHHHHH
+   HHHHHHHHHHHHHHHHHHHH  HHHHH
+   HHHHHHHHHHHHHHHHHHHHHHHHH
+     HHHHHHHHHHHHHHHHHHHHHHHHH
+   HHHH  HHHHHHHHHHHHHHHHHHHHH
+   HHHHHHHH           HHHHHHHH
+   HHHHHHHH           HHHHHHHH
+   HHHHHHHH           HHHHHHHH
+       HHHH               HHHH
+
+[0mWelcome back! The time now is 14:24 UTC
+Server load: 27.83, 26.71, 25.66
+
+Link to hPanel: 
+https://hpanel.hostinger.com/ 
+
+[u477314974@fr-int-web1795 ~]$ <~]$ cd domains/tayssir-bac.com/public_html && ls -la
+291013/      fonts/	 __next._full.txt     _not-found.html  tools.html
+404.html     globe.svg	 __next._head.txt     _not-found.txt   tools.txt
+app/	     icons/	 __next._index.txt    subjects/        vercel.svg
+favicon.ico  images/	 __next.__PAGE__.txt  subjects.html    window.svg
+favicon.png  index.html  next.svg	      subjects.txt
+favicon.svg  index.txt	 __next._tree.txt     svg/
+file.svg     _next/	 _not-found/	      tools/
+[u477314974@fr-int-web1795 public_html]$ 

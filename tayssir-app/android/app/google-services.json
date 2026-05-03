@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "616903115406",
+    "project_id": "tayssir-8081a",
+    "storage_bucket": "tayssir-8081a.firebasestorage.app",
+    "firebase_url": "https://tayssir-8081a-default-rtdb.europe-west1.firebasedatabase.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616903115406:android:76174102c87dd7d4b1bfdf",
+        "android_client_info": {
+          "package_name": "com.tayssir.bac"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnMNMlmM1S63QcobQTUbEUP5OFkltAndg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
