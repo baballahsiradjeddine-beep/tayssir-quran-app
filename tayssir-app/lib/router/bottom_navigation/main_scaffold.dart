@@ -14,6 +14,7 @@ import 'package:tayssir/features/ai_planner/presentation/ai_planner_fab.dart';
 import 'package:tayssir/providers/auth/auth_notifier.dart';
 import 'package:tayssir/providers/data/data_provider.dart';
 import 'package:tayssir/utils/enums/auth_state.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 // ── Global showcase keys for each nav tab ──
 final GlobalKey tourKeyHome = GlobalKey();
@@ -43,8 +44,8 @@ const _tourOrder = [
   ),
   _TourStepDef(
     navIndex: 0,
-    label: 'صفحة الأدوات 🧰',
-    desc: 'هنا تجد كل ما يساعدك: بومودورو التركيز، وتتبع التقدم في الحفظ.',
+    label: 'المصحف الشريف 📖',
+    desc: 'اقرأ القرآن الكريم برواية ورش، مع واجهة مريحة تشبه المصاحف الورقية الفاخرة.',
   ),
   _TourStepDef(
     navIndex: 4,
@@ -367,7 +368,7 @@ class _TourAwareNavBar extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _buildNavItem(context, ref, 0, Icons.category_outlined, Icons.category_rounded, "أدوات", isDark),
+                _buildNavItem(context, ref, 0, Icons.menu_book_outlined, Icons.menu_book_rounded, "المصحف", isDark),
                 _buildNavItem(context, ref, 1, Icons.leaderboard_outlined, Icons.leaderboard_rounded, "ترتيب", isDark),
                 _buildNavItem(context, ref, 2, Icons.home_outlined, Icons.home_rounded, "الرئيسية", isDark),
                 _buildNavItem(context, ref, 3, Icons.flag_outlined, Icons.flag_rounded, "تحديات", isDark),
@@ -411,15 +412,19 @@ class _TourAwareNavBar extends ConsumerWidget {
           width: 68.sp,
           height: 68.sp,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF10B981), Color(0xFF059669)],
+            gradient: LinearGradient(
+              colors: isDark 
+                  ? const [Color(0xFF10B981), Color(0xFF059669)]
+                  : const [AppColors.warmAccent, AppColors.warmTitle],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(24.r),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF10B981).withOpacity(0.4),
+                color: isDark 
+                    ? const Color(0xFF10B981).withOpacity(0.4)
+                    : AppColors.warmAccent.withOpacity(0.25),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -549,8 +554,8 @@ class _NavItemWidget extends StatelessWidget {
               outlineIcon,
               size: 26.sp,
               color: onTap == null
-                  ? (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E0))
-                  : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                  ? (isDark ? const Color(0xFF334155) : AppColors.warmBorder)
+                  : (isDark ? const Color(0xFF64748B) : AppColors.warmSubtitle),
             ),
             6.verticalSpace,
             Text(
@@ -559,8 +564,8 @@ class _NavItemWidget extends StatelessWidget {
                 fontSize: 11.sp,
                 fontWeight: FontWeight.bold,
                 color: onTap == null
-                    ? (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E0))
-                    : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                    ? (isDark ? const Color(0xFF334155) : AppColors.warmBorder)
+                    : (isDark ? const Color(0xFF64748B) : AppColors.warmSubtitle),
                 fontFamily: 'SomarSans',
               ),
             ),
@@ -847,8 +852,8 @@ class _DesktopSidebar extends ConsumerWidget {
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         border: Border(
           left: BorderSide(
-            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-            width: 1,
+            color: isDark ? Colors.white.withOpacity(0.08) : AppColors.warmBorder.withOpacity(0.4),
+            width: 1.5,
           ),
         ),
       ),
@@ -862,7 +867,7 @@ class _DesktopSidebar extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 32.sp,
                 fontWeight: FontWeight.w900,
-                color: const Color(0xFF10B981),
+                color: isDark ? const Color(0xFF10B981) : AppColors.warmTitle,
                 fontFamily: 'SomarSans',
                 letterSpacing: 1.2,
               ),
@@ -875,7 +880,7 @@ class _DesktopSidebar extends ConsumerWidget {
           20.verticalSpace,
           _buildSidebarItem(context, isSoundOn, 3, Icons.flag_outlined, Icons.flag_rounded, "تحديات"),
           20.verticalSpace,
-          _buildSidebarItem(context, isSoundOn, 0, Icons.category_outlined, Icons.category_rounded, "أدوات"),
+          _buildSidebarItem(context, isSoundOn, 0, Icons.menu_book_outlined, Icons.menu_book_rounded, "المصحف"),
           if (!isTourActive) ...[
             20.verticalSpace,
             _buildSpecialSidebarItem(
@@ -895,7 +900,7 @@ class _DesktopSidebar extends ConsumerWidget {
 
   Widget _buildSpecialSidebarItem(BuildContext context, bool isSoundOn, IconData icon, String label, VoidCallback onTap) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    const premiumPink = Color(0xFFF59E0B);
+    final premiumColor = isDark ? const Color(0xFFF59E0B) : AppColors.warmAccent;
     
     return GestureDetector(
       onTap: () {
@@ -911,13 +916,13 @@ class _DesktopSidebar extends ConsumerWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              premiumPink.withOpacity(0.15),
-              premiumPink.withOpacity(0.05),
+              premiumColor.withOpacity(0.15),
+              premiumColor.withOpacity(0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: premiumPink.withOpacity(0.4),
+            color: premiumColor.withOpacity(0.4),
             width: 1.5,
           ),
         ),
@@ -926,7 +931,7 @@ class _DesktopSidebar extends ConsumerWidget {
             Icon(
               Icons.workspace_premium_rounded,
               size: 24.sp,
-              color: premiumPink,
+              color: premiumColor,
             ),
             16.horizontalSpace,
             Expanded(
@@ -935,7 +940,7 @@ class _DesktopSidebar extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w900,
-                  color: premiumPink,
+                  color: premiumColor,
                   fontFamily: 'SomarSans',
                 ),
               ),
@@ -953,48 +958,60 @@ class _DesktopSidebar extends ConsumerWidget {
     final isTargetted = isTourActive && index == currentTourNavIndex;
     final isBlocked = isTourActive && index != currentTourNavIndex;
 
-    Widget item = GestureDetector(
-      onTap: isBlocked ? null : () {
-        if (!isSelected && isSoundOn) {
-          SoundService.playClickPremium();
-          HapticFeedback.lightImpact();
-        }
-        onTap(index);
-      },
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF10B981).withOpacity(0.15) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF10B981).withOpacity(0.5) : Colors.transparent,
-            width: 1.5,
+    Widget item = MouseRegion(
+      cursor: isBlocked ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: isBlocked ? null : () {
+          if (!isSelected && isSoundOn) {
+            SoundService.playClickPremium();
+            HapticFeedback.lightImpact();
+          }
+          onTap(index);
+        },
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
+          decoration: BoxDecoration(
+            color: isSelected 
+                ? (isDark ? const Color(0xFF10B981).withOpacity(0.15) : AppColors.warmTitle.withOpacity(0.08)) 
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isSelected 
+                  ? (isDark ? const Color(0xFF10B981).withOpacity(0.5) : AppColors.warmTitle.withOpacity(0.3)) 
+                  : Colors.transparent,
+              width: 1.5,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isSelected ? filledIcon : outlineIcon,
-              size: 28.sp,
-              color: isSelected ? const Color(0xFF10B981) : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
-            ),
-            20.horizontalSpace,
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-                color: isSelected ? const Color(0xFF10B981) : (isDark ? const Color(0xFFE2E8F0) : const Color(0xFF475569)),
-                fontFamily: 'SomarSans',
+          child: Row(
+            children: [
+              Icon(
+                isSelected ? filledIcon : outlineIcon,
+                size: 28.sp,
+                color: isSelected 
+                    ? (isDark ? const Color(0xFF10B981) : AppColors.warmTitle) 
+                    : (isDark ? const Color(0xFF94A3B8) : AppColors.warmSubtitle),
               ),
-            ),
-          ],
+              20.horizontalSpace,
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                  color: isSelected 
+                      ? (isDark ? const Color(0xFF10B981) : AppColors.warmTitle) 
+                      : (isDark ? const Color(0xFFE2E8F0) : AppColors.warmSubtitle),
+                  fontFamily: 'SomarSans',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+
 
     if (isTargetted) {
       final step = _tourOrder.firstWhere((s) => s.navIndex == index,

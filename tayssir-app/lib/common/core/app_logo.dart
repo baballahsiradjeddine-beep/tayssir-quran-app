@@ -36,7 +36,9 @@ class AppLogo extends StatelessWidget {
             style: TextStyle(
               fontSize: fontSize ?? 32.sp,
               fontWeight: FontWeight.w900,
-              color: AppColors.primaryColor,
+              color: Theme.of(context).brightness == Brightness.light 
+                  ? AppColors.warmTitle 
+                  : AppColors.primaryColor,
               fontFamily: 'SomarSans',
               letterSpacing: -1,
             ),

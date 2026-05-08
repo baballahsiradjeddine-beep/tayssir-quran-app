@@ -86,7 +86,7 @@ class StatusInfoCard extends StatelessWidget {
               value!,
               style: TextStyle(
                 fontSize: valueFontSize.sp,
-                color: AppColors.primaryColor,
+                color: Theme.of(context).brightness == Brightness.dark ? AppColors.primaryColor : AppColors.warmTitle,
                 fontWeight: FontWeight.bold,
               ),
             ),

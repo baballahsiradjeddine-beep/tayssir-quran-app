@@ -68,29 +68,35 @@ class SubscriptionModel extends Equatable {
 
   factory SubscriptionModel.fromMap(Map<String, dynamic> map) {
     return SubscriptionModel(
-        id: map['id'] as int,
-        name: map['name'] as String,
-        description: (map['description'] as String?) ?? ' ',
-        price: map['price'] is int
-            ? map['price'] as int
-            : int.parse(map['price'] as String),
-        endingDate: map['ending_date'] == null
-            ? null
-            : DateTime.parse(map['ending_date'] as String),
-        gradiantStart: Color((map['gradiant_start'] as String).toHexColor),
-        gradiantEnd: Color((map['gradiant_end'] as String).toHexColor),
-        innterColor: map['bottom_color_at_start'] == 1
-            ? Color((map['gradiant_start'] as String).toHexColor)
-            : Color((map['gradiant_end'] as String).toHexColor),
-        discounts: map['discounts'] != null
-            ? List<DiscountModel>.from((map['discounts'] as List<dynamic>)
-                .map((e) => DiscountModel.fromMap(e)))
-            : []
-        // gradientColors: (map['gradientColors'] as List)
-        // .map((e) => Color(e as int))
-        // .toList(),
-        // innterColor: Color(map['innterColor'] as int),
-        );
+      id: (map['id'] as int?) ?? 0,
+      name: (map['name'] as String?) ?? '',
+      description: (map['description'] as String?) ?? ' ',
+      price: map['price'] == null 
+          ? 0 
+          : map['price'] is int
+              ? map['price'] as int
+              : int.tryParse(map['price'].toString()) ?? 0,
+      endingDate: map['ending_date'] == null
+          ? null
+          : DateTime.tryParse(map['ending_date'].toString()),
+      gradiantStart: map['gradiant_start'] != null
+          ? Color((map['gradiant_start'] as String).toHexColor)
+          : const Color(0XFF175DC7),
+      gradiantEnd: map['gradiant_end'] != null
+          ? Color((map['gradiant_end'] as String).toHexColor)
+          : const Color(0XFF00C4F6),
+      innterColor: map['bottom_color_at_start'] == 1
+          ? (map['gradiant_start'] != null
+              ? Color((map['gradiant_start'] as String).toHexColor)
+              : const Color(0XFF175DC7))
+          : (map['gradiant_end'] != null
+              ? Color((map['gradiant_end'] as String).toHexColor)
+              : const Color(0XFF00C4F6)),
+      discounts: map['discounts'] != null
+          ? List<DiscountModel>.from((map['discounts'] as List<dynamic>)
+              .map((e) => DiscountModel.fromMap(e as Map<String, dynamic>)))
+          : [],
+    );
   }
 
   factory SubscriptionModel.fromJson(String source) =>
@@ -118,8 +124,8 @@ class DiscountModel extends Equatable {
   final String? description;
   final int amount;
   final double percentage;
-  final DateTime from;
-  final DateTime to;
+  final DateTime? from;
+  final DateTime? to;
 
   const DiscountModel({
     required this.id,
@@ -133,13 +139,13 @@ class DiscountModel extends Equatable {
 
   factory DiscountModel.fromMap(Map<String, dynamic> map) {
     return DiscountModel(
-      id: map['id'] as int,
-      name: map['name'] as String,
+      id: (map['id'] as int?) ?? 0,
+      name: (map['name'] as String?) ?? '',
       description: map['description'] as String?,
-      amount: map['amount'] as int,
-      percentage: (map['percentage'] as num).toDouble(),
-      from: DateTime.parse(map['from'] as String),
-      to: DateTime.parse(map['to'] as String),
+      amount: (map['amount'] as int?) ?? 0,
+      percentage: (map['percentage'] as num?)?.toDouble() ?? 0.0,
+      from: map['from'] == null ? null : DateTime.tryParse(map['from'].toString()),
+      to: map['to'] == null ? null : DateTime.tryParse(map['to'].toString()),
     );
   }
 

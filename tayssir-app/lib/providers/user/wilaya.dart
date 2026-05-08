@@ -24,8 +24,8 @@ class Wilaya extends Equatable implements TaysirDropdownItem {
   // from map
   factory Wilaya.fromMap(Map<String, dynamic> map) {
     return Wilaya(
-      name: map['arabic_name'] as String,
-      number: map['id'] as int,
+      name: (map['arabic_name'] as String?) ?? '',
+      number: (map['id'] as int?) ?? 0,
     );
   }
 

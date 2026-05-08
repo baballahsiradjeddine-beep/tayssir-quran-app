@@ -62,13 +62,13 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                         end: Alignment.bottomCenter,
                         colors: isDark
                             ? [
-                                AppColors.secondaryDark,
-                                AppColors.darkColor,
-                                const Color(0xFF060914),
+                                const Color(0xFF0F172A),
+                                const Color(0xFF0F172A),
+                                const Color(0xFF1E293B),
                               ]
                             : [
-                                const Color(0xFFECFDF5),
-                                const Color(0xFFF9FAFB),
+                                AppColors.warmBackground,
+                                const Color(0xFFFFF9F2),
                               ],
                       ),
                     ),
@@ -84,7 +84,7 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                     height: 260.w,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primaryColor.withOpacity(0.08),
+                      color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.08),
                     ),
                   ),
                 ),
@@ -110,7 +110,7 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                     height: 220.w,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primaryColor.withOpacity(0.06),
+                      color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.06),
                     ),
                   ),
                 ),
@@ -133,7 +133,8 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                     physics: const ClampingScrollPhysics(),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                      child: Center(
+                      child: Align(
+                        alignment: Alignment.topCenter,
                         child: ConstrainedBox(
                           constraints: BoxConstraints(maxWidth: isDesktop ? 700 : double.infinity),
                           child: Padding(
@@ -142,7 +143,7 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                            // Custom Header Row with Title and Back Button
+                                10.verticalSpace, // Minimal top spacing
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 16.h),
                               child: SizedBox(
@@ -161,9 +162,9 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                                         color: isDark ? Colors.white : AppColors.textBlack,
                                       ),
                                     ),
-                                    // Absolute Left Back Button
-                                    Positioned(
-                                      left: 0,
+                                    // Back Button (Aligned to Start - Right in RTL)
+                                    PositionedDirectional(
+                                      start: 0,
                                       child: IconButton(
                                         icon: Container(
                                           padding: EdgeInsets.all(10.r),
@@ -174,10 +175,10 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                                           child: Icon(
                                             Icons.arrow_back_ios_new_rounded,
                                             size: 20.sp,
-                                            color: isDark ? Colors.white : AppColors.primaryColor,
+                                            color: isDark ? Colors.white : AppColors.warmTitle,
                                           ),
                                         ),
-                                        onPressed: () => Navigator.of(context).pop(),
+                                        onPressed: () => context.pop(),
                                       ),
                                     ),
                                   ],
@@ -193,10 +194,10 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                               height: 200.w,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.primaryColor.withOpacity(0.05),
+                                color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.05),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primaryColor.withOpacity(0.12),
+                                    color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.12),
                                     blurRadius: 60,
                                     spreadRadius: 2,
                                   ),
@@ -265,8 +266,10 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                                   width: isDesktop ? 600.w : double.infinity,
                                   height: 62.h,
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFF10B981), Color(0xFF059669)],
+                                    gradient: LinearGradient(
+                                      colors: isDark 
+                                          ? [const Color(0xFF10B981), const Color(0xFF059669)] // Vibrant Emerald for Dark Mode
+                                          : [AppColors.warmAccent, AppColors.warmTitle],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
@@ -277,8 +280,8 @@ class _ChallengeModeLandingState extends ConsumerState<ChallengeModeLanding> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color(0xFF10B981).withOpacity(0.25),
-                                        blurRadius: 15,
+                                        color: (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.3),
+                                        blurRadius: 20,
                                         offset: const Offset(0, 8),
                                       ),
                                     ],
@@ -463,9 +466,9 @@ class _PortalOverlayState extends State<_PortalOverlay> with SingleTickerProvide
     final size = MediaQuery.of(context).size;
     final maxR = size.longestSide * 1.25;
 
-    final bgColor = isDark ? const Color(0xFF0B1120) : const Color(0xFFECFDF5);
-    final rippleColor1 = isDark ? const Color(0xFF0B1120) : const Color(0xFFD1FAE5);
-    final rippleColor2 = isDark ? const Color(0xFF0D1830) : const Color(0xFFF0FDF4);
+    final bgColor = isDark ? const Color(0xFF0B1120) : AppColors.warmBackground;
+    final rippleColor1 = isDark ? const Color(0xFF0B1120) : const Color(0xFFFDE68A).withOpacity(0.3);
+    final rippleColor2 = isDark ? const Color(0xFF0D1830) : const Color(0xFFFFF7ED);
     final rippleColor3 = isDark ? const Color(0xFF111827) : Colors.white;
 
     final portalGradient = isDark

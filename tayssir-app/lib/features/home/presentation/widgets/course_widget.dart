@@ -7,6 +7,7 @@ import 'package:tayssir/providers/special_effect/special_effect_provider.dart';
 import 'package:tayssir/common/custom_cached_image.dart';
 import 'package:shimmer/shimmer.dart' as shimmer;
 import 'package:tayssir/environment_config.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class CardWidget extends ConsumerWidget {
   const CardWidget({
@@ -54,6 +55,7 @@ class CardWidget extends ConsumerWidget {
 
   Widget _buildGridCard(BuildContext context, WidgetRef ref) {
     final bool isDesktop = MediaQuery.sizeOf(context).width > 800;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -67,18 +69,13 @@ class CardWidget extends ConsumerWidget {
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [startColor, endColor],
+              colors: isDark 
+                ? [startColor, endColor]
+                : [startColor, endColor],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(28.r),
-            boxShadow: [
-              BoxShadow(
-                color: startColor.withOpacity(0.2),
-                blurRadius: 15,
-                offset: const Offset(0, 6),
-              ),
-            ],
           ),
           clipBehavior: Clip.antiAlias,
           child: Stack(
@@ -120,7 +117,7 @@ class CardWidget extends ConsumerWidget {
                                       color: Colors.white,
                                       fontSize: 20.sp,
                                       fontWeight: FontWeight.w800,
-            fontFamily: 'SomarSans',
+                                      fontFamily: 'SomarSans',
                                       height: 1.1,
                                     ),
                                   ),
@@ -130,42 +127,41 @@ class CardWidget extends ConsumerWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.85),
+                                      color: Colors.white.withOpacity(0.9),
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.bold,
-            fontFamily: 'SomarSans',
+                                      fontFamily: 'SomarSans',
                                       height: 1.2,
                                     ),
                                   ),
                                   10.verticalSpace,
                                   
-                                  // Action Button
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 24.w, 
-                                      vertical: 10.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12.r),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
-                                        )
-                                      ],
-                                    ),
-                                    child: Text(
-                                      isLocked ? "قريباً" : (title.contains('جولة') ? "ابدأ التجربة ✨" : "ابدأ الحفظ ✨"),
-                                      style: TextStyle(
-                                        color: endColor.withOpacity(0.9),
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w900,
-                                        fontFamily: 'SomarSans',
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 24.w, 
+                                          vertical: 10.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(12.r),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 4),
+                                            )
+                                          ],
+                                        ),
+                                        child: Text(
+                                          isLocked ? "قريباً" : (title.contains('جولة') ? "ابدأ التجربة ✨" : "ابدأ الحفظ ✨"),
+                                          style: TextStyle(
+                                            color: endColor.withOpacity(0.9),
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w900,
+                                            fontFamily: 'SomarSans',
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -193,12 +189,12 @@ class CardWidget extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Spacer(flex: 2),
+                            const Spacer(flex: 1),
                             Center(
                               child: _buildImageWidget(
                                 toolImage?.grid ?? (imageGrid.isNotEmpty ? imageGrid : imageList),
-                                100.h,
-                                100.h,
+                                130.h,
+                                130.h,
                               ),
                             ),
                             const Spacer(),
@@ -227,6 +223,7 @@ class CardWidget extends ConsumerWidget {
   }
 
   Widget _buildListCard(BuildContext context, WidgetRef ref) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         if (!isLocked) {
@@ -237,22 +234,17 @@ class CardWidget extends ConsumerWidget {
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Container(
-          height: 110.h,
+          height: 120.h, // Increased from 110.h to fix overflow
           margin: EdgeInsets.only(bottom: 12.h),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [startColor, endColor],
+              colors: isDark 
+                ? [startColor, endColor]
+                : [startColor, endColor],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(30.r),
-            boxShadow: [
-              BoxShadow(
-                color: startColor.withOpacity(0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
           ),
           clipBehavior: Clip.antiAlias,
           child: Stack(
@@ -275,7 +267,7 @@ class CardWidget extends ConsumerWidget {
                 children: [
                   // 1. Text & Content Section (Left side in RTL)
                   Expanded(
-                    flex: 65,
+                    flex: 80,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(12.w, 8.h, 24.w, 8.h),
                       child: Column(
@@ -331,7 +323,7 @@ class CardWidget extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          10.verticalSpace,
+                          6.verticalSpace,
                           // Progress Section
                           Row(
                             children: [
@@ -358,7 +350,7 @@ class CardWidget extends ConsumerWidget {
                               Text(
                                 '${progress.toInt()}%',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.95),
+                                  color: Colors.white,
                                   fontSize: 10.sp,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -372,20 +364,20 @@ class CardWidget extends ConsumerWidget {
 
                   // 2. Mascot/Image Section (Right side in RTL)
                   Expanded(
-                    flex: 35,
+                    flex: 20,
                     child: Container(
                       height: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withOpacity(0.05),
                         border: Border(
-                          right: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+                          right: BorderSide(color: Colors.white.withOpacity(0.08), width: 1),
                         ),
                       ),
                       child: Center(
                         child: _buildImageWidget(
                           toolImage?.list ?? imageList,
-                          130.h,
-                          130.h,
+                          100.h,
+                          100.h,
                         ),
                       ),
                     ),

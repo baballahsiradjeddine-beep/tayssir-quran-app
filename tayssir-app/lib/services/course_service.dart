@@ -66,9 +66,24 @@ class DataService {
   }
 
   List<ExerciseModel> getExercises(int chapterId) {
-    return exercises
-        .where((element) => element.chapterId == chapterId)
-        .toList();
+    // 1. Find the chapter
+    final chapter = chapters.firstWhere(
+      (element) => element.id == chapterId,
+      orElse: () => ChapterModel(id: -1, title: '', unitId: -1, progress: 0),
+    );
+
+    // 2. If it has a unified flow (AI-Ready content), use it
+    if (chapter.content != null && chapter.content!.isNotEmpty) {
+      return chapter.content!.map((e) {
+        final map = Map<String, dynamic>.from(e as Map);
+        // Ensure chapterId is present in the map for child models
+        map['chapter_id'] = chapterId;
+        return ExerciseModel.fromMap(map);
+      }).toList();
+    }
+
+    // 3. Fallback to legacy flat list if no content array exists
+    return exercises.where((element) => element.chapterId == chapterId).toList();
   }
 
   Future<SubmissionProgressResponse> submitAnswers(

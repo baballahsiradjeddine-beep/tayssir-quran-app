@@ -90,6 +90,16 @@ class MaterialResource extends Resource
                         ->required()
                         ->label("اتجاه النص"),
 
+                    Select::make('type')->native(false)
+                        ->options([
+                            'ahkam' => 'أحكام التجويد',
+                            'quran' => 'حفظ القرآن الكريم',
+                            'stories' => 'قصص من القرآن',
+                        ])
+                        ->default('ahkam')
+                        ->required()
+                        ->label("نوع المادة / البرنامج"),
+
                     Textarea::make('description')
                         ->rows(4)
                         ->columnSpan(2)
@@ -160,6 +170,23 @@ class MaterialResource extends Resource
                     ->toggleable()
                     ->label(__('custom.models.material.color')),
 
+                TextColumn::make('type')
+                    ->label("النوع")
+                    ->badge()
+                    ->colors([
+                        'success' => 'ahkam',
+                        'primary' => 'quran',
+                        'warning' => 'stories',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'ahkam' => 'أحكام',
+                        'quran' => 'قرآن',
+                        'stories' => 'قصص',
+                        default => $state,
+                    })
+                    ->toggleable()
+                    ->sortable(),
+
                 ColorColumn::make('secondary_color')
                     ->toggleable()
                     ->label(__('custom.models.material.secondary_color'))
@@ -199,6 +226,14 @@ class MaterialResource extends Resource
                     ->preload()
                     ->searchable()
                     ->label("الرواية"),
+
+                Tables\Filters\SelectFilter::make('type')
+                    ->options([
+                        'ahkam' => 'أحكام التجويد',
+                        'quran' => 'حفظ القرآن الكريم',
+                        'stories' => 'قصص من القرآن',
+                    ])
+                    ->label("نوع المادة / البرنامج"),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

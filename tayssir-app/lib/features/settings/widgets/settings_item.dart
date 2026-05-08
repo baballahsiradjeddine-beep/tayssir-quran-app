@@ -50,7 +50,7 @@ class SettingsItem extends StatelessWidget {
             ),
           ],
           border: Border.all(
-            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.02),
+            color: isDark ? Colors.white.withOpacity(0.05) : AppColors.warmBorder.withOpacity(0.5),
             width: 1,
           ),
         ),
@@ -61,14 +61,14 @@ class SettingsItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isDark 
                     ? AppColors.primaryColor.withOpacity(0.15) 
-                    : AppColors.primaryColor.withOpacity(0.1),
+                    : AppColors.warmAccent.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(14.r),
               ),
               child: iconData != null
                   ? Icon(
                       iconData,
                       size: 22.sp,
-                      color: AppColors.primaryColor,
+                      color: isDark ? AppColors.primaryColor : AppColors.warmAccent,
                     )
                   : TayssirIcon(
                       icon: icon!,
@@ -103,7 +103,7 @@ class SettingsItem extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : const Color(0xFF1E293B),
+                        color: isDark ? Colors.white : AppColors.warmTitle,
                       ),
                     ),
             ),
@@ -113,7 +113,7 @@ class SettingsItem extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16.sp,
-                color: isDark ? Colors.white38 : Colors.grey.shade400,
+                color: isDark ? Colors.white38 : AppColors.warmBorder,
               ),
           ],
         ),

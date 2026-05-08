@@ -20,12 +20,16 @@ class SubscriptionRepository {
     required File file,
     required int subscriptionId,
     String? promotorCode,
+    double? amount,
+    int? charityCampaignId,
   }) async {
     try {
       final dto = UploadPaymentProofDto(
         attachment: file,
         subscriptionId: subscriptionId,
         promotorCode: promotorCode,
+        amount: amount,
+        charityCampaignId: charityCampaignId,
       );
       await subscriptionRemoteDataSource.subscribeWithPaper(
         dto: dto,
@@ -36,11 +40,14 @@ class SubscriptionRepository {
   }
 
   Future<String> initChargilyPayment(
-      int subscriptionId, String? promotorCode) async {
+      int subscriptionId, String? promotorCode,
+      {double? amount, int? charityCampaignId}) async {
     try {
       final dto = InitChargilyPaymentDto(
         subscriptionId: subscriptionId,
         promotorCode: promotorCode,
+        amount: amount,
+        charityCampaignId: charityCampaignId,
       );
       final response = await subscriptionRemoteDataSource.initChargilyPayment(
         dto,

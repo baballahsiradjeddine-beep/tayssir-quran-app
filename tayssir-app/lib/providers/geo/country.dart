@@ -20,10 +20,10 @@ class Country extends Equatable implements TaysirDropdownItem {
 
   factory Country.fromJson(Map<String, dynamic> json) {
     return Country(
-      id: json['id'],
-      name: json['name'],
-      code: json['code'],
-      phoneCode: json['phone_code'],
+      id: (json['id'] as int?) ?? 0,
+      name: (json['name'] as String?) ?? '',
+      code: (json['code'] as String?) ?? '',
+      phoneCode: json['phone_code'] as String?,
     );
   }
 

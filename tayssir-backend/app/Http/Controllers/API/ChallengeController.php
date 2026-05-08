@@ -8,32 +8,15 @@ use App\Models\Ayah;
 use App\Models\Surah;
 use Illuminate\Http\Request;
 
-/**
- * ChallengeController
- * مسؤول عن إدارة "مبارزات الحفظ" بين المستخدمين.
- * تم تحويل المنطق من نظام المواد الدراسية إلى نظام السور القرآنية.
- */
 class ChallengeController extends BaseController
 {
-    /**
-     * جلب "آيات التحدي" بناءً على مستوى المستخدم في السورة المختارة.
-     */
     public function getQuestions(Request $request, $surah_id)
     {
         try {
             $user = $request->user();
-
-            // 1. الحصول على أو إنشاء سجل التقدم في هذا التحدي
-            // ملاحظة: أعدنا استخدام جدول challenge_progresses القديم مع تغيير المفهوم
-            $progress = ChallengeProgress::firstOrCreate(
-                ['user_id' => $user->id, 'unit_id' => $surah_id], // نستخدم unit_id لتخزين معرف السورة مؤقتاً لتجنب تغيير قاعدة البيانات
-                ['level' => 1, 'points' => 0, 'games_played' => 0, 'games_won' => 0]
-            );
-
             $surah = Surah::findOrFail($surah_id);
             
-            // 2. جلب آيات عشوائية من السورة المختارة لعمل التحدي
-            // في المرحلة القادمة سنضيف "أنواع الأسئلة" (أكمل الآية، من أي سورة، إلخ)
+            // Get 10 random ayahs from this surah
             $ayahs = Ayah::where('surah_id', $surah->id)
                 ->inRandomOrder()
                 ->take(10)
@@ -43,37 +26,68 @@ class ChallengeController extends BaseController
                 return $this->sendError('لا توجد آيات كافية للتحدي في هذه السورة حالياً.', [], 404);
             }
 
+            $formattedQuestions = [];
+            foreach ($ayahs as $index => $ayah) {
+                // Generate a "Complete the Verse" question
+                $words = explode(' ', $ayah->text_ar);
+                if (count($words) < 4) {
+                    $questionText = "ما هي هذه الآية؟";
+                    $missingPart = $ayah->text_ar;
+                } else {
+                    $midPoint = floor(count($words) / 2);
+                    $questionText = implode(' ', array_slice($words, 0, $midPoint)) . ' ...';
+                    $missingPart = implode(' ', array_slice($words, $midPoint));
+                }
+
+                // Generate 3 wrong options from other ayahs
+                $wrongAyahs = Ayah::where('id', '!=', $ayah->id)
+                    ->inRandomOrder()
+                    ->take(3)
+                    ->get();
+                
+                $options = [
+                    ['id' => 'correct', 'text' => $missingPart, 'is_correct' => true]
+                ];
+
+                foreach ($wrongAyahs as $wIndex => $wAyah) {
+                    $wWords = explode(' ', $wAyah->text_ar);
+                    $wPart = implode(' ', array_slice($wWords, -min(3, count($wWords))));
+                    $options[] = ['id' => 'wrong_'.$wIndex, 'text' => $wPart, 'is_correct' => false];
+                }
+
+                shuffle($options);
+
+                $formattedQuestions[] = [
+                    'id' => $ayah->id,
+                    'question' => $questionText,
+                    'question_type' => 'multiple_choices',
+                    'options' => $options,
+                ];
+            }
+
             return $this->sendResponse([
                 'surah' => [
                     'id' => $surah->id,
                     'name' => $surah->name_ar,
                 ],
-                'progress' => [
-                    'level' => $progress->level,
-                    'points' => $progress->points,
-                    'rank_name' => $user->wilayah_rank_name,
-                ],
-                'questions' => $ayahs, // نرسل الآيات كأسئلة مبدئياً
+                'questions' => $formattedQuestions,
             ], 'تم جلب آيات التحدي بنجاح');
         } catch (\Exception $e) {
             return $this->sendError('Backend Error: ' . $e->getMessage(), [], 500);
         }
     }
 
-    /**
-     * تسجيل نتائج مبارزة الحفظ.
-     */
     public function submitResult(Request $request)
     {
         $request->validate([
-            'surah_id' => 'required|exists:surahs,id',
+            'unit_id' => 'required', // unit_id is surah_id
             'is_winner' => 'required|boolean',
             'points_gained' => 'required|integer|min:0',
         ]);
 
         try {
             $user = $request->user();
-            $surah_id = $request->surah_id;
+            $surah_id = $request->unit_id;
             $isWinner = $request->is_winner;
             $pointsGained = $request->points_gained;
 
@@ -88,12 +102,9 @@ class ChallengeController extends BaseController
             }
 
             $progress->points += $pointsGained;
-            
-            // تحديث نقاط الخبرة الإجمالية للمستخدم (XP)
             $user->xp_points += $pointsGained;
             $user->save();
 
-            // منطق الترقية: المستوى = floor(الانتصارات / 3) + 1
             $progress->level = max(1, floor($progress->games_won / 3) + 1);
             $progress->save();
 

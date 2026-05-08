@@ -8,17 +8,19 @@ class TayssirIcon extends StatelessWidget {
     super.key,
     required this.icon,
     this.size,
+    this.color,
   });
 
   final String icon;
   final double? size;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       icon,
       colorFilter:
-          const ColorFilter.mode(AppColors.primaryColor, BlendMode.srcIn),
+          ColorFilter.mode(color ?? (Theme.of(context).brightness == Brightness.dark ? AppColors.goldColor : AppColors.warmAccent), BlendMode.srcIn),
       height: size ?? 20.h,
       width: size,
     );

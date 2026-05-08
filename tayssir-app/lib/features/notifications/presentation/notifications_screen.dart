@@ -19,6 +19,7 @@ class NotificationsScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppScaffold(
+      bodyBackgroundColor: isDark ? null : AppColors.warmBackground,
       paddingX: 0,
       paddingB: 0,
       topSafeArea: false,
@@ -35,7 +36,7 @@ class NotificationsScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(notificationsControllerProvider),
-            color: AppColors.primaryColor,
+            color: isDark ? AppColors.primaryColor : AppColors.warmTitle,
             child: CustomScrollView(
               physics: const ClampingScrollPhysics(),
               slivers: [
@@ -57,14 +58,12 @@ class NotificationsScreen extends ConsumerWidget {
                             Text(
                               'تنبيهات بيان القرآن',
                               style: TextStyle(
-                                fontSize: 22.sp,
-                                fontWeight: FontWeight.w900,
-                                color: isDark ? Colors.white : AppColors.textBlack,
+                                color: isDark ? Colors.white : AppColors.warmTitle,
                                 fontFamily: 'SomarSans',
                               ),
                             ),
                             8.horizontalSpace,
-                            const Icon(Icons.notifications_active_outlined, color: AppColors.primaryColor),
+                            Icon(Icons.notifications_active_outlined, color: isDark ? AppColors.primaryColor : AppColors.warmAccent),
                           ],
                         ),
                         const Spacer(),
@@ -88,7 +87,8 @@ class NotificationsScreen extends ConsumerWidget {
                                 border: Border.all(
                                   color: isDark
                                       ? Colors.white.withOpacity(0.05)
-                                      : Colors.black.withOpacity(0.05),
+                                      : AppColors.warmBorder,
+                                  width: 1.5,
                                 ),
                               ),
                               child: Icon(

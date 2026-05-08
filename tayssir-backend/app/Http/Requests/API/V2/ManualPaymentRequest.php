@@ -31,12 +31,17 @@ class ManualPaymentRequest extends FormRequest
                 'integer',
                 'exists:subscriptions,id',
                 function ($attribute, $value, $fail) {
+                    // For charity donations (ID 999), we allow multiple pending payments
+                    if ($value == 999) {
+                        return;
+                    }
                     $user = $this->user();
                     if (! $user) {
                         return; // Auth middleware should enforce, but guard anyway
                     }
                     $hasPending = Payment::where('user_id', $user->id)
                         ->where('status', 'pending')
+                        ->where('subscription_id', '!=', 999) // Only block if it's not a charity donation
                         ->exists();
                     if ($hasPending) {
                         $fail('You already have a pending manual payment request. Please wait until it is reviewed.');

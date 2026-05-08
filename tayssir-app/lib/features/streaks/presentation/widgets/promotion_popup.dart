@@ -141,7 +141,7 @@ class PromotionPopup extends StatelessWidget {
                   14.verticalSpace,
                   
                   Text(
-                    "سارع في الاشتراك في تخفيض المراجعة النهائية بمبلغ 1500 دج فقط لفترة محدودة جداً! لا تفوت الفرصة للتفوق في البكالوريا.",
+                    "سارع في الاشتراك في الباقة المميزة بمبلغ 1500 دج فقط لفترة محدودة جداً! لا تفوت الفرصة لإتقان حفظك وتجويدك.",
                     textAlign: TextAlign.center,
                     textDirection: TextDirection.rtl,
                     style: TextStyle(

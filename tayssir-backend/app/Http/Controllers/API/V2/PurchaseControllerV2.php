@@ -43,6 +43,7 @@ class PurchaseControllerV2 extends BaseController
         $data = $this->priceCheckerService->checkPrice(
             subscriptionId: $request->integer('subscription_id'),
             promoCodeCode: $request->filled('promocode') ? $request->string('promocode')->toString() : null,
+            customAmount: $request->filled('amount') ? $request->float('amount') : null,
         );
 
         return $this->sendResponse($data);
@@ -67,14 +68,16 @@ class PurchaseControllerV2 extends BaseController
             user: $current_user, // Get the authenticated user
             subscriptionId: $request->integer('subscription_id'),
             promoCodeCode: $request->string('promocode')?->toString(),
-            attachment: $request->file('attachment')
+            attachment: $request->file('attachment'),
+            customAmount: $request->filled('amount') ? $request->float('amount') : null,
         );
 
         $data = $payment->toArray();
         // $data['attachment_url'] = $payment->attachment_url;
 
-        AdminNotifications::newManualPayment($current_user, $payment->subscription->name, route('filament.dashboard.resources.payments.view', $payment->id));
-        $current_user->notify(new ManualPaymentRequestSuccess());
+        AdminNotifications::newManualPayment($current_user, $payment->subscription->name ?? 'تبرع', route('filament.dashboard.resources.payments.view', $payment->id));
+        $isCharity = $payment->subscription_id == 999;
+        $current_user->notify(new ManualPaymentRequestSuccess($isCharity));
 
         return $this->sendResponse($data, 'Manual payment request initiated successfully and is pending review.');
     }
@@ -97,10 +100,11 @@ class PurchaseControllerV2 extends BaseController
             user: $current_user,
             subscriptionId: $request->integer('subscription_id'),
             promoCodeCode: $request->filled('promocode') ? $request->string('promocode')->toString() : null,
-            locale: "ar"
+            locale: "ar",
+            customAmount: $request->filled('amount') ? $request->float('amount') : null,
         );
 
-        AdminNotifications::newChargilyPayment($current_user, $payment->subscription->name, route('filament.dashboard.resources.payments.view', $payment->id));
+        AdminNotifications::newChargilyPayment($current_user, $payment->subscription->name ?? 'تبرع', route('filament.dashboard.resources.payments.view', $payment->id));
 
         return $this->sendResponse([
             'payment_id' => $payment->id,

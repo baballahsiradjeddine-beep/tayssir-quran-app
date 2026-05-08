@@ -23,9 +23,18 @@ class AppColors {
   static const Color goldColorLight = gold200;
   
   // Background / Surface Colors
-  static const Color scaffoldColor = Color(0xFFF1F5F9); // Slate-100 for better depth
+  static const Color scaffoldColor = warmBackground; 
   static const Color surfaceWhite = Color(0xFFFFFFFF);
-  static const Color darkColor = Color(0xFF0B1120);     // brand.darkSurface
+  
+  // Elegant Light Mode (Naila/Warm Style)
+  static const Color warmBackground = Color(0xFFFDFBF7);
+  static const Color warmTitle = Color(0xFF7C4A27);
+  static const Color warmSubtitle = Color(0xFF948B7F);
+  static const Color warmBorder = Color(0xFFEADBC8);
+  static const Color warmAccent = Color(0xFFB45309); // Bronze/Amber accent
+  static const Color warmAccentLight = Color(0xFFFDE68A);
+
+  static const Color darkColor = Color(0xFF0F172A);     
   static const Color secondaryDark = Color(0xFF0F172A); // dark.bg
 
   // Accent Colors (Replaced Pink/Purple with Gold/Orange)
@@ -67,6 +76,12 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [gold200, gold500],
+  );
+
+  static const LinearGradient warmGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [warmAccent, warmTitle],
   );
 
   // Compatibility Gradients

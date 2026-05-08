@@ -26,12 +26,12 @@ class LeaderboardListTile extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isMe 
-              ? AppColors.primaryColor.withOpacity(0.08) 
+              ? (isDark ? AppColors.primaryColor.withOpacity(0.08) : AppColors.warmAccent.withOpacity(0.08))
               : (isDark ? AppColors.darkBlue : Colors.white),
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: isMe 
-                ? AppColors.primaryColor.withOpacity(0.3) 
+                ? (isDark ? AppColors.primaryColor.withOpacity(0.3) : AppColors.warmAccent.withOpacity(0.3))
                 : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.02)),
             width: 1.w,
           ),
@@ -56,7 +56,7 @@ class LeaderboardListTile extends ConsumerWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 16.sp,
-                    color: isMe ? const Color(0xFF10B981) : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                    color: isMe ? (isDark ? const Color(0xFF10B981) : AppColors.warmTitle) : (isDark ? Colors.white70 : const Color(0xFF64748B)),
                     fontFamily: 'SomarSans',
                   ),
                 ),
@@ -87,7 +87,7 @@ class LeaderboardListTile extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 14.sp,
-                        color: isMe ? const Color(0xFF10B981) : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                        color: isMe ? (isDark ? const Color(0xFF10B981) : AppColors.warmTitle) : (isDark ? Colors.white : const Color(0xFF1E293B)),
                         fontFamily: 'SomarSans',
                       ),
                     ),
@@ -116,7 +116,7 @@ class LeaderboardListTile extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w900,
-                    color: isMe ? AppColors.goldColor : (isDark ? AppColors.goldColorLight : AppColors.primaryColor),
+                    color: isMe ? AppColors.goldColor : (isDark ? AppColors.primaryColor : AppColors.warmTitle),
                     fontFamily: 'SomarSans',
                   ),
                 ),

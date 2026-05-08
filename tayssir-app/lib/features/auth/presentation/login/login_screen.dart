@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:tayssir/providers/auth/auth_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tayssir/common/core/app_scaffold.dart';
 import 'package:tayssir/common/sliver_scrolling_widget.dart';
@@ -133,7 +134,7 @@ class LoginScreen extends HookConsumerWidget {
                 Column(
                   children: [
                     24.verticalSpace,
-                    const TayssirDataLoader(
+                    const BayanDataLoader(
                       textSize: 14,
                       iconSize: 32,
                     ),

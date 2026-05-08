@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/common/core/profile_button.dart';
+import 'package:tayssir/features/notifications/presentation/notifications_controller.dart';
 import 'package:tayssir/providers/settings/settings_provider.dart';
 import 'package:tayssir/providers/user/user_notifier.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tayssir/router/app_router.dart';
 import 'app_logo.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class CustomAppBar extends ConsumerWidget {
   final bool showActions;
@@ -27,13 +29,13 @@ class CustomAppBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark || forceDarkMode;
     final settings = ref.watch(settingsNotifierProvider);
 
     final user = ref.watch(userNotifierProvider).asData?.value;
     final bool isGuest = user == null;
 
-    final Widget logo = showLogo ? const AppLogo(fontSize: 32) : const SizedBox.shrink();
+    final Widget logo = showLogo ? AppLogo(fontSize: 26.sp) : const SizedBox.shrink();
     
     final Widget actions = showActions
       ? Row(
@@ -49,7 +51,7 @@ class CustomAppBar extends ConsumerWidget {
                 if (showNotifications)
                   GestureDetector(
                     onTap: () => context.pushNamed(AppRoutes.notifcations.name),
-                    child: _buildActionIcon(context, Icons.notifications_none_rounded, isDark || forceDarkMode),
+                    child: _buildActionIcon(context, Icons.notifications_none_rounded, isDark),
                   ),
                 if (showNotifications && showThemeToggle) 12.horizontalSpace,
                 // Theme Toggle Button
@@ -59,7 +61,7 @@ class CustomAppBar extends ConsumerWidget {
                     child: _buildActionIcon(
                       context, 
                       settings.isDarkMode ? Icons.wb_sunny_rounded : Icons.nightlight_round, 
-                      isDark || forceDarkMode,
+                      isDark,
                       color: settings.isDarkMode ? Colors.yellow : (forceDarkMode ? Colors.white : null),
                     ),
                   ),
@@ -73,7 +75,7 @@ class CustomAppBar extends ConsumerWidget {
                 if (showNotifications)
                   GestureDetector(
                     onTap: () => context.pushNamed(AppRoutes.notifcations.name),
-                    child: _buildActionIcon(context, Icons.notifications_none_rounded, isDark || forceDarkMode),
+                    child: _buildActionIcon(context, Icons.notifications_none_rounded, isDark),
                   ),
                 if (showNotifications && showThemeToggle) 12.horizontalSpace,
                 // Theme Toggle Button
@@ -83,7 +85,7 @@ class CustomAppBar extends ConsumerWidget {
                     child: _buildActionIcon(
                       context, 
                       settings.isDarkMode ? Icons.wb_sunny_rounded : Icons.nightlight_round, 
-                      isDark || forceDarkMode,
+                      isDark,
                       color: settings.isDarkMode ? Colors.yellow : (forceDarkMode ? Colors.white : null),
                     ),
                   ),
@@ -104,14 +106,14 @@ class CustomAppBar extends ConsumerWidget {
 
   Widget _buildActionIcon(BuildContext context, IconData icon, bool isDark, {Color? color}) {
     return Container(
-      width: 44.sp,
-      height: 44.sp,
+      width: 38.sp,
+      height: 38.sp,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         shape: BoxShape.circle,
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0),
-          width: 1,
+          color: isDark ? Colors.white.withOpacity(0.05) : AppColors.warmBorder.withOpacity(0.5),
+          width: 1.5,
         ),
         boxShadow: isDark ? null : [
           BoxShadow(
@@ -123,7 +125,7 @@ class CustomAppBar extends ConsumerWidget {
       ),
       child: Icon(
         icon,
-        size: 22.sp,
+        size: 18.sp,
         color: color ?? (isDark ? Colors.white : const Color(0xFF1E293B)),
       ),
     );

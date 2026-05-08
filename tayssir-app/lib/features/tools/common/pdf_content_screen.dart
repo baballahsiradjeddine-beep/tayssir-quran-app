@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:tayssir/common/core/app_scaffold.dart';
 import 'package:tayssir/debug/app_logger.dart';
 import 'package:tayssir/features/splash/splash_screen.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PdfContentScreen extends HookConsumerWidget {
@@ -23,6 +24,7 @@ class PdfContentScreen extends HookConsumerWidget {
     final filePath = useState<String?>(null);
     final isLoading = useState<bool>(true);
     final isReady = useState<bool>(false);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     Future<String> downloadPdf(String url) async {
       if (kIsWeb) return url; // Should not reach here for file logic on web
@@ -75,7 +77,7 @@ class PdfContentScreen extends HookConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     10.verticalSpace,
-                    const TayssirDataLoader(
+                    const BayanDataLoader(
                       textSize: 14,
                       iconSize: 30,
                     ),
@@ -107,7 +109,7 @@ class PdfContentScreen extends HookConsumerWidget {
                           ElevatedButton(
                             onPressed: () => launchUrl(Uri.parse(pdfUrl), mode: LaunchMode.externalApplication),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF10B981),
+                              backgroundColor: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
                               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                             ),

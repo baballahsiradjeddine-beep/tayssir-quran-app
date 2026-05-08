@@ -46,8 +46,8 @@ class AppScaffold extends StatelessWidget {
     
     final Color bgColor = bodyBackgroundColor ??
         (isDark
-            ? const Color(0xFF0B1120)
-            : const Color(0xFFF1F5F9));
+            ? const Color(0xFF0F172A)
+            : const Color(0xFFFDFBF7)); // Updated to warmBackground for consistency
 
     Widget bodyWidget = Padding(
       padding: EdgeInsets.fromLTRB(

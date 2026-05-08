@@ -58,8 +58,8 @@ class SelectRightOptionExerciseView extends HookConsumerWidget {
                   gradient: isSelected
                       ? LinearGradient(
                           colors: isDark 
-                            ? [const Color(0xFF065F46).withOpacity(0.4), const Color(0xFF064E3B).withOpacity(0.6)] 
-                            : [const Color(0xFFECFDF5), const Color(0xFFD1FAE5)],
+                            ? [AppColors.warmAccent.withOpacity(0.4), AppColors.warmAccent.withOpacity(0.6)] 
+                            : [AppColors.gold200.withOpacity(0.3), AppColors.gold500.withOpacity(0.1)],
                           begin: Alignment.centerRight,
                           end: Alignment.centerLeft,
                         )
@@ -68,14 +68,14 @@ class SelectRightOptionExerciseView extends HookConsumerWidget {
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
                     color: isSelected
-                        ? (isDark ? const Color(0xFF10B981) : const Color(0xFF059669))
+                        ? (isDark ? AppColors.gold500 : AppColors.warmAccent)
                         : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
                     width: isSelected ? 2.5.w : 1.5.w,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF10B981).withOpacity(0.2),
+                            color: AppColors.warmAccent.withOpacity(0.2),
                             blurRadius: 15,
                             offset: const Offset(0, 4),
                           )
@@ -88,50 +88,53 @@ class SelectRightOptionExerciseView extends HookConsumerWidget {
                           )
                         ],
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: LatextTextWidget(
-                        text: option.cleanText,
-                        isLatex: option.isLatex,
-                        onLatexTap: (text) => onSelectionChange(option.text),
-                        textAlign: TextAlign.right,
-                        textStyle: TextStyle(
-                          color: isSelected
-                              ? (isDark ? Colors.white : const Color(0xFF064E3B))
-                              : (isDark ? Colors.blueGrey.shade200 : const Color(0xFF334155)),
-                          fontSize: MediaQuery.sizeOf(context).width > 800 ? 18.sp : 15.sp,
-                          fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
-                          fontFamily: 'SomarSans',
+                child: Directionality(
+                  textDirection: Directionality.of(context),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 22.sp,
+                        height: 22.sp,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? AppColors.warmAccent : (isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1)),
+                            width: 2.5,
+                          ),
+                          color: isSelected ? AppColors.warmAccent : Colors.transparent,
+                        ),
+                        child: isSelected
+                            ? Center(
+                                child: Container(
+                                  width: 10.sp,
+                                  height: 10.sp,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ).animate().scale(duration: 200.ms),
+                              )
+                            : null,
+                      ),
+                      12.horizontalSpace,
+                      Expanded(
+                        child: LatextTextWidget(
+                          text: option.cleanText,
+                          isLatex: option.isLatex,
+                          onLatexTap: (text) => onSelectionChange(option.text),
+                          textAlign: TextAlign.start,
+                          textStyle: TextStyle(
+                            color: isSelected
+                                ? (isDark ? Colors.white : AppColors.warmAccent)
+                                : (isDark ? Colors.blueGrey.shade200 : const Color(0xFF334155)),
+                            fontSize: MediaQuery.sizeOf(context).width > 800 ? 18.sp : 15.sp,
+                            fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
+                            fontFamily: 'SomarSans',
+                          ),
                         ),
                       ),
-                    ),
-                    12.horizontalSpace,
-                    Container(
-                      width: 22.sp,
-                      height: 22.sp,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isSelected ? const Color(0xFF10B981) : (isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1)),
-                          width: 2.5,
-                        ),
-                        color: isSelected ? const Color(0xFF10B981) : Colors.transparent,
-                      ),
-                      child: isSelected
-                          ? Center(
-                              child: Container(
-                                width: 10.sp,
-                                height: 10.sp,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                              ).animate().scale(duration: 200.ms),
-                            )
-                          : null,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

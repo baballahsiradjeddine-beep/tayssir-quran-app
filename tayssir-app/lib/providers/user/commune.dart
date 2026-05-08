@@ -23,8 +23,8 @@ class Commune extends Equatable implements TaysirDropdownItem {
 
   factory Commune.fromMap(Map<String, dynamic> map) {
     return Commune(
-      name: map['arabic_name'] as String,
-      number: map['id'] as int,
+      name: (map['arabic_name'] as String?) ?? '',
+      number: (map['id'] as int?) ?? 0,
     );
   }
 

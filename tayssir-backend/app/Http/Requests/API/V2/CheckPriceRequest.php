@@ -15,7 +15,16 @@ class CheckPriceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'subscription_id' => ['required', 'integer', 'exists:subscriptions,id'],
+            'subscription_id' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if ($value != 999 && !\App\Models\Subscription::where('id', $value)->exists()) {
+                        $fail('The selected subscription is invalid.');
+                    }
+                },
+            ],
+            'amount' => ['nullable', 'numeric', 'min:100'],
             'promocode' => [
                 'nullable',
                 'string',

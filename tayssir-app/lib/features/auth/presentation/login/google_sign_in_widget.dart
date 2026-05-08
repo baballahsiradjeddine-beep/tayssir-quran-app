@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tayssir/features/auth/presentation/login/login_controller.dart';
 import 'package:tayssir/features/auth/presentation/register/state/register_controller.dart';
 import 'package:tayssir/providers/google/google_sign_in.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/resources/resources.dart';
 
 class GoogleSignInWidget extends ConsumerWidget {
@@ -28,7 +29,7 @@ class GoogleSignInWidget extends ConsumerWidget {
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+          color: isDark ? const Color(0xFF334155) : AppColors.warmBorder,
           width: 1,
         ),
         boxShadow: [
@@ -68,7 +69,7 @@ class GoogleSignInWidget extends ConsumerWidget {
               Text(
                 'المتابعة باستخدام Google',
                 style: TextStyle(
-                  color: isDark ? Colors.white : const Color(0xFF334155),
+                  color: isDark ? Colors.white : AppColors.warmTitle,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'SomarSans',

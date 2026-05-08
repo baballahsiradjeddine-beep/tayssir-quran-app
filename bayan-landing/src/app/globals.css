@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --background: 45 100% 98%; /* Creamy White */
+  --foreground: 158 94% 5%;   /* Deep Emerald Black */
+  
+  --primary: 158 94% 30%;    /* Emerald */
+  --primary-foreground: 45 100% 98%;
+  
+  --secondary: 45 93% 47%;   /* Gold */
+  --secondary-foreground: 158 94% 5%;
+  
+  --accent: 252 87% 67%;     /* Purple highlight */
+  --accent-foreground: 45 100% 98%;
+  
+  --card: 0 0% 100%;         /* Pure White */
+  --card-foreground: 158 94% 5%;
+  
+  --border: 158 94% 90%;    /* Very light emerald border */
+}
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  
+  --color-border: hsl(var(--border));
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    direction: rtl;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    text-align: right;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    box-shadow: 0 8px 32px -10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .glass-gold {
+    background-color: rgba(245, 158, 11, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    box-shadow: 0 10px 40px -15px rgba(245, 158, 11, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+  }
+
+  .text-gradient {
+    background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(to right, #059669, #d97706, #059669);
+    background-size: 200% auto;
+    animation: gradient 6s linear infinite;
+  }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.3);
+}

@@ -32,7 +32,7 @@ class LessonResultScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSoundOn = ref.watch(isSoundEnabledProvider);
+    final isSoundOn = ref.watch(settingsNotifierProvider).isSoundEnabled;
 
     useEffect(() {
       if (isSoundOn) {
@@ -72,7 +72,7 @@ class LessonResultScreen extends HookConsumerWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: isDesktop ? 42.sp : 26.sp,
-                          color: AppColors.primaryColor,
+                          color: Theme.of(context).brightness == Brightness.dark ? AppColors.primaryColor : AppColors.warmTitle,
                           fontWeight: FontWeight.w900,
                           fontFamily: 'SomarSans',
                         ),
@@ -83,8 +83,8 @@ class LessonResultScreen extends HookConsumerWidget {
                       // mascot
                       Center(
                         child: DynamicAppAsset(
-                          assetKey: 'mascot_happy', // Fallback to a happy mascot
-                          fallbackAssetPath: SVGs.icResultCheck,
+                          assetKey: 'mascot_perfect', 
+                          fallbackAssetPath: SVGs.refiqPerfect,
                           type: AppAssetType.svg,
                           height: isDesktop ? 180.h : 160.h,
                         ).animate().scale(begin: const Offset(0.8, 0.8), curve: Curves.elasticOut, duration: 1200.ms),
@@ -112,8 +112,8 @@ class LessonResultScreen extends HookConsumerWidget {
                                 value: formatDuration(elapsedTime),
                                 title: 'الوقت',
                                 icon: SVGs.icTime,
-                                startColor: const Color(0xFF10B981),
-                                endColor: const Color(0xFF059669),
+                                startColor: AppColors.warmAccent,
+                                endColor: AppColors.warmTitle,
                               ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.1, end: 0),
                             ),
                           ],
@@ -134,7 +134,7 @@ class LessonResultScreen extends HookConsumerWidget {
                                 final dataState = ref.read(dataProvider);
                                 final chapter = dataState.getChapterById(chapterId);
                                 final unitId = chapter.unitId;
-                                final chaptersInUnit = dataState.getChaptersByUnit(unitId);
+                                final chaptersInUnit = dataState.getChaptersByUnitId(unitId);
                                 
                                 int currentIndex = chaptersInUnit.indexWhere((c) => c.id == chapterId);
                                 if (currentIndex != -1 && currentIndex < chaptersInUnit.length - 1) {

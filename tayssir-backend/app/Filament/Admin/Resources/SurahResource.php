@@ -84,8 +84,9 @@ class SurahResource extends Resource
                 TextColumn::make('type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'Meccan' => 'warning',
-                        'Medinan' => 'success',
+                        'Meccan', 'مكية' => 'warning',
+                        'Medinan', 'مدنية' => 'success',
+                        default => 'gray',
                     })
                     ->label('النوع'),
                 TextColumn::make('total_ayahs')->label('عدد الآيات'),

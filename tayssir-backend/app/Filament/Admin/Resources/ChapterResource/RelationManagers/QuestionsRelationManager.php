@@ -18,6 +18,11 @@ use Filament\Tables\Table;
 
 class QuestionsRelationManager extends RelationManager
 {
+    public static function canViewForRecord($ownerRecord, string $pageClass): bool
+    {
+        return $ownerRecord->type === 'exercise';
+    }
+
     public static function getModelLabel(): string
     {
         return "سؤال تثبيت";
@@ -43,6 +48,10 @@ class QuestionsRelationManager extends RelationManager
                     ->tabs([
                         Forms\Components\Tabs\Tab::make(__('custom.models.question.tabs.infos'))
                             ->schema([
+                                Forms\Components\TextInput::make('concept_id')
+                                    ->label('رمز المعلومة (Concept ID)')
+                                    ->helperText('استخدم نفس الرمز لأسئلة مختلفة لنفس المعلومة لعمل Cross-Testing.')
+                                    ->placeholder('مثال: izhar_definition'),
                                 Forms\Components\Group::make()
                                     ->schema([
                                         Forms\Components\Textarea::make('question')

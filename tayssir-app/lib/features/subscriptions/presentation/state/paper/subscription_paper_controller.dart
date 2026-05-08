@@ -39,6 +39,8 @@ class SubscribeWithPaperController
     required File file,
     required SubscriptionModel subscription,
     String? promotorCode,
+    double? amount,
+    int? charityCampaignId,
   }) async {
     state = const SubscriptionPaperState(state: AsyncValue.loading());
     try {
@@ -46,6 +48,8 @@ class SubscribeWithPaperController
         file: file,
         subscriptionId: subscription.id,
         promotorCode: promotorCode,
+        amount: amount,
+        charityCampaignId: charityCampaignId,
       );
       // await Future.delayed(const Duration(seconds: 2));
 

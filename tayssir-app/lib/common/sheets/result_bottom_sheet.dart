@@ -141,7 +141,7 @@ class ResultBottomSheet extends ConsumerWidget {
                 if (message != null) ...[
                   16.verticalSpace,
                   Directionality(
-                    textDirection: TextDirection.rtl,
+                    textDirection: Directionality.of(context),
                     child: Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(16.r),

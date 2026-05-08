@@ -42,8 +42,10 @@ class SubscriptionOptionsScreen extends HookConsumerWidget {
       paddingY: 0,
       body: subscriptionOptionsAsync.when(
         data: (subscriptionOptions) {
-          if (selectedSubOption.value == null && subscriptionOptions.isNotEmpty) {
-            selectedSubOption.value = subscriptionOptions.first;
+          final filteredOptions = subscriptionOptions.where((sub) => sub.id != 999).toList();
+          
+          if (selectedSubOption.value == null && filteredOptions.isNotEmpty) {
+            selectedSubOption.value = filteredOptions.first;
           }
 
           return LayoutBuilder(
@@ -90,7 +92,7 @@ class SubscriptionOptionsScreen extends HookConsumerWidget {
                               text: AppStrings.dearStudentChooseSubscription,
                             ),
                             20.verticalSpace,
-                            ...subscriptionOptions.map((sub) => Padding(
+                            ...filteredOptions.map((sub) => Padding(
                               padding: EdgeInsets.only(bottom: 16.h),
                               child: SubscriptionOptionWidget(
                                 totalPrice: sub.price,

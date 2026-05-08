@@ -49,13 +49,14 @@ class ManualPaymentService
      * @return Payment The created manual payment record.
      * @throws \InvalidArgumentException If promo code is invalid or inactive (though validation should catch most).
      */
-    public function initiatePayment(User $user, int $subscriptionId, ?string $promoCodeCode, UploadedFile $attachment): Payment
+    public function initiatePayment(User $user, int $subscriptionId, ?string $promoCodeCode, UploadedFile $attachment, ?float $customAmount = null): Payment
     {
-        return DB::transaction(function () use ($user, $subscriptionId, $promoCodeCode, $attachment) {
+        return DB::transaction(function () use ($user, $subscriptionId, $promoCodeCode, $attachment, $customAmount) {
             // 1. Get pricing details using PriceCheckerService (do not modify this service)
             $pricingDetails = $this->priceCheckerService->checkPrice(
                 subscriptionId: $subscriptionId,
-                promoCodeCode: $promoCodeCode
+                promoCodeCode: $promoCodeCode,
+                customAmount: $customAmount
             );
 
             // 2. Determine promo code (PriceCheckerService does not return its id)

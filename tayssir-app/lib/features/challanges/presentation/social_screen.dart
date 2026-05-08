@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tayssir/common/core/app_scaffold.dart';
 import 'package:tayssir/features/challanges/data/social_repository.dart';
@@ -107,7 +108,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen> with SingleTickerPr
                           child: Icon(
                             Icons.arrow_back_ios_new_rounded,
                             size: 18.sp,
-                            color: isDark ? Colors.white : AppColors.primaryColor,
+                            color: isDark ? Colors.white : AppColors.warmAccent,
                           ),
                         ),
                       ),
@@ -252,19 +253,19 @@ class _SearchUsersTabState extends ConsumerState<SearchUsersTab> {
                   color: isDark ? Colors.white24 : Colors.black26, 
                   fontFamily: 'SomarSans'
                 ),
-                prefixIcon: const Icon(Icons.search, color: AppColors.primaryColor),
+                prefixIcon: Icon(Icons.search, color: isDark ? Colors.white70 : AppColors.warmAccent),
                 fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                 filled: true,
                 contentPadding: EdgeInsets.symmetric(vertical: 16.h),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(22.r), borderSide: BorderSide.none),
                 enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22.r), borderSide: BorderSide.none),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22.r), borderSide: const BorderSide(color: AppColors.primaryColor, width: 1.5)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22.r), borderSide: BorderSide(color: isDark ? AppColors.goldColor : AppColors.warmAccent, width: 1.5)),
               ),
             ),
           ),
           25.verticalSpace,
           if (_isLoading)
-            const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+            Center(child: CircularProgressIndicator(color: isDark ? AppColors.goldColor : AppColors.warmAccent))
           else
             Expanded(
               child: _searchResults.isEmpty
@@ -308,6 +309,7 @@ class PendingRequestsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ref.watch(pendingRequestsProvider).when(
           data: (requests) {
             if (requests.isEmpty) {
@@ -322,7 +324,7 @@ class PendingRequestsTab extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryColor)),
+          loading: () => Center(child: CircularProgressIndicator(color: isDark ? AppColors.goldColor : AppColors.warmAccent)),
           error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
         );
   }
@@ -333,6 +335,7 @@ class FriendsListTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ref.watch(friendsListProvider).when(
           data: (friends) {
             if (friends.isEmpty) {
@@ -347,7 +350,7 @@ class FriendsListTab extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primaryColor)),
+          loading: () => Center(child: CircularProgressIndicator(color: isDark ? AppColors.goldColor : AppColors.warmAccent)),
           error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
         );
   }
@@ -410,13 +413,13 @@ class _SocialUserItem extends ConsumerWidget {
             ),
           ),
           if (isSearch)
-            _buildActionBtn(context, "إضافة", AppColors.primaryColor, () async {
+            _buildActionBtn(context, "إضافة", AppColors.warmAccent, () async {
               await ref.read(socialRepositoryProvider).sendFriendRequest(u['id']);
               if (context.mounted) {
                 _showStyledSnackBar(
                   context, 
                   "تم إرسال طلب الصداقة بنجاح! 🚀", 
-                  AppColors.primaryColor, 
+                  AppColors.warmAccent, 
                   Icons.person_add_rounded
                 );
               }
@@ -454,7 +457,7 @@ class _SocialUserItem extends ConsumerWidget {
           height: 58.h,
           decoration: const ShapeDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primaryColor, Color(0xFF059669)],
+              colors: [AppColors.warmAccent, AppColors.gold600],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -627,8 +630,8 @@ class _SocialUserItem extends ConsumerWidget {
                     fontSize: 22.sp,
                     fontWeight: FontWeight.w900,
                     fontFamily: 'SomarSans',
-                    color: AppColors.primaryColor,
-                    shadows: [Shadow(color: AppColors.primaryColor.withOpacity(0.3), blurRadius: 10)])),
+                    color: isDark ? Colors.white : AppColors.warmAccent,
+                    shadows: [Shadow(color: (isDark ? Colors.white : AppColors.warmAccent).withOpacity(0.3), blurRadius: 10)])),
             20.verticalSpace,
             if (units.isEmpty)
               Padding(
@@ -653,7 +656,7 @@ class _SocialUserItem extends ConsumerWidget {
                       child: ListTile(
                         contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                         title: Text(unit.title, style: TextStyle(color: isDark ? Colors.white : AppColors.textBlack, fontWeight: FontWeight.bold, fontSize: 16.sp, fontFamily: 'SomarSans')),
-                        trailing: const Icon(Icons.play_circle_fill, color: AppColors.primaryColor, size: 30),
+                        trailing: Icon(Icons.play_circle_fill, color: isDark ? AppColors.goldColor : AppColors.warmAccent, size: 30),
                         onTap: () async {
                           Navigator.pop(ctx);
                           _handleInvite(context, ref, friend, unit, course.title);

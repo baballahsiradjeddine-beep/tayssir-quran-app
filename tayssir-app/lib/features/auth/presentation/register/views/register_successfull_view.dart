@@ -152,7 +152,7 @@ class RegisterSuccessfullView extends ConsumerWidget {
                 Column(
                   children: [
                     24.verticalSpace,
-                    const TayssirDataLoader(
+                    const BayanDataLoader(
                       textSize: 14,
                       iconSize: 32,
                     ),

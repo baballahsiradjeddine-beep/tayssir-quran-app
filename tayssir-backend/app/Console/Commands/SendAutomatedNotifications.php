@@ -27,96 +27,118 @@ class SendAutomatedNotifications extends Command
     /**
      * Execute the console command.
      */
+    /**
+     * Execute the console command.
+     */
     public function handle()
     {
         $activeNotifications = AutomatedNotification::where('is_active', true)->get();
+        if ($activeNotifications->isEmpty()) return;
 
-        if ($activeNotifications->isEmpty()) {
-            $this->info('No active automated notifications found.');
-            return;
-        }
+        $now = Carbon::now();
+        $hour = $now->hour;
+        $isFriday = $now->isFriday();
+        $today = $now->toDateString();
+        $yesterday = $now->subDay()->toDateString();
+        $threeDaysAgo = Carbon::now()->subDays(3)->toDateString();
+        $sevenDaysAgo = Carbon::now()->subDays(7)->toDateString();
 
-        $today = Carbon::today()->toDateString();
-        $yesterday = Carbon::yesterday()->toDateString();
-        $twoDaysAgo = Carbon::now()->subDays(2)->toDateString();
-        
-        // تم استبدال منطق العد التنازلي للامتحان بمنطق "الورد اليومي" أو اقتراب شهر رمضان
-        $ramadanDate = Carbon::createFromDate(Carbon::now()->year, 3, 1)->startOfDay(); // مثال
-        if (now()->gt($ramadanDate)) $ramadanDate->addYear();
-        $daysUntilRamadan = Carbon::today()->diffInDays($ramadanDate, false);
+        $fifteenDaysAgo = Carbon::now()->subDays(15)->toDateString();
+        $thirtyDaysAgo = Carbon::now()->subDays(30)->toDateString();
 
         foreach ($activeNotifications as $notification) {
-            $imageUrl = null;
-            if (!empty($notification->image)) {
-                $imageUrl = url(Storage::url($notification->image));
-            }
-
+            $imageUrl = $notification->image ? url(Storage::url($notification->image)) : null;
             $usersQuery = User::whereNotNull('fcm_token');
 
             switch ($notification->trigger_type) {
-                case 'daily_quran_reminder':
-                    // المستخدم لم يقرأ ورده اليوم
-                    $usersQuery->whereNotNull('last_study_date')
-                               ->whereDate('last_study_date', '<', $today);
+                case 'morning_motivation':
+                    if ($hour !== 8) continue 2;
                     break;
-                    
-                case 'streak_freeze_used':
-                    // تم استخدام "تجميد الورد" بالأمس
-                    $usersQuery->where('streak_freeze_count', '<', 3) // مثال
-                               ->whereDate('last_study_date', '=', $yesterday);
+
+                case 'friday_kahf_reminder':
+                    if (!$isFriday || $hour !== 9) continue 2;
+                    break;
+
+                case 'evening_muhasaba':
+                    if ($hour !== 20) continue 2;
+                    $usersQuery->where(function($q) use ($today) {
+                        $q->whereNull('last_study_date')
+                          ->orWhereDate('last_study_date', '<', $today);
+                    });
                     break;
 
                 case 'inactive_3_days':
-                    $usersQuery->whereDate('last_study_date', '=', $twoDaysAgo);
+                    // Short term: 6 PM (evening reflection)
+                    if ($hour !== 18) continue 2;
+                    $usersQuery->whereDate('last_study_date', '=', $threeDaysAgo);
                     break;
-                    
-                case 'surah_progress_50':
-                case 'surah_progress_100':
-                    // معالجة خاصة لتقدم السور
-                    $this->processSurahProgressNotification($notification, $today, $imageUrl);
-                    continue 2;
 
-                case 'ramadan_countdown_10':
-                    if ($daysUntilRamadan !== 10) continue 2;
+                case 'inactive_7_days':
+                    // Mid term: 11 AM (start of the day)
+                    if ($hour !== 11) continue 2;
+                    $usersQuery->whereDate('last_study_date', '=', $sevenDaysAgo);
+                    break;
+
+                case 'inactive_15_days':
+                    // Long term: 14 PM (mid-day reminder)
+                    if ($hour !== 14) continue 2;
+                    $usersQuery->whereDate('last_study_date', '=', $fifteenDaysAgo);
+                    break;
+
+                case 'inactive_30_days':
+                    // Very long term: 10 AM
+                    if ($hour !== 10) continue 2;
+                    $usersQuery->whereDate('last_study_date', '=', $thirtyDaysAgo);
+                    break;
+
+                case 'streak_at_risk':
+                    if ($hour !== 21) continue 2;
+                    $usersQuery->where('streak_count', '>', 0)
+                               ->whereDate('last_study_date', '<', $today);
                     break;
 
                 default:
+                    if (str_starts_with($notification->trigger_type, 'material_progress_')) {
+                        if ($hour !== 17) continue 2;
+                        $this->processMaterialProgressNotification($notification, $today, $imageUrl);
+                    }
                     continue 2;
             }
 
-            $usersToNotify = $usersQuery->get();
-            // ... إرسال التنبيهات ...
-
-            $usersToNotify = $usersQuery->get();
-
-            if ($usersToNotify->isEmpty()) {
-                $this->info("No users met condition for: {$notification->name}");
-                continue;
-            }
-
-            $count = 0;
-            foreach ($usersToNotify as $user) {
-                $user->notify(new \App\Notifications\CustomUserNotification(
-                    $notification->title, 
-                    $notification->body, 
-                    $imageUrl
-                ));
-                $count++;
-            }
-
-            $this->info("Sent '{$notification->name}' to {$count} users.");
+            $this->sendToUsers($usersQuery, $notification, $imageUrl);
         }
 
         $this->info('Automated notifications processed successfully.');
     }
 
-    /**
-     * Process notifications that depend on a user's material progress
-     */
+    private function sendToUsers($query, $notification, $imageUrl)
+    {
+        $users = $query->get();
+        $count = 0;
+
+        foreach ($users as $user) {
+            // Anti-spam: Max 1 automated notification per user per day total across ALL types
+            $dailyLock = "notif_daily_lock_{$user->id}_" . date('Y-m-d');
+            if (\Illuminate\Support\Facades\Cache::has($dailyLock)) continue;
+
+            $title = str_replace('{name}', $user->name, $notification->title);
+            $body = str_replace('{name}', $user->name, $notification->body);
+
+            $user->notify(new \App\Notifications\CustomUserNotification($title, $body, $imageUrl));
+            
+            // Set lock for 24h to ensure they don't get another automated one today
+            \Illuminate\Support\Facades\Cache::put($dailyLock, true, now()->addDay());
+            $count++;
+        }
+
+        if ($count > 0) {
+            $this->info("Sent '{$notification->name}' to {$count} users.");
+        }
+    }
+
     private function processMaterialProgressNotification($notification, $today, $imageUrl)
     {
-        $usersToNotify = User::whereNotNull('fcm_token')->with('division.materials')->get();
-        $allMaterials = \App\Models\Material::pluck('name', 'id')->toArray();
+        $usersToNotify = User::whereNotNull('fcm_token')->get();
         $count = 0;
 
         foreach ($usersToNotify as $user) {
@@ -124,68 +146,33 @@ class SendAutomatedNotifications extends Command
             if (empty($progressData)) continue;
 
             foreach ($progressData as $item) {
-                $matId = $item['material_id'];
                 $prog = $item['progress'];
-                $matName = $allMaterials[$matId] ?? 'المادة';
+                $matName = $item['material_name'] ?? 'السورة';
 
                 $shouldNotify = false;
+                $trigger = $notification->trigger_type;
 
-                if ($notification->trigger_type == 'material_progress_0' && $prog == 0) {
-                    // Send if it's been more than 7 days since account creation and they haven't started
-                    if (Carbon::parse($user->created_at)->diffInDays(now()) >= 7) {
-                        $shouldNotify = true;
-                    }
-                } elseif ($notification->trigger_type == 'material_progress_10' && $prog > 0 && $prog < 20) {
-                    // Send if progress is between 1% and 20% and last studied exactly 3 days ago
-                    $latestAnswer = \App\Models\UserAnswer::where('user_id', $user->id)
-                        ->where('material_id', $matId)
-                        ->max('created_at');
-                    if ($latestAnswer && Carbon::parse($latestAnswer)->diffInDays(now()) == 3) {
-                        $shouldNotify = true;
-                    }
-                } elseif ($notification->trigger_type == 'material_progress_50' && $prog >= 50 && $prog < 60) {
-                    // Send if they just hit 50%+ today
-                    $answeredToday = \App\Models\UserAnswer::where('user_id', $user->id)
-                        ->where('material_id', $matId)
-                        ->whereDate('created_at', $today)
-                        ->exists();
-                    if ($answeredToday) {
-                        $shouldNotify = true;
-                    }
-                } elseif ($notification->trigger_type == 'material_progress_100' && $prog == 100) {
-                    // Send if they hit 100% today
-                    $answeredToday = \App\Models\UserAnswer::where('user_id', $user->id)
-                        ->where('material_id', $matId)
-                        ->whereDate('created_at', $today)
-                        ->exists();
-                    if ($answeredToday) {
-                        $shouldNotify = true;
-                    }
+                if ($trigger == 'material_progress_50' && $prog >= 50 && $prog < 60) {
+                    $shouldNotify = true;
+                } elseif ($trigger == 'material_progress_100' && $prog == 100) {
+                    $shouldNotify = true;
                 }
 
                 if ($shouldNotify) {
-                    $title = str_replace('{material_name}', $matName, $notification->title);
-                    $body = str_replace('{material_name}', $matName, $notification->body);
+                    $title = str_replace(['{name}', '{material_name}'], [$user->name, $matName], $notification->title);
+                    $body = str_replace(['{name}', '{material_name}'], [$user->name, $matName], $notification->body);
 
-                    // Anti-spam: Check if we already sent this exact notification (for this material) 
-                    // within the last 30 days
-                    $alreadySent = \Illuminate\Support\Facades\DB::table('notifications')
-                        ->where('notifiable_type', User::class)
-                        ->where('notifiable_id', $user->id)
-                        ->where('created_at', '>=', now()->subDays(30))
-                        ->where('data', 'like', "%\"title\":\"{$title}\"%")
-                        ->exists();
-
-                    if (!$alreadySent) {
+                    // Check for spam for this specific material
+                    $spamKey = "mat_notif_{$notification->id}_{$user->id}_{$item['material_id']}";
+                    if (!\Illuminate\Support\Facades\Cache::has($spamKey)) {
                         $user->notify(new \App\Notifications\CustomUserNotification($title, $body, $imageUrl));
+                        \Illuminate\Support\Facades\Cache::put($spamKey, true, now()->addDays(30));
                         $count++;
-                        // Only notify for one material per rule daily to avoid bombing the user
-                        break;
+                        break; // Only one material per notification type per day
                     }
                 }
             }
         }
-
-        $this->info("Sent material progress '{$notification->name}' to {$count} users.");
+        $this->info("Processed progress '{$notification->name}' for {$count} users.");
     }
 }

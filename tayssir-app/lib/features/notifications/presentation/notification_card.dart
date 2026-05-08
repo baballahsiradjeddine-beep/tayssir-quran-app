@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/features/notifications/domaine/notifiacation_model.dart';
 import 'package:tayssir/features/notifications/presentation/notifications_controller.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class NotificationCard extends ConsumerWidget {
   final NotificationModel notification;
@@ -43,8 +44,8 @@ class NotificationCard extends ConsumerWidget {
         border: Border.all(
           color: isDark 
               ? (notification.isRead ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.1))
-              : (notification.isRead ? Colors.grey.withOpacity(0.1) : Colors.white),
-          width: 1,
+              : (notification.isRead ? AppColors.warmBorder.withOpacity(0.5) : AppColors.warmBorder),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
@@ -77,7 +78,7 @@ class NotificationCard extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: notification.isRead 
                             ? (isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.05))
-                            : const Color(0xFF10B981).withOpacity(0.1),
+                            : (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(14.r),
                       ),
                       child: Icon(
@@ -85,7 +86,7 @@ class NotificationCard extends ConsumerWidget {
                         size: 22.sp,
                         color: notification.isRead 
                             ? (isDark ? Colors.white30 : Colors.grey.shade400)
-                            : const Color(0xFF10B981),
+                            : (isDark ? const Color(0xFF10B981) : AppColors.warmAccent),
                       ),
                     ),
                     14.horizontalSpace,
@@ -121,7 +122,7 @@ class NotificationCard extends ConsumerWidget {
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withOpacity(0.1),
+                          color: (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                         child: Text(
@@ -129,7 +130,7 @@ class NotificationCard extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w900,
-                            color: const Color(0xFF10B981),
+                            color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
                             fontFamily: 'SomarSans',
                           ),
                         ),

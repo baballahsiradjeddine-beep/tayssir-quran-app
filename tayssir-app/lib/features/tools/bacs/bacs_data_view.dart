@@ -63,7 +63,7 @@ class BacsDataView extends HookWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'مواضيع البكالوريا 🎓',
+                          'المتشابهات القرآنية 📖',
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.w900,
@@ -121,7 +121,7 @@ class BacsDataView extends HookWidget {
                           getLabel: (item) => item.name,
                           selectionExtractor: (item) =>
                               currentMaterial.value == item.id,
-                          filterColor: const Color(0xFF10B981),
+                          filterColor: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
                           onItemPressed: (item) {
                             currentMaterial.value = item.id;
                             scrollController.animateTo(

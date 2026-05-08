@@ -49,7 +49,7 @@ extension ResponseX on Response {
 
   String get token {
     if (data is Map<String, dynamic>) {
-      return data['token'] as String;
+      return (data['token'] as String?) ?? '';
     }
     return '';
   }

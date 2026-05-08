@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/features/exercice/presentation/state/exercice_controller.dart';
 import 'package:tayssir/features/exercice/presentation/view/question_widget.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/services/actions/dialog_service.dart';
 import 'package:tayssir/common/core/shield_badge.dart';
 import 'package:tayssir/providers/user/user_notifier.dart';
@@ -27,10 +28,10 @@ class QuestionTypeWidget extends ConsumerWidget {
     final badgeColor = user?.badge?.color;
     final themeColor = badgeColor != null
         ? Color(int.parse(badgeColor.replaceAll('#', '0xFF')))
-        : const Color(0xFF10B981);
+        : AppColors.warmAccent;
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: Directionality.of(context),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -55,7 +56,7 @@ class QuestionTypeWidget extends ConsumerWidget {
                 Text(
                   "سؤال $currentExerciseIndex من $totalExercises",
                   style: TextStyle(
-                    color: const Color(0xFF10B981),
+                    color: AppColors.warmAccent,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w900,
                     fontFamily: 'SomarSans',

@@ -22,6 +22,11 @@ import 'package:tayssir/features/ai_planner/presentation/active_plan_overlay.dar
 import 'package:tayssir/utils/enums/auth_state.dart';
 import 'package:tayssir/router/bottom_navigation/main_scaffold.dart';
 
+import 'package:tayssir/features/home/presentation/widgets/charity/charity_carousel.dart';
+import 'package:tayssir/providers/data/models/charity_model.dart';
+import 'package:tayssir/providers/charity/charity_provider.dart';
+import 'package:tayssir/features/home/presentation/widgets/progress_map.dart';
+
 class HomeScreen extends StatefulHookConsumerWidget {
   const HomeScreen({super.key});
 
@@ -31,13 +36,18 @@ class HomeScreen extends StatefulHookConsumerWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   ViewStyle _viewStyle = ViewStyle.list;
+  String _selectedCategory = 'ahkam';
+
   @override
   Widget build(BuildContext context) {
+    final charityState = ref.watch(charityCampaignsProvider);
     final dataState = ref.watch(dataProvider);
     final authStatus = ref.watch(authNotifierProvider).status;
     final isGuest = authStatus == AuthStatus.unauthenticated || authStatus == AuthStatus.unknown;
     
-    final List<MaterialModel> courses = List.from(dataState.contentData.modules);
+    final List<MaterialModel> allCourses = dataState.contentData.modules;
+    final List<MaterialModel> courses = allCourses.where((m) => m.type == _selectedCategory).toList();
+    
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final onboarding = ref.watch(onboardingProvider);
 
@@ -53,6 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: AppScaffold(
         paddingB: 0,
         paddingX: 0,
+        paddingY: 0,
         swipeBackEnabled: true,
         topSafeArea: false,
         floatingActionButton: null,
@@ -72,7 +83,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           return Stack(
             children: [
               RefreshIndicator(
-                onRefresh: () async => ref.read(dataProvider.notifier).refreshData(),
+                onRefresh: () async {
+                  ref.invalidate(charityCampaignsProvider);
+                  return ref.read(dataProvider.notifier).refreshData();
+                },
                 color: AppColors.primaryColor,
                 child: CustomScrollView(
                   physics: const ClampingScrollPhysics(),
@@ -83,19 +97,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: EdgeInsets.only(
                           left: horizontalPadding, 
                           right: horizontalPadding, 
-                          top: isDesktop ? 30.h : 8.h, 
-                          bottom: 16.h
+                          top: isDesktop ? 30.h : 4.h, 
+                          bottom: 0.h
                         ),
                         child: const CustomAppBar(reverse: true),
                       ).animate().fadeIn().slideY(begin: -0.1, end: 0),
                     ),
                     
-                    // 2. Ads / Subscribe Section
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                        child: const SubscribeSection(),
+                    // 2. Charity Carousel (Now at the TOP)
+                    charityState.when(
+                      data: (campaigns) => SliverToBoxAdapter(
+                        child: CharityCarousel(campaigns: campaigns)
+                            .animate()
+                            .fadeIn(delay: 200.ms)
+                            .slideY(begin: 0.1, end: 0),
                       ),
+                      loading: () => SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20.h),
+                          child: const Center(child: CircularProgressIndicator()),
+                        ),
+                      ),
+                      error: (err, stack) => const SliverToBoxAdapter(child: SizedBox.shrink()),
                     ),
                     
                     // 3. Materials Header (Simplified without toggle)
@@ -105,31 +128,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: Row(
                           children: [
                             Container(
-                              width: 8.w,
-                              height: 24.h,
+                              width: 6.w,
+                              height: 20.h,
                               decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
+                                color: isDark ? AppColors.primaryColor : AppColors.warmTitle,
                                 borderRadius: BorderRadius.circular(4.r),
                               ),
                             ),
                             12.horizontalSpace,
                             Text(
-                              "الأجزاء والسور :",
+                              "المحتوى التعليمي :",
                               style: TextStyle(
-                                fontSize: 22.sp,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.w900,
-                                color: isDark ? Colors.white : AppColors.textBlack,
+                                color: isDark ? Colors.white : AppColors.warmTitle,
                                 fontFamily: 'SomarSans',
                               ),
                             ),
                             const Spacer(),
-                            if (!isDesktop) _buildViewToggle(isDark),
+                            _buildViewToggle(isDark),
                           ],
                         ),
                       ).animate().fadeIn(delay: 200.ms),
                     ),
+
+                    // 4. Spiritual Ward (Moved to top as pure text)
+                    const SliverToBoxAdapter(child: SizedBox.shrink()),
+
+                    // 5. Category Tabs (Glassmorphic Navigator)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: horizontalPadding, 
+                          right: horizontalPadding, 
+                          top: 16.h,
+                          bottom: 24.h
+                        ),
+                        child: _buildGlassNavigator(context, isDark),
+                      ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.1, end: 0),
+                    ),
                     
-                    // 4. Materials Content
+                    // 5. Materials Content
                     if (dataState.isLoading)
                       SliverToBoxAdapter(
                         child: Center(
@@ -143,8 +182,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   height: 54.sp,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 3.w,
-                                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
-                                    backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                                    valueColor: AlwaysStoppedAnimation<Color>(isDark ? AppColors.primaryColor : AppColors.warmAccent),
+                                    backgroundColor: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.1),
                                   ),
                                 ),
                                 24.verticalSpace,
@@ -173,7 +212,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     else
                       SliverPadding(
                         padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 0),
-                        sliver: isDesktop || _viewStyle == ViewStyle.grid
+                        sliver: _viewStyle == ViewStyle.grid
                           ? SliverGrid(
                               gridDelegate: isDesktop
                                 ? SliverGridDelegateWithMaxCrossAxisExtent(
@@ -253,7 +292,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(4.r),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.black.withOpacity(0.04),
+        color: isDark ? const Color(0xFF1E293B) : AppColors.warmBorder.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Row(
@@ -279,6 +318,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     context.pushNamed(AppRoutes.units.name, pathParameters: {
       'courseId': course.id.toString(),
     });
+  }
+
+  // _buildSpiritualWard removed as requested
+
+  Widget _buildGlassNavigator(BuildContext context, bool isDark) {
+    return Container(
+      padding: EdgeInsets.all(5.r),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8F5F2),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFEADBC8).withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          _buildGlassTab('quran', 'قرآن', isDark),
+          _buildGlassTab('ahkam', 'أحكام', isDark),
+          _buildGlassTab('stories', 'قصص', isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassTab(String category, String label, bool isDark) {
+    final isSelected = _selectedCategory == category;
+    
+    // Solid, muted colors inspired by 'Sahm Al-Waqf'
+    final Color selectedBg = isDark 
+        ? AppColors.emerald600 // Solid emerald green for dark mode
+        : AppColors.warmTitle; // Solid dark brown for light mode (like Sahm Al-An)
+        
+    final Color textColor = isSelected 
+        ? Colors.white // White text for both modes when selected
+        : (isDark ? Colors.white38 : AppColors.warmSubtitle);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedCategory = category),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
+          decoration: BoxDecoration(
+            color: isSelected ? selectedBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 15.sp,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
+                fontFamily: 'SomarSans',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Color _hexToColor(String colorStr) {
@@ -313,8 +413,8 @@ class _ToggleIcon extends StatelessWidget {
           icon,
           size: 20.sp,
           color: isSelected
-              ? (isDark ? Colors.white : AppColors.primaryColor)
-              : (isDark ? Colors.white38 : Colors.black26),
+              ? (isDark ? Colors.white : AppColors.warmTitle)
+              : (isDark ? Colors.white38 : AppColors.warmSubtitle.withOpacity(0.5)),
         ),
       ),
     );

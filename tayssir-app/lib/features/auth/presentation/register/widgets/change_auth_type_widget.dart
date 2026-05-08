@@ -42,11 +42,11 @@ class ChangeAuthTypeWidget extends ConsumerWidget {
           child: Text(
             isLogin ? "قم بإنشاء حساب" : AppStrings.login,
             style: TextStyle(
-              color: AppColors.primaryColor,
+              color: isDark ? AppColors.primaryColor : AppColors.warmAccent,
               fontSize: 14.sp,
               fontWeight: FontWeight.w900,
               fontFamily: 'SomarSans',
-              decoration: TextDecoration.none, // Match the premium look
+              decoration: TextDecoration.none,
             ),
           ),
         ),

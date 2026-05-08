@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tex/flutter_tex.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/features/exercice/presentation/view/execise_number_widget.dart';
 import 'package:tayssir/features/exercice/presentation/view/select_right_option/latext_text_widget.dart';
 import 'package:tayssir/providers/data/models/latex_field.dart';
@@ -51,13 +52,13 @@ class _LatexContentWidgetState extends ConsumerState<LatexContentWidget> {
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         decoration: BoxDecoration(
           color: isDark 
-              ? const Color(0xFF064E3B).withOpacity(0.1) 
-              : const Color(0xFFF0FDF4),
+              ? AppColors.warmAccent.withOpacity(0.1) 
+              : AppColors.warmAccent.withOpacity(0.05),
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: isDark 
-                ? const Color(0xFF064E3B).withOpacity(0.4) 
-                : const Color(0xFF10B981).withOpacity(0.2),
+                ? AppColors.warmAccent.withOpacity(0.4) 
+                : AppColors.warmAccent.withOpacity(0.2),
             width: 1.5,
           ),
         ),
@@ -71,7 +72,7 @@ class _LatexContentWidgetState extends ConsumerState<LatexContentWidget> {
               isLatex: true,
               textAlign: TextAlign.center,
               textStyle: TextStyle(
-                color: isDark ? const Color(0xFFF0FDF4) : const Color(0xFF064E3B),
+                color: isDark ? AppColors.warmAccentLight : AppColors.warmAccent,
                 fontSize: MediaQuery.sizeOf(context).width > 800 ? 22.sp : 20.sp,
                 fontFamily: "SomarSans",
                 fontWeight: FontWeight.bold,
@@ -131,13 +132,13 @@ class PlainTextContentWidget extends HookConsumerWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: isDark 
-            ? const Color(0xFF064E3B).withOpacity(0.1) 
-            : const Color(0xFFF0FDF4),
+            ? AppColors.warmAccent.withOpacity(0.1) 
+            : AppColors.warmAccent.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: isDark 
-              ? const Color(0xFF064E3B).withOpacity(0.4) 
-              : const Color(0xFF10B981).withOpacity(0.2),
+              ? AppColors.warmAccent.withOpacity(0.4) 
+              : AppColors.warmAccent.withOpacity(0.2),
           width: 1.5,
         ),
       ),
@@ -161,7 +162,7 @@ class PlainTextContentWidget extends HookConsumerWidget {
             TextSpan(
               text: question.text.toString(),
               style: TextStyle(
-                color: isDark ? const Color(0xFFF0FDF4) : const Color(0xFF064E3B),
+                color: isDark ? AppColors.warmAccentLight : AppColors.warmAccent,
                 fontSize: MediaQuery.sizeOf(context).width > 800 ? 22.sp : 20.sp,
                 fontFamily: "SomarSans",
                 fontWeight: FontWeight.w900,

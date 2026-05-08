@@ -205,6 +205,7 @@ class DataController extends StateNotifier<DataState> {
       isActive: true,
       progress: 0.0,
       direction: TextDirection.rtl,
+      type: 'quran',
     );
 
     final u = UnitModel(
@@ -233,14 +234,14 @@ class DataController extends StateNotifier<DataState> {
       "points": 2,
       "scope": "lesson",
       "direction": "RTL",
-      "question": {"value": "ما هو هدف تيسير الأساسي؟", "is_latex": false},
+      "question": {"value": "ما هو هدف بيان القرآن الأساسي؟", "is_latex": false},
       "options": [
-        {"value": "توفير الوقت والجهد", "is_latex": false},
-        {"value": "صعوبة المذاكرة", "is_latex": false}
+        {"value": "تيسير حفظ وفهم القرآن الكريم", "is_latex": false},
+        {"value": "مجرد القراءة السريعة", "is_latex": false}
       ],
       "correctOptions": [0],
       "hint": [],
-      "explanation_text": {"value": "تيسير صممت لجعل دراستك أسهل وأمتع!", "is_latex": false}
+      "explanation_text": {"value": "صُمم بيان القرآن لجعل رحلتك مع كتاب الله أسهل وأمتع!", "is_latex": false}
     });
 
     // 2. True or False
@@ -251,10 +252,10 @@ class DataController extends StateNotifier<DataState> {
       "points": 2,
       "scope": "lesson",
       "direction": "RTL",
-      "question": {"value": "تطبيق تيسير يوفر ملخصات وفيديوهات لجميع المواد", "is_latex": false},
+      "question": {"value": "تطبيق بيان القرآن يساعدك في مراجعة وتثبيت الحفظ من خلال تمارين تفاعلية", "is_latex": false},
       "correctAnswer": true,
       "hint": [],
-      "explanation_text": {"value": "نعم، تيسير هو رفيقك الشامل في البكالوريا", "is_latex": false}
+      "explanation_text": {"value": "نعم، بيان القرآن هو رفيقك الشامل في رحلة الحفظ والتثبيت", "is_latex": false}
     });
 
     // 3. Fill in the blanks
@@ -265,14 +266,14 @@ class DataController extends StateNotifier<DataState> {
       "points": 2,
       "scope": "lesson",
       "direction": "RTL",
-      "paragraph": "تطبيق تيسير يساعدك على [1] دروسك بـ [2] عالية",
+      "paragraph": "بيان القرآن يساعدك على [1] الآيات بـ [2] وإتقان",
       "blanks": [
-        {"correct_word": "فهم", "position": 1},
-        {"correct_word": "كفاءة", "position": 2}
+        {"correct_word": "حفظ", "position": 1},
+        {"correct_word": "سهولة", "position": 2}
       ],
-      "suggestions": ["فهم", "كفاءة", "تضييع", "بطء"],
+      "suggestions": ["حفظ", "سهولة", "نسيان", "صعوبة"],
       "hint": [],
-      "explanation_text": {"value": "هدفنا هو الفهم العميق والكفاءة العالية", "is_latex": false}
+      "explanation_text": {"value": "هدفنا هو الحفظ المتقن والسهولة في المراجعة", "is_latex": false}
     });
 
     // 4. Pair two words (match_with_arrows)
@@ -285,16 +286,16 @@ class DataController extends StateNotifier<DataState> {
       "direction": "RTL",
       "pairs": [
         {
-          "first": {"value": "تيسير", "is_latex": false},
-          "second": {"value": "التفوق", "is_latex": false}
+          "first": {"value": "بيان القرآن", "is_latex": false},
+          "second": {"value": "الإتقان", "is_latex": false}
         },
         {
-          "first": {"value": "المذاكرة", "is_latex": false},
-          "second": {"value": "الاجتهاد", "is_latex": false}
+          "first": {"value": "المراجعة", "is_latex": false},
+          "second": {"value": "التثبيت", "is_latex": false}
         }
       ],
       "hint": [],
-      "explanation_text": {"value": "اربط كل كلمة بما يناسبها", "is_latex": false}
+      "explanation_text": {"value": "اربط كل كلمة بما يناسبها في سياق حفظ القرآن", "is_latex": false}
     });
 
     // 5. Pick the intruder (anomaly_word)
@@ -307,13 +308,13 @@ class DataController extends StateNotifier<DataState> {
       "direction": "RTL",
       "question": {"value": "اختر الكلمة الدخيلة", "is_latex": false},
       "words": [
-        {"value": "نجاح", "is_latex": false},
-        {"value": "تفوق", "is_latex": false},
-        {"value": "رسوب", "is_latex": false}
+        {"value": "تلاوة", "is_latex": false},
+        {"value": "تجويد", "is_latex": false},
+        {"value": "لهو", "is_latex": false}
       ],
       "correctAnomalies": [2],
       "hint": [],
-      "explanation_text": {"value": "الرسوب هو الكلمة الدخيلة على النجاح والتفوق", "is_latex": false}
+      "explanation_text": {"value": "اللهو هو الكلمة الدخيلة، أما التلاوة والتجويد فهما من علوم القرآن", "is_latex": false}
     });
 
     dataService.modules.add(m);

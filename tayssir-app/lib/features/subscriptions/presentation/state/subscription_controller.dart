@@ -25,14 +25,14 @@ final paymentsMethodesProvider = Provider<List<PayementModel>>((ref) {
     ),
     PayementModel(
       icon: SVGs.ccp,
-      value: 'عن طريق ccp',
+      value: 'عن طريق ccp أو بريدي موب',
       path: AppRoutes.subscriptionPaper.name,
       payementMethod: PayementMethod.ccp,
     ),
     if (configs?.isChargilyActive ?? false)
       PayementModel(
         icon: SVGs.icAlgeriePoste,
-        value: 'بريدي موب',
+        value: 'دفع إلكتروني',
         path: AppRoutes.chargilyInit.name,
         payementMethod: PayementMethod.baridiMob,
       )

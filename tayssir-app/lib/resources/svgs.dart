@@ -47,7 +47,7 @@ class SVGs {
   static const String icTeacher = 'assets/svg/ic_teacher.svg';
   static const String icTiktok = 'assets/svg/ic_tiktok.svg';
   static const String icTime = 'assets/svg/ic_time.svg';
-  static const String icRefiqProgress = 'assets/svg/ic_refiq_progress.svg';
+  static const String icRefiqProgress = 'assets/svg/ic_tito_progress.svg';
   static const String icYoutube = 'assets/svg/ic_youtube.svg';
   static const String instagram = 'assets/svg/instagram.svg';
   static const String latestLogo = 'assets/svg/latest_logo.svg';

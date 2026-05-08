@@ -218,7 +218,7 @@ class SubscriptionsScreen extends HookConsumerWidget {
 
   String _getSubTextForMethod(String methodName) {
     if (methodName.contains('إلكتروني')) return 'البطاقة الذهبية / CIB (تفعيل فوري)';
-    if (methodName.contains('تحويل')) return 'BaridiMob أو عبر مكاتب CCP';
+    if (methodName.contains('ccp')) return 'BaridiMob أو عبر مكاتب CCP';
     if (methodName.contains('بطاقة')) return 'عبر إدخال كود البطاقة';
     if (methodName.contains('استلام')) return 'توصيل البطاقة للمنزل أو المكتب';
     return '';

@@ -12,6 +12,9 @@ import 'package:tayssir/providers/data/models/pair_two_words_exercise.dart';
 import 'package:tayssir/providers/data/models/select_multiple_option_exercise.dart';
 import 'package:tayssir/providers/data/models/true_false_exercise.dart';
 
+import 'package:tayssir/features/exercice/presentation/view/slide/slide_exercise_view.dart';
+import 'package:tayssir/providers/data/models/slide_exercise.dart';
+
 class ExerciseView extends HookConsumerWidget {
   const ExerciseView({
     super.key,
@@ -22,6 +25,10 @@ class ExerciseView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     switch (exercise.type) {
+      case ExerciseType.slide:
+        return SlideExerciseView(
+          exercise: exercise as SlideExercise,
+        );
       case ExerciseType.multipleChoices:
         return SelectRightOptionExerciseView(
           exercise: exercise as SelectMultipleOptionExercise,
@@ -43,6 +50,16 @@ class ExerciseView extends HookConsumerWidget {
       case ExerciseType.trueFalse:
         return TrueFalseExerciseView(
           exercise: exercise as TrueFalseExercise,
+        );
+      case ExerciseType.ordering:
+        // For now, reuse multiple choice view or a generic placeholder
+        return SelectRightOptionExerciseView(
+          exercise: exercise as SelectMultipleOptionExercise,
+        );
+      case ExerciseType.audioRecording:
+        // For now, reuse multiple choice view or a generic placeholder
+        return SelectRightOptionExerciseView(
+          exercise: exercise as SelectMultipleOptionExercise,
         );
     }
   }

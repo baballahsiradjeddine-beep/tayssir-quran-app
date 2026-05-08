@@ -6,18 +6,17 @@ import 'package:tayssir/router/app_router.dart';
 import 'package:tayssir/providers/data/data_provider.dart';
 import 'package:tayssir/providers/data/models/material_model.dart';
 import 'package:tayssir/providers/user/user_notifier.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:tayssir/common/custom_cached_image.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:tayssir/common/core/app_scaffold.dart';
-import 'package:tayssir/features/home/presentation/widgets/course_widget.dart';
-import 'package:tayssir/features/home/presentation/view_style.dart';
-import 'package:tayssir/features/home/presentation/subscribe_section.dart';
-import 'package:tayssir/features/challanges/data/social_repository.dart';
 import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/common/core/profile_button.dart';
 import 'package:tayssir/services/actions/dialog_service.dart';
 import 'package:tayssir/features/challanges/data/challenge_limits_manager.dart';
+import 'package:tayssir/features/challanges/presentation/widgets/streak_widget.dart';
+import 'package:tayssir/features/challanges/presentation/widgets/flash_challenge_widget.dart';
+
+import 'package:tayssir/features/challanges/data/social_repository.dart';
 
 final friendsProvider = FutureProvider<List<dynamic>>((ref) async {
   return ref.watch(socialRepositoryProvider).getFriends();
@@ -31,14 +30,17 @@ class ChallengeDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScreen> {
-  ViewStyle _viewStyle = ViewStyle.grid;
-
   @override
   Widget build(BuildContext context) {
-    final courses = ref.watch(dataProvider).contentData.modules;
+    final modules = ref.watch(dataProvider).contentData.modules;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final quranMaterials = modules.where((m) => m.type == 'quran').toList();
+    final ahkamMaterials = modules.where((m) => m.type == 'ahkam').toList();
+    final storiesMaterials = modules.where((m) => m.type == 'stories').toList();
+
     return AppScaffold(
+      bodyBackgroundColor: isDark ? null : AppColors.warmBackground,
       paddingB: 0,
       paddingX: 0,
       paddingY: 0,
@@ -48,17 +50,12 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
         builder: (context, constraints) {
           final double availableWidth = constraints.maxWidth;
           final bool isDesktop = availableWidth > 800;
-          const double targetContentWidth = 1050;
-
-          // Standardized centering and alignment logic
-          final double horizontalPadding = isDesktop 
-              ? (availableWidth > targetContentWidth + 160 ? (availableWidth - targetContentWidth) / 2 : 80.0)
-              : 20.w;
+          final double horizontalPadding = isDesktop ? (availableWidth - 700) / 2 : 20.w;
 
           return CustomScrollView(
             physics: const ClampingScrollPhysics(),
             slivers: [
-              // 1. Integrated Header (Profile Button Right | Title Center | Back Button Left)
+              // 1. Header
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(horizontalPadding, 4.h, horizontalPadding, 10.h),
@@ -67,11 +64,11 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
                       const ProfileButton(),
                       const Spacer(),
                       Text(
-                        'لوحة التحديات',
+                        'مجالس المنافسة',
                         style: TextStyle(
-                          fontSize: 22.sp,
+                          color: isDark ? Colors.white : AppColors.warmTitle,
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.textBlack,
                           fontFamily: 'SomarSans',
                         ),
                       ),
@@ -84,21 +81,15 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
                           decoration: BoxDecoration(
                             color: isDark ? const Color(0xFF1E293B) : Colors.white,
                             borderRadius: BorderRadius.circular(16.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                             border: Border.all(
-                              color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                              color: isDark ? Colors.white.withOpacity(0.05) : AppColors.warmBorder,
+                              width: 1.5,
                             ),
                           ),
                           child: Icon(
-                            isDesktop ? Icons.arrow_back_ios_rounded : Icons.arrow_back_ios_rounded,
+                            Icons.arrow_back_ios_rounded,
                             color: isDark ? Colors.white : const Color(0xFF1E293B),
-                            size: 20.sp,
+                            size: 18.sp,
                           ),
                         ),
                       ),
@@ -107,86 +98,251 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
                 ),
               ),
 
-              // 2. Subscribe Section
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                  child: const SubscribeSection(showProgress: false),
-                )
-                    .animate()
-                    .fadeIn(delay: 150.ms, duration: 400.ms)
-                    .slideX(begin: 0.1, end: 0),
-              ),
-
-              // 3. Friends Section
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20.h),
-                  child: _buildFriendsSection(context),
-                ).animate().fadeIn(delay: 300.ms, duration: 450.ms).slideY(begin: 0.1, end: 0),
-              ),
-
-              // 4. Section Title with Toggle
+              // 2. Streak Widget
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 10.h),
-                  child: _buildSectionTitle(context),
-                ).animate().fadeIn(delay: 450.ms, duration: 400.ms),
+                  child: const StreakWidget(),
+                ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
               ),
 
-              // 5. Materials Grid/List
+              // 3. Flash Challenge
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 10.h),
+                  child: const FlashChallengeWidget(),
+                ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0),
+              ),
+
+              // 4. Pavilions Title
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(horizontalPadding, 30.h, horizontalPadding, 15.h),
+                  child: Text(
+                    "اختر جناح المنافسة",
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : AppColors.warmTitle,
+                      fontFamily: 'SomarSans',
+                    ),
+                  ),
+                ),
+              ),
+
+              // 5. Pavilions Content
               SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 0),
-                sliver: _viewStyle == ViewStyle.grid
-                    ? SliverGrid(
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: isDesktop ? 550 : 204,
-                          mainAxisSpacing: 16.h,
-                          crossAxisSpacing: 16.w,
-                          mainAxisExtent: isDesktop ? 135.h : 170.h,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            return CardWidget(
-                              title: courses[index].title,
-                              subTitle: courses[index].description ?? 'أزيد من 300 سؤال\nو 150 تمرين',
-                              onPressed: () => _showUnitPicker(context, courses[index], _hexToColor(courses[index].gradiantColorStart)),
-                              startColor: _hexToColor(courses[index].gradiantColorStart),
-                              endColor: _hexToColor(courses[index].gradiantColorEnd),
-                              imageList: courses[index].imageList,
-                              imageGrid: courses[index].imageGrid,
-                              isGrid: true,
-                            ).animate().fadeIn(delay: (index * 50).ms).scale(curve: Curves.easeOutCubic);
-                          },
-                          childCount: courses.length,
-                        ),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            return Padding(
-                              padding: EdgeInsets.only(bottom: 12.h),
-                              child: CardWidget(
-                                title: courses[index].title,
-                                subTitle: courses[index].description ?? 'أزيد من 300 سؤال و 150 تمرين',
-                                onPressed: () => _showUnitPicker(context, courses[index], _hexToColor(courses[index].gradiantColorStart)),
-                                startColor: _hexToColor(courses[index].gradiantColorStart),
-                                endColor: _hexToColor(courses[index].gradiantColorEnd),
-                                imageList: courses[index].imageList,
-                                imageGrid: courses[index].imageGrid,
-                                isGrid: false,
-                              ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.1, end: 0),
-                            );
-                          },
-                          childCount: courses.length,
-                        ),
-                      ),
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _buildPavilionCard(
+                      title: "جناح القراء",
+                      subtitle: "تحديات الحفظ، إكمال الآيات، ومخارج الحروف",
+                      icon: "📖",
+                      materials: quranMaterials,
+                      startColor: const Color(0xFF059669),
+                      endColor: const Color(0xFF10B981),
+                      isDark: isDark,
+                    ),
+                    16.verticalSpace,
+                    _buildPavilionCard(
+                      title: "مجلس التجويد",
+                      subtitle: "تحديات الأحكام، النون الساكنة، والمدود",
+                      icon: "📜",
+                      materials: ahkamMaterials,
+                      startColor: const Color(0xFFD97706),
+                      endColor: const Color(0xFFF59E0B),
+                      isDark: isDark,
+                    ),
+                    16.verticalSpace,
+                    _buildPavilionCard(
+                      title: "روضة القصص",
+                      subtitle: "تحديات السيرة النبوية، قصص الأنبياء والعبر",
+                      icon: "🌙",
+                      materials: storiesMaterials,
+                      startColor: const Color(0xFF7C3AED),
+                      endColor: const Color(0xFF8B5CF6),
+                      isDark: isDark,
+                    ),
+                  ]),
+                ),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 120)),
+              // 6. Friends Section
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 30.h),
+                  child: _buildFriendsSection(context),
+                ),
+              ),
+
+              const SliverToBoxAdapter(child: SizedBox(height: 50)),
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildPavilionCard({
+    required String title,
+    required String subtitle,
+    required String icon,
+    required List<MaterialModel> materials,
+    required Color startColor,
+    required Color endColor,
+    required bool isDark,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [startColor, endColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(30.r),
+        boxShadow: [
+          BoxShadow(
+            color: startColor.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showMaterialPicker(title, materials, startColor),
+          borderRadius: BorderRadius.circular(30.r),
+          child: Padding(
+            padding: EdgeInsets.all(24.r),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            icon,
+                            style: TextStyle(fontSize: 24.sp),
+                          ),
+                          12.horizontalSpace,
+                          Text(
+                            title,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22.sp,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'SomarSans',
+                            ),
+                          ),
+                        ],
+                      ),
+                      8.verticalSpace,
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14.sp,
+                          fontFamily: 'SomarSans',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white,
+                  size: 20.sp,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).animate().fadeIn().scale(begin: const Offset(0.95, 0.95));
+  }
+
+  void _showMaterialPicker(String title, List<MaterialModel> materials, Color themeColor) {
+    if (materials.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("هذا الجناح سيفتح قريباً بإذن الله")),
+      );
+      return;
+    }
+    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(40.r)),
+        ),
+        child: Column(
+          children: [
+            12.verticalSpace,
+            Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.2), borderRadius: BorderRadius.circular(2))),
+            30.verticalSpace,
+            Text(
+              "اختر موضوعاً في $title",
+              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, fontFamily: 'SomarSans'),
+            ),
+            20.verticalSpace,
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                itemCount: materials.length,
+                itemBuilder: (context, index) {
+                  final mat = materials[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 16.h),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(24.r),
+                      border: Border.all(color: themeColor.withOpacity(0.1)),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(16.r),
+                      leading: Container(
+                        width: 50.r,
+                        height: 50.r,
+                        decoration: BoxDecoration(
+                          color: themeColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: CustomCachedImage(
+                            imageUrl: mat.imageGrid,
+                            width: 30.r,
+                            height: 30.r,
+                            errorWidget: Text("✨", style: TextStyle(fontSize: 20.sp)),
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        mat.title,
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16.sp, fontFamily: 'SomarSans'),
+                      ),
+                      subtitle: Text(
+                        "${mat.description?.split('\n').first ?? ''}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Icon(Icons.play_circle_fill_rounded, color: themeColor, size: 32.sp),
+                      onTap: () => _showUnitPicker(context, mat, themeColor),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -214,14 +370,14 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
               onPressed: () => context.pushNamed(AppRoutes.social.name),
               child: Text(
                 'البحث عن صديق',
-                style: TextStyle(color: const Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 13.sp),
+                style: TextStyle(color: const Color(0xFF7C4A27), fontWeight: FontWeight.bold, fontSize: 13.sp),
               ),
             ),
           ],
         ),
         8.verticalSpace,
         SizedBox(
-          height: 100.h,
+          height: 90.h,
           child: friendsAsync.when(
             data: (friends) => friends.isEmpty
                 ? Center(
@@ -236,15 +392,15 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
                     itemBuilder: (context, index) {
                       final friend = friends[index];
                       return Container(
-                        width: 70.w,
+                        width: 65.w,
                         margin: EdgeInsets.only(right: 12.w),
                         child: Column(
                           children: [
                             Stack(
                               children: [
                                 Container(
-                                  width: 60.r,
-                                  height: 60.r,
+                                  width: 55.r,
+                                  height: 55.r,
                                   decoration: const BoxDecoration(shape: BoxShape.circle),
                                   clipBehavior: Clip.antiAlias,
                                   child: CustomCachedImage(
@@ -257,12 +413,12 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
                                   right: 0,
                                   bottom: 0,
                                   child: Container(
-                                    width: 15.r,
-                                    height: 15.r,
+                                    width: 14.r,
+                                    height: 14.r,
                                     decoration: BoxDecoration(
                                       color: Colors.green,
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 2),
+                                      border: Border.all(color: isDark ? const Color(0xFF0F172A) : Colors.white, width: 2),
                                     ),
                                   ),
                                 ),
@@ -285,56 +441,6 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
         ),
       ],
     );
-  }
-
-  Widget _buildSectionTitle(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Row(
-      children: [
-        Text(
-          'اختر مادة للتحدي',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w900,
-            color: isDark ? Colors.white : AppColors.textBlack,
-            fontFamily: 'SomarSans',
-          ),
-        ),
-        const Spacer(),
-        _buildViewToggle(),
-      ],
-    );
-  }
-
-  Widget _buildViewToggle() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      padding: EdgeInsets.all(4.r),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.black.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Row(
-        children: [
-          _ToggleIcon(
-            icon: Icons.grid_view_rounded,
-            isSelected: _viewStyle == ViewStyle.grid,
-            onTap: () => setState(() => _viewStyle = ViewStyle.grid),
-          ),
-          _ToggleIcon(
-            icon: Icons.view_headline_rounded,
-            isSelected: _viewStyle == ViewStyle.list,
-            onTap: () => setState(() => _viewStyle = ViewStyle.list),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _hexToColor(String colorStr) {
-    String s = colorStr.replaceAll('#', '');
-    if (s.length == 6) s = 'FF$s';
-    return Color(int.parse(s, radix: 16));
   }
 
   void _showUnitPicker(BuildContext context, MaterialModel course, Color themeColor) {
@@ -430,31 +536,6 @@ class _ChallengeDashboardScreenState extends ConsumerState<ChallengeDashboardScr
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ToggleIcon extends StatelessWidget {
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _ToggleIcon({required this.icon, required this.isSelected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(8.r),
-        decoration: BoxDecoration(
-          color: isSelected ? (isDark ? const Color(0xFF10B981) : Colors.white) : Colors.transparent,
-          borderRadius: BorderRadius.circular(10.r),
-          boxShadow: isSelected && !isDark ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))] : null,
-        ),
-        child: Icon(icon, size: 20.sp, color: isSelected ? (isDark ? Colors.white : const Color(0xFF10B981)) : (isDark ? Colors.white38 : Colors.black26)),
       ),
     );
   }

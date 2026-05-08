@@ -51,12 +51,28 @@ class PaymentResource extends Resource
         return (string) static::getModel()::whereIn('status', [
             \App\Enums\Purchase\PaymentStatus::SUCCEEDED->value,
             \App\Enums\Purchase\PaymentStatus::ACCEPTED->value,
-        ])->count();
+        ])
+        ->where(function (Builder $query) {
+            $query->where('subscription_id', '!=', 999)
+                  ->orWhereNull('subscription_id');
+        })
+        ->whereNull('charity_campaign_id')
+        ->count();
     }
 
     public static function getNavigationBadgeColor(): ?string
     {
         return 'success';
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where(function (Builder $query) {
+                $query->where('subscription_id', '!=', 999)
+                      ->orWhereNull('subscription_id');
+            })
+            ->whereNull('charity_campaign_id');
     }
 
     protected static ?int $navigationSort = AdminNavigation::PAYMENT_RESOURCE['sort'];

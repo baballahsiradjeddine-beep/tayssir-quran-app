@@ -32,16 +32,23 @@ class ChargilyPaymentService
     /**
      * Start a Chargily checkout and create a Payment record (status pending).
      */
-    public function createCheckout(User $user, int $subscriptionId, ?string $promoCodeCode = null, string $locale = 'ar')
+    public function createCheckout(User $user, int $subscriptionId, ?string $promoCodeCode = null, string $locale = 'ar', ?float $customAmount = null)
     {
-        $subscription = Subscription::query()->findOrFail($subscriptionId);
+        $subscriptionName = 'تبرع سهم الخير';
+        $subscriptionDescription = 'صدقة جارية ومساهمة خيرية';
 
-        $pricing = $this->priceCheckerService->checkPrice($subscriptionId, $promoCodeCode);
+        if ($subscriptionId != 999) {
+            $subscription = Subscription::query()->findOrFail($subscriptionId);
+            $subscriptionName = $subscription->name;
+            $subscriptionDescription = $subscription->description;
+        }
+
+        $pricing = $this->priceCheckerService->checkPrice($subscriptionId, $promoCodeCode, $customAmount);
         $promoCode = $promoCodeCode ? PromoCode::where('code', $promoCodeCode)->first() : null;
 
         [$promoterMarginPercentage, $promoterMarginAmount] = $this->computePromoterMargin($pricing, $promoCode);
 
-        [$payment, $checkout] = DB::transaction(function () use ($user, $subscriptionId, $promoCode, $pricing, $promoterMarginPercentage, $promoterMarginAmount, $locale) {
+        [$payment, $checkout] = DB::transaction(function () use ($user, $subscriptionId, $promoCode, $pricing, $promoterMarginPercentage, $promoterMarginAmount, $locale, $subscriptionName, $subscriptionDescription) {
             $payment = Payment::create([
                 'user_id' => $user->id,
                 'subscription_id' => $subscriptionId,
@@ -67,8 +74,8 @@ class ChargilyPaymentService
                 'metadata' => [
                     'payment_id' => $payment->id,
                     'subscription_id' => $payment->subscription_id,
-                    'subscription_name' => $payment->subscription->name,
-                    'subscription_description' => $payment->subscription->description,
+                    'subscription_name' => $subscriptionName,
+                    'subscription_description' => $subscriptionDescription,
                     'price' => $pricing['original_price'],
                     'discount_percentage' => $pricing['subscription_discount']['percentage'],
                     'promocode_percentage' => $pricing['promocode_discount']['percentage'],
@@ -78,12 +85,11 @@ class ChargilyPaymentService
                     'promoter_margin_amount' => $promoterMarginAmount,
                 ],
                 'locale' => $locale,
-                'amount' => (string) $payment->final_price, // Chargily expects string
-                'currency' => 'dzd', // assuming DZD; could map from subscription if needed
-                'description' => 'Subscription purchase #' . $payment->id,
-                'success_url' => route('chargilypay.back'),
-                'failure_url' => route('chargilypay.back'),
-                'webhook_endpoint' => route('chargilypay.webhook_endpoint'),
+                'amount' => number_format($payment->final_price, 2, '.', ''), // Precise format
+                'currency' => 'dzd',
+                'description' => 'Donation #' . $payment->id,
+                'success_url' => 'https://tayssir.com/payment/success',
+                'failure_url' => 'https://tayssir.com/payment/failure',
             ]);
             $payment->metadata = array_merge($payment->metadata ?? [], [
                 'chargily_checkout_id' => $checkout->getId(),
@@ -117,18 +123,27 @@ class ChargilyPaymentService
             return ['ok' => false, 'message' => 'Payment not found'];
         }
         $status = $checkout->getStatus();
+        $subscriptionName = $payment->subscription ? $payment->subscription->name : 'تبرع سهم الخير';
+
         if ($status === 'paid') {
             $payment->status = PaymentStatus::SUCCEEDED;
-            $success = SubscriptionActivationService::ActivateSubscriptionForUser($payment->subscription_id, $payment->user_id);
-            if ($success) {
-                $payment->user->notify(new ChargilyPaymentSucceeded($payment->subscription->name));
+            
+            if ($payment->subscription_id != 999) {
+                $success = SubscriptionActivationService::ActivateSubscriptionForUser($payment->subscription_id, $payment->user_id);
+                if ($success) {
+                    $payment->user->notify(new ChargilyPaymentSucceeded($subscriptionName));
+                } else {
+                    $payment->user->notify(new ChargilyPaymentFailed($subscriptionName));
+                }
             } else {
-                $payment->user->notify(new ChargilyPaymentFailed($payment->subscription->name));
+                // It's a donation, just notify success
+                $payment->user->notify(new ChargilyPaymentSucceeded($subscriptionName));
             }
         } elseif (in_array($status, ['failed', 'canceled'])) {
             $payment->status = PaymentStatus::FAILED;
-            $payment->user->notify(new ChargilyPaymentFailed($payment->subscription->name));
+            $payment->user->notify(new ChargilyPaymentFailed($subscriptionName));
         }
+        
         $payment->metadata = array_merge($payment->metadata ?? [], [
             'chargily_checkout_id' => $checkout->getId(),
             'chargily_status' => $status,

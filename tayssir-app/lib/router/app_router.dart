@@ -35,6 +35,8 @@ import '../features/ai_planner/presentation/ai_planner_popup.dart';
 import 'package:tayssir/features/chapters/lesson_screen.dart';
 import 'package:tayssir/features/chapters/lesson_result_screen.dart';
 import 'package:tayssir/router/app_transitions.dart';
+import 'package:tayssir/features/charity/presentation/charity_donation_screen.dart';
+import 'package:tayssir/features/charity/presentation/charity_detail_screen.dart';
 
 import '../features/chapters/chapters_screen.dart';
 import '../features/settings/security/reset_password_screen.dart';
@@ -49,6 +51,9 @@ import 'package:tayssir/features/challanges/presentation/arena_screen.dart';
 import 'package:tayssir/features/challanges/presentation/challenge_dashboard_screen.dart';
 import 'package:tayssir/features/challanges/presentation/social_screen.dart';
 import 'package:tayssir/features/onboarding/onboarding_screen.dart';
+import '../features/quran/presentation/mushaf_screen.dart';
+import 'package:tayssir/features/qibla/presentation/qibla_screen.dart';
+import 'package:tayssir/features/athkar/presentation/athkar_screen.dart';
 import 'bottom_navigation/main_scaffold.dart';
 import 'not_found_screen.dart';
 import 'routes_service.dart';
@@ -60,7 +65,7 @@ enum AppRoutes {
   units,
   chapters,
   exercices,
-  tools,
+  mushaf,
   leaderboard,
   challanges,
   challengeDashboard,
@@ -103,6 +108,10 @@ enum AppRoutes {
   aiPlanner,
   lesson,
   lessonResults,
+  charityDonation,
+  charityDetail,
+  athkar,
+  qibla,
 }
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -122,7 +131,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: Listenable.merge(routesManager.refreshables),
     initialLocation: '/startup',
     routes: [
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.splash.name,
         path: '/startup',
         pageBuilder: (context, state) {
@@ -139,80 +148,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
             routes: <RouteBase>[
-              TayssirCustomGoRoute(
-                path: '/tools',
-                name: AppRoutes.tools.name,
-                pageBuilder: (context, state) => const ToolsScreen(),
+              BayanCustomGoRoute(
+                path: '/mushaf',
+                name: AppRoutes.mushaf.name,
+                pageBuilder: (context, state) => const MushafScreen(),
                 transitionType: TransitionType.sharedAxis,
                 duration: const Duration(milliseconds: 450),
-                routes: [
-                  TayssirCustomGoRoute(
-                    path: 'pomodoro',
-                    name: AppRoutes.pomodoro.name,
-                    pageBuilder: (context, state) => const PomodoroScreen(),
-                    transitionType: TransitionType.sharedAxis,
-                    slideDirection: SlideDirection.left,
-                    duration: const Duration(milliseconds: 600),
-                  ),
-                  TayssirCustomGoRoute(
-                    path: 'grade-calc',
-                    name: AppRoutes.gradeCalculator.name,
-                    pageBuilder: (context, state) => const GradeCalculatorScreen(),
-                    transitionType: TransitionType.sharedAxis,
-                    slideDirection: SlideDirection.left,
-                    duration: const Duration(milliseconds: 600),
-                  ),
-                  TayssirCustomGoRoute(
-                    name: AppRoutes.cardSwipper.name,
-                    path: '/card-swipper',
-                    pageBuilder: (context, state) => const CardSwipperScreen(),
-                    transitionType: TransitionType.sharedAxis,
-                    slideDirection: SlideDirection.left,
-                    duration: const Duration(milliseconds: 300),
-                  ),
-                  TayssirCustomGoRoute(
-                    name: AppRoutes.resumes.name,
-                    path: '/resumes',
-                    pageBuilder: (context, state) => const ResumesScreen(),
-                    routes: [
-                      TayssirCustomGoRoute(
-                        name: AppRoutes.pdfContent.name,
-                        path: 'content',
-                        pageBuilder: (context, state) {
-                          final data = state.extra! as Map<String, dynamic>;
-                          return PdfContentScreen(pdfUrl: data['pdfUrl']);
-                        },
-                      )
-                    ],
-                    transitionType: TransitionType.sharedAxis,
-                    slideDirection: SlideDirection.left,
-                    duration: const Duration(milliseconds: 300),
-                  ),
-                  TayssirCustomGoRoute(
-                    name: AppRoutes.bacs.name,
-                    path: '/bacs',
-                    pageBuilder: (context, state) => const BacsScreen(),
-                    transitionType: TransitionType.sharedAxis,
-                    slideDirection: SlideDirection.left,
-                    duration: const Duration(milliseconds: 300),
-                  ),
-                  TayssirCustomGoRoute(
-                    name: AppRoutes.aiPlanner.name,
-                    path: 'ai-planner',
-                    pageBuilder: (context, state) => const Scaffold(
-                      backgroundColor: Colors.transparent,
-                      body: AIPlannerPopup(),
-                    ),
-                    transitionType: TransitionType.fade,
-                    duration: const Duration(milliseconds: 300),
-                  ),
-                ],
               ),
             ],
           ),
           StatefulShellBranch(
             routes: <RouteBase>[
-              TayssirCustomGoRoute(
+              BayanCustomGoRoute(
                 name: AppRoutes.leaderboard.name,
                 path: '/leaderboard',
                 pageBuilder: (context, state) => const LeaderboardScreen(),
@@ -223,14 +170,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: <RouteBase>[
-              TayssirCustomGoRoute(
+              BayanCustomGoRoute(
                 name: AppRoutes.home.name,
                 path: '/home',
                 pageBuilder: (context, state) => const HomeScreen(),
                 transitionType: TransitionType.fadeThrough,
                 duration: const Duration(milliseconds: 400),
                 routes: [
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
+                    name: AppRoutes.charityDonation.name,
+                    path: 'charity-donation',
+                    pageBuilder: (context, state) {
+                      final data = state.extra as Map<String, dynamic>?;
+                      return CharityDonationScreen(initialCampaign: data?['campaign']);
+                    },
+                    transitionType: TransitionType.sharedAxis,
+                    duration: const Duration(milliseconds: 300),
+                  ),
+                  BayanCustomGoRoute(
+                    name: AppRoutes.charityDetail.name,
+                    path: 'charity-detail',
+                    pageBuilder: (context, state) {
+                      final data = state.extra! as Map<String, dynamic>;
+                      return CharityDetailScreen(campaign: data['campaign']);
+                    },
+                    transitionType: TransitionType.sharedAxis,
+                    duration: const Duration(milliseconds: 300),
+                  ),
+                  BayanCustomGoRoute(
                     path: 'units/:courseId',
                     name: AppRoutes.units.name,
                     pageBuilder: (context, state) {
@@ -240,7 +207,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     transitionType: TransitionType.fadeThrough,
                     duration: const Duration(milliseconds: 400),
                     routes: [
-                      TayssirCustomGoRoute(
+                      BayanCustomGoRoute(
                         name: AppRoutes.chapters.name,
                         path: 'chapters/:unitId',
                         pageBuilder: (context, state) {
@@ -252,14 +219,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       ),
                     ],
                   ),
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     name: AppRoutes.subscriptionOptions.name,
                     path: 'sub-options',
                     pageBuilder: (context, state) => const SubscriptionOptionsScreen(),
                     transitionType: TransitionType.sharedAxis,
                     duration: const Duration(milliseconds: 300),
                     routes: [
-                      TayssirCustomGoRoute(
+                      BayanCustomGoRoute(
                         name: AppRoutes.subscriptions.name,
                         path: 'subscriptions',
                         pageBuilder: (context, state) {
@@ -269,7 +236,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         transitionType: TransitionType.sharedAxis,
                         duration: const Duration(milliseconds: 300),
                         routes: [
-                          TayssirCustomGoRoute(
+                          BayanCustomGoRoute(
                             name: AppRoutes.subCard.name,
                             path: 'card',
                             pageBuilder: (context, state) {
@@ -279,7 +246,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                             transitionType: TransitionType.sharedAxis,
                             duration: const Duration(milliseconds: 300),
                           ),
-                          TayssirCustomGoRoute(
+                          BayanCustomGoRoute(
                             name: AppRoutes.subscriptionPaper.name,
                             path: 'paper',
                             pageBuilder: (context, state) {
@@ -307,7 +274,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   child: const ChallengesScreen(),
                 ),
                 routes: [
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     name: AppRoutes.challengeDashboard.name,
                     path: 'dashboard',
                     parentNavigatorKey: rootNavigatorKey,
@@ -315,7 +282,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     transitionType: TransitionType.fade,
                     duration: const Duration(milliseconds: 100),
                   ),
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     name: AppRoutes.challengeMatchmaking.name,
                     path: 'matchmaking',
                     parentNavigatorKey: rootNavigatorKey,
@@ -331,7 +298,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     transitionType: TransitionType.sharedAxis,
                     duration: const Duration(milliseconds: 300),
                   ),
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     name: AppRoutes.challengeArena.name,
                     path: 'arena',
                     parentNavigatorKey: rootNavigatorKey,
@@ -346,11 +313,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     transitionType: TransitionType.sharedAxis,
                     duration: const Duration(milliseconds: 300),
                   ),
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     name: AppRoutes.social.name,
                     path: 'social',
                     parentNavigatorKey: rootNavigatorKey,
                     pageBuilder: (context, state) => const SocialScreen(),
+                    transitionType: TransitionType.sharedAxis,
+                    duration: const Duration(milliseconds: 300),
+                  ),
+                  BayanCustomGoRoute(
+                    name: AppRoutes.athkar.name,
+                    path: 'athkar',
+                    parentNavigatorKey: rootNavigatorKey,
+                    pageBuilder: (context, state) => const AthkarScreen(),
+                    transitionType: TransitionType.sharedAxis,
+                    duration: const Duration(milliseconds: 300),
+                  ),
+                  BayanCustomGoRoute(
+                    name: AppRoutes.qibla.name,
+                    path: 'qibla',
+                    parentNavigatorKey: rootNavigatorKey,
+                    pageBuilder: (context, state) => const QiblaScreen(),
                     transitionType: TransitionType.sharedAxis,
                     duration: const Duration(milliseconds: 300),
                   ),
@@ -360,42 +343,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: <RouteBase>[
-              TayssirCustomGoRoute(
+              BayanCustomGoRoute(
                 path: '/settings',
                 name: AppRoutes.settings.name,
                 pageBuilder: (context, state) => const SettingsScreen(),
                 transitionType: TransitionType.sharedAxis,
                 duration: const Duration(milliseconds: 450),
                 routes: [
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     path: 'profile',
                     name: AppRoutes.profile.name,
                     pageBuilder: (context, state) => const ProfileScreen(),
                     transitionType: TransitionType.sharedAxis,
                     duration: const Duration(milliseconds: 300),
                   ),
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     path: 'notificatios',
                     name: AppRoutes.notifcations.name,
                     pageBuilder: (context, state) => const NotificationsScreen(),
                     transitionType: TransitionType.sharedAxis,
                     duration: const Duration(milliseconds: 300),
                   ),
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     path: 'security',
                     name: AppRoutes.security.name,
                     pageBuilder: (context, state) => const SecurityScreen(),
                     transitionType: TransitionType.sharedAxis,
                     duration: const Duration(milliseconds: 300),
                     routes: [
-                      TayssirCustomGoRoute(
+                      BayanCustomGoRoute(
                         path: 'change-email',
                         name: AppRoutes.changeEmail.name,
                         pageBuilder: (context, state) => const ChangeEmailScreen(),
                         transitionType: TransitionType.sharedAxis,
                         duration: const Duration(milliseconds: 300),
                       ),
-                      TayssirCustomGoRoute(
+                      BayanCustomGoRoute(
                         path: 'reset-password',
                         name: AppRoutes.resetPassword.name,
                         pageBuilder: (context, state) => const ResetPasswordScreen(),
@@ -404,7 +387,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       ),
                     ],
                   ),
-                  TayssirCustomGoRoute(
+                  BayanCustomGoRoute(
                     path: 'contact-us',
                     name: AppRoutes.contactUs.name,
                     pageBuilder: (context, state) => const ContactUsScreen(),
@@ -417,42 +400,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.exercices.name,
         path: '/exercices',
         pageBuilder: (context, state) => const ExerciceScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.lesson.name,
         path: '/lesson',
         pageBuilder: (context, state) => const LessonScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.onboarding.name,
         path: '/onboarding',
         pageBuilder: (context, state) => const OnboardingScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 400),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.login.name,
         path: '/login',
         pageBuilder: (context, state) => const LoginScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.results.name,
         path: '/results',
         pageBuilder: (context, state) => const ExerciceResultScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.lessonResults.name,
         path: '/lesson-results',
         pageBuilder: (context, state) {
@@ -466,42 +449,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.midResults.name,
         path: '/mid-results',
         pageBuilder: (context, state) => const MidResultScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.register.name,
         path: '/register',
         pageBuilder: (context, state) => const RegisterScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.verifyEmail.name,
         path: '/verify-email',
         pageBuilder: (context, state) => const VerifyEmailScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.welcome.name,
         path: '/welcome',
         pageBuilder: (context, state) => const AuthScreen(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.forgetPassword.name,
         path: '/forget-password',
         pageBuilder: (context, state) => const ForgetPasswordView(),
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.chargilyWebView.name,
         path: '/chargily',
         pageBuilder: (context, state) {
@@ -512,7 +495,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.chargilyInit.name,
         path: '/chargily-init',
         pageBuilder: (context, state) {
@@ -523,7 +506,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.streak.name,
         path: '/streak',
         pageBuilder: (context, state) {
@@ -535,7 +518,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         transitionType: TransitionType.sharedAxis,
         duration: const Duration(milliseconds: 300),
       ),
-      TayssirCustomGoRoute(
+      BayanCustomGoRoute(
         name: AppRoutes.achievementLog.name,
         path: '/achievement-log',
         pageBuilder: (context, state) => const AchievementLogScreen(),

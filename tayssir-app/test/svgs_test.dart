@@ -5,11 +5,11 @@ import 'package:tayssir/resources/resources.dart';
 
 void main() {
   test('svgs assets test', () {
-    expect(File(SVGs.tito).existsSync(), isTrue);
-    expect(File(SVGs.titoLogin).existsSync(), isTrue);
+    expect(File(SVGs.refiq).existsSync(), isTrue);
+    expect(File(SVGs.refiqLogin).existsSync(), isTrue);
     expect(File(SVGs.ccp).existsSync(), isTrue);
     expect(File(SVGs.comingSoon).existsSync(), isTrue);
-    expect(File(SVGs.goodTito).existsSync(), isTrue);
+    expect(File(SVGs.goodRefiq).existsSync(), isTrue);
     expect(File(SVGs.grid).existsSync(), isTrue);
     expect(File(SVGs.icAlgeriePoste).existsSync(), isTrue);
     expect(File(SVGs.icBaridMob).existsSync(), isTrue);
@@ -49,7 +49,7 @@ void main() {
     expect(File(SVGs.icTeacher).existsSync(), isTrue);
     expect(File(SVGs.icTiktok).existsSync(), isTrue);
     expect(File(SVGs.icTime).existsSync(), isTrue);
-    expect(File(SVGs.icTitoProgress).existsSync(), isTrue);
+    expect(File(SVGs.icRefiqProgress).existsSync(), isTrue);
     expect(File(SVGs.icYoutube).existsSync(), isTrue);
     expect(File(SVGs.instagram).existsSync(), isTrue);
     expect(File(SVGs.latestLogo).existsSync(), isTrue);
@@ -58,21 +58,21 @@ void main() {
     expect(File(SVGs.notification).existsSync(), isTrue);
     expect(File(SVGs.questionIcon).existsSync(), isTrue);
     expect(File(SVGs.telegram).existsSync(), isTrue);
-    expect(File(SVGs.titoAngry).existsSync(), isTrue);
-    expect(File(SVGs.titoAverage).existsSync(), isTrue);
-    expect(File(SVGs.titoAverageMessage).existsSync(), isTrue);
-    expect(File(SVGs.titoBad).existsSync(), isTrue);
-    expect(File(SVGs.titoBadMessage).existsSync(), isTrue);
-    expect(File(SVGs.titoBoarding).existsSync(), isTrue);
-    expect(File(SVGs.titoGood).existsSync(), isTrue);
-    expect(File(SVGs.titoGoodExercise).existsSync(), isTrue);
-    expect(File(SVGs.titoPerfect).existsSync(), isTrue);
-    expect(File(SVGs.titoPomodoroDone).existsSync(), isTrue);
-    expect(File(SVGs.titoPomodoroFirst).existsSync(), isTrue);
-    expect(File(SVGs.titoPomodoroStop).existsSync(), isTrue);
-    expect(File(SVGs.titoSubFailure).existsSync(), isTrue);
-    expect(File(SVGs.titoSubscriptionGood).existsSync(), isTrue);
-    expect(File(SVGs.titoSusbscriptionPending).existsSync(), isTrue);
+    expect(File(SVGs.refiqAngry).existsSync(), isTrue);
+    expect(File(SVGs.refiqAverage).existsSync(), isTrue);
+    expect(File(SVGs.refiqAverageMessage).existsSync(), isTrue);
+    expect(File(SVGs.refiqBad).existsSync(), isTrue);
+    expect(File(SVGs.refiqBadMessage).existsSync(), isTrue);
+    expect(File(SVGs.refiqBoarding).existsSync(), isTrue);
+    expect(File(SVGs.refiqGood).existsSync(), isTrue);
+    expect(File(SVGs.refiqGoodExercise).existsSync(), isTrue);
+    expect(File(SVGs.refiqPerfect).existsSync(), isTrue);
+    expect(File(SVGs.refiqPomodoroDone).existsSync(), isTrue);
+    expect(File(SVGs.refiqPomodoroFirst).existsSync(), isTrue);
+    expect(File(SVGs.refiqPomodoroStop).existsSync(), isTrue);
+    expect(File(SVGs.refiqSubFailure).existsSync(), isTrue);
+    expect(File(SVGs.refiqSubscriptionGood).existsSync(), isTrue);
+    expect(File(SVGs.refiqSusbscriptionPending).existsSync(), isTrue);
     expect(File(SVGs.youtube).existsSync(), isTrue);
   });
 }

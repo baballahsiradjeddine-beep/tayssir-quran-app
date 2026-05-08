@@ -8,18 +8,18 @@ class AnomalyWordExercise extends ExerciseModel {
   final LatexField<String> question;
   AnomalyWordExercise({
     required super.id,
+    super.tags,
+    required super.chapterId,
+    required super.hints,
+    required super.explanation,
+    required super.points,
+    required super.scope,
+    required super.direction,
+    super.image,
+    super.explanationVideo,
     required this.words,
     required this.correctAnomalies,
     required this.question,
-    required super.chapterId,
-    required super.direction,
-    required super.points,
-    required super.scope,
-    // required super.difficulty,
-    required super.explanation,
-    required super.hints,
-    super.image,
-    super.explanationVideo,
     super.hintImage,
   }) : super(
           type: ExerciseType.anomalyWord,
@@ -30,6 +30,7 @@ class AnomalyWordExercise extends ExerciseModel {
 
     return AnomalyWordExercise(
       id: baseParams.id,
+      tags: baseParams.tags,
       words: List<LatexField<String>>.from(
         (map['words'] as List<dynamic>).map((e) {
           return LatexField<String>.fromMap(e);

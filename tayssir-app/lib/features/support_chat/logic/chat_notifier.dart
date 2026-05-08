@@ -70,7 +70,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       if (instantAnswer == null || instantAnswer.isEmpty) {
         if (t.contains("سعر الاشتراك")) {
           instantAnswer = configs!.refiqSubscriptionPrice;
-        } else if (t.contains("المواد المتاحة")) {
+        } else if (t.contains("المواد المتاحة") || t.contains("البرامج المتاحة")) {
           instantAnswer = configs!.refiqAvailableMaterials;
         } else if (t.contains("هدف التطبيق")) {
           instantAnswer = configs!.refiqAppGoal;

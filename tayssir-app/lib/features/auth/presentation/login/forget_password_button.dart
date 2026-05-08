@@ -9,6 +9,7 @@ class ForgetPasswordButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return TextButton(
       onPressed: () {
         context.pushNamed(AppRoutes.forgetPassword.name);
@@ -21,7 +22,7 @@ class ForgetPasswordButton extends StatelessWidget {
       child: Text(
         'هل نسيت كلمة السر ؟',
         style: TextStyle(
-          color: AppColors.primaryColor,
+          color: isDark ? AppColors.primaryColor : AppColors.warmAccent,
           fontSize: 12.sp,
           fontWeight: FontWeight.w900,
           fontFamily: 'SomarSans',

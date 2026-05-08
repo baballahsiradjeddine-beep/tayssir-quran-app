@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/features/onboarding/onboarding_notifier.dart';
 import 'package:tayssir/features/onboarding/widgets/onboarding_button.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/features/onboarding/widgets/refiq_speaker.dart';
 import 'package:tayssir/providers/settings/settings_provider.dart';
 import 'package:tayssir/services/sounds/sound_manager.dart';
@@ -131,13 +132,13 @@ class _ThemeCard extends StatelessWidget {
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
           borderRadius: BorderRadius.circular(24.r),
           border: Border.all(
-            color: isSelected ? const Color(0xFF10B981) : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+            color: isSelected ? (isDark ? const Color(0xFF10B981) : AppColors.warmAccent) : (isDark ? const Color(0xFF334155) : AppColors.warmBorder),
             width: isSelected ? 3 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF10B981).withOpacity(0.3),
+                    color: (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   )

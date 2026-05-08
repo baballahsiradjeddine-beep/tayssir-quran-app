@@ -13,5 +13,5 @@ Schedule::command('auth:clear-resets')->daily();
 Schedule::command(RunHealthChecksCommand::class)->daily();
 Schedule::command(DeleteTempFiles::class)->daily();
 
-// Send automated notifications like streaks and inactivity daily at 8:00 PM
-Schedule::command('app:send-automated-notifications')->dailyAt('20:00');
+// Run automated notifications hourly to check for specific time-based triggers (Morning, Friday, Evening)
+Schedule::command('app:send-automated-notifications')->hourly();

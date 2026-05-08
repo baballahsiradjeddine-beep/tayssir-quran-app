@@ -45,8 +45,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFF0A1628),
+      backgroundColor: isDark ? const Color(0xFF0A1628) : AppColors.warmBackground,
       body: Stack(
         children: [
           _BackgroundDecor(),
@@ -85,6 +86,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 class _BackgroundDecor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       children: [
         Positioned(
@@ -96,7 +98,7 @@ class _BackgroundDecor extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(colors: [
-                const Color(0xFF10B981).withOpacity(0.18),
+                isDark ? const Color(0xFF10B981).withOpacity(0.18) : AppColors.warmAccent.withOpacity(0.12),
                 Colors.transparent,
               ]),
             ),
@@ -133,6 +135,7 @@ class _ProgressDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(total, (i) {
@@ -145,8 +148,8 @@ class _ProgressDots extends StatelessWidget {
           height: 8.h,
           decoration: BoxDecoration(
             color: isActive
-                ? const Color(0xFF10B981)
-                : const Color(0xFF10B981).withOpacity(0.25),
+                ? (isDark ? const Color(0xFF10B981) : AppColors.warmAccent)
+                : (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.25),
             borderRadius: BorderRadius.circular(4.r),
           ),
         );

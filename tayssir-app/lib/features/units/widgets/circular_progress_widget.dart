@@ -44,7 +44,7 @@ class CircularProgressWidget extends StatelessWidget {
                       : '${percentage.toStringAsFixed(0)}%',
                   style: TextStyle(
                     fontSize: 16.sp,
-                    color: Colors.black,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                 )),

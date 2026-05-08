@@ -24,7 +24,9 @@ class EmptyContentWidget extends StatelessWidget {
               child: Center(
                 child: Text(message,
                     style: TextStyle(
-                        color: Colors.black,
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.white 
+                            : Colors.black,
                         fontSize: 20.sp,
                         fontWeight: FontWeight.bold)),
               ),

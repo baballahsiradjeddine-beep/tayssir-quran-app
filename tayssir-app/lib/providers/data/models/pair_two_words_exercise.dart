@@ -7,20 +7,20 @@ class PairTwoWordsExercise extends ExerciseModel {
   List<LatexField<String>> firstPairs = [];
   List<LatexField<String>> secondPairs = [];
 
-  PairTwoWordsExercise(
-      {required super.id,
-      required this.correctAnswers,
-      required super.chapterId,
-      required super.scope,
-      // required super.difficulty,
-      required super.points,
-      required super.direction,
-      super.explanationVideo,
-      required super.explanation,
-      required super.hints,
-      super.image,
-      super.hintImage})
-      : super(
+  PairTwoWordsExercise({
+    required super.id,
+    super.tags,
+    required super.chapterId,
+    required super.hints,
+    required super.explanation,
+    required super.points,
+    required super.scope,
+    required super.direction,
+    super.image,
+    super.explanationVideo,
+    required this.correctAnswers,
+    super.hintImage,
+  }) : super(
           type: ExerciseType.pairTwoWords,
         ) {
     firstPairs = correctAnswers.map((e) => e.first).toList()..shuffle();
@@ -32,6 +32,7 @@ class PairTwoWordsExercise extends ExerciseModel {
 
     return PairTwoWordsExercise(
       id: baseParams.id,
+      tags: baseParams.tags,
       correctAnswers: List<WordPair>.from(
         (map['pairs'] as List<dynamic>).map((e) {
           return WordPair.fromMap(e);
@@ -45,7 +46,6 @@ class PairTwoWordsExercise extends ExerciseModel {
       explanationVideo: baseParams.explanationVideo,
       scope: baseParams.scope,
       direction: baseParams.direction,
-      // difficulty: baseParams.difficulty,
       hintImage: baseParams.hintImage,
     );
   }

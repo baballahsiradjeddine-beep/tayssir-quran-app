@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class ExerciseHeader extends StatelessWidget {
   final double progress;
@@ -37,18 +38,23 @@ class ExerciseHeader extends StatelessWidget {
                 width: availableWidth * progress.clamp(0.01, 1.0),
                 height: 10.h,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF064E3B), // Dark Emerald
-                      Color(0xFF10B981), // Emerald 500
-                    ],
+                  gradient: LinearGradient(
+                    colors: isDark 
+                        ? [
+                            AppColors.goldColorLight,
+                            AppColors.goldColor,
+                          ]
+                        : [
+                            const Color(0xFF7C4A27), // warmTitle (Darker)
+                            const Color(0xFFB45309), // warmAccent (Primary)
+                          ],
                     begin: Alignment.centerRight,
                     end: Alignment.centerLeft,
                   ),
                   borderRadius: BorderRadius.circular(20.r),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF10B981).withOpacity(0.3),
+                      color: (isDark ? AppColors.goldColor : AppColors.warmAccent).withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

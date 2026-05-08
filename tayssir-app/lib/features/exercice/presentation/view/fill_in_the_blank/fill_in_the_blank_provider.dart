@@ -19,14 +19,13 @@ class FillInTheBlankNotifier extends StateNotifier<FillInTheBlankState> {
   }
 
   void selectWord(int wordIndex) {
-    final currentFilledBlanks = List<String?>.from(state.filledBlanks);
+    final currentFilledBlanks = List<int?>.from(state.filledBlanks);
     final currentWordSelectionState = List<bool>.from(state.wordSelectionState);
 
     final blankIndex = state.getNextBlankIndex();
 
     if (blankIndex != -1 && !state.isWordSelected(wordIndex)) {
-      //todo FITB
-      currentFilledBlanks[blankIndex] = state.exercise.suggestions[wordIndex];
+      currentFilledBlanks[blankIndex] = wordIndex;
       currentWordSelectionState[wordIndex] = true;
       state = state.copyWith(
         filledBlanks: currentFilledBlanks,
@@ -37,15 +36,11 @@ class FillInTheBlankNotifier extends StateNotifier<FillInTheBlankState> {
   }
 
   void unselectWord(int blankIndex) {
-    final currentFilledBlanks = List<String?>.from(state.filledBlanks);
+    final currentFilledBlanks = List<int?>.from(state.filledBlanks);
     final currentWordSelectionState = List<bool>.from(state.wordSelectionState);
 
     if (currentFilledBlanks[blankIndex] != null) {
-      //todo FITB
-      final wordIndex = state.exercise.suggestions
-          .map((e) => e)
-          .toList()
-          .indexOf(currentFilledBlanks[blankIndex]!);
+      final wordIndex = currentFilledBlanks[blankIndex]!;
       currentWordSelectionState[wordIndex] = false;
       currentFilledBlanks[blankIndex] = null;
 

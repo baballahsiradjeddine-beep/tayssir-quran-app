@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tayssir/features/exercice/presentation/state/exercice_controller.dart';
 import 'package:tayssir/features/exercice/presentation/view/select_right_option/latext_text_widget.dart';
@@ -29,7 +30,7 @@ class AnomalyWordWidget extends ConsumerWidget {
 
     Color getBorderColor() {
       if (isShowResult) {
-        if (isSelected && isCorrectWord) return const Color(0xFF10B981);
+        if (isSelected && isCorrectWord) return AppColors.warmAccent;
         if (isSelected) return const Color(0xFFF43F5E);
         return isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
       }
@@ -50,7 +51,7 @@ class AnomalyWordWidget extends ConsumerWidget {
           gradient: isSelected ? AppColors.primaryGradient : null,
           color: isSelected 
               ? null 
-              : (isDark ? const Color(0xFF1E293B) : Colors.white),
+              : (isShowResult && isCorrectWord ? AppColors.warmAccent.withOpacity(0.1) : (isDark ? const Color(0xFF1E293B) : Colors.white)),
           borderRadius: BorderRadius.circular(99.r), // Standard Pill
           border: Border.all(
             color: getBorderColor(),
@@ -66,7 +67,7 @@ class AnomalyWordWidget extends ConsumerWidget {
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                    color: (isShowResult && isCorrectWord ? AppColors.warmAccent.withOpacity(0.1) : Colors.black.withOpacity(isDark ? 0.2 : 0.05)),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )

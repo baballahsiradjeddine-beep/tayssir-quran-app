@@ -61,6 +61,7 @@ class ContentService
                 'description' => $material->description,
                 'image' => $material->image,
                 'image_grid' => $material->image_grid,
+                'type' => $material->type,
                 'progress' => $progressData['materials'][$material->id] ?? 0,
                 'points' => $progressData['points']['materials'][$material->id] ?? 0,
             ];

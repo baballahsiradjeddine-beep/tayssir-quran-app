@@ -88,7 +88,7 @@ class ContactUsScreen extends HookConsumerWidget {
                               ),
                             ),
                             8.horizontalSpace,
-                            const Icon(Icons.phone_in_talk_outlined, color: AppColors.primaryColor),
+                            Icon(Icons.phone_in_talk_outlined, color: isDark ? AppColors.goldColor : AppColors.warmAccent),
                           ],
                         ),
 
@@ -155,7 +155,7 @@ class ContactUsScreen extends HookConsumerWidget {
                             
                             CustomTextFormField(
                               prefix: CircleAvatar(
-                                backgroundColor: AppColors.primaryColor,
+                                backgroundColor: isDark ? AppColors.goldColor : AppColors.warmAccent,
                                 radius: 14.r,
                                 child: const Icon(Icons.person, color: Colors.white, size: 15),
                               ),
@@ -169,7 +169,7 @@ class ContactUsScreen extends HookConsumerWidget {
                             
                             CustomTextFormField(
                               prefix: CircleAvatar(
-                                backgroundColor: AppColors.primaryColor,
+                                backgroundColor: isDark ? AppColors.goldColor : AppColors.warmAccent,
                                 radius: 14.r,
                                 child: const Icon(Icons.email, color: Colors.white, size: 15),
                               ),

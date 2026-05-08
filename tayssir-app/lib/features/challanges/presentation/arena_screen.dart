@@ -351,7 +351,7 @@ class ArenaScreen extends HookConsumerWidget {
 
               Column(
                 children: [
-                  _buildBattleHeader(myInfo!, opInfo!, horizontalPadding, isDark),
+                  _buildCouncilHeader(myInfo!, opInfo!, horizontalPadding, isDark),
                   if (!isFinished) _buildTimer(currentIndex, questions[currentIndex], horizontalPadding, (q) => handleAnswer(q), isDark),
                   Expanded(
                     child: isFinished
@@ -390,9 +390,9 @@ class ArenaScreen extends HookConsumerWidget {
                                       height: 52.h,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16.r),
-                                        gradient: const LinearGradient(colors: [AppColors.primaryColor, Color(0xFF059669)]),
+                                        gradient: const LinearGradient(colors: [AppColors.emerald600, Color(0xFF059669)]),
                                         boxShadow: [
-                                          BoxShadow(color: AppColors.primaryColor.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5))
+                                          BoxShadow(color: AppColors.emerald600.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5))
                                         ],
                                       ),
                                       child: ElevatedButton(
@@ -403,7 +403,7 @@ class ArenaScreen extends HookConsumerWidget {
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
                                         ),
                                         child: Text(
-                                          "التحقق",
+                                          "التحقق من الإجابة 🌿",
                                           style: TextStyle(color: Colors.white, fontSize: 17.sp, fontWeight: FontWeight.w900, fontFamily: 'SomarSans'),
                                         ),
                                       ),
@@ -451,11 +451,11 @@ class ArenaScreen extends HookConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isCorrect ? AppColors.primaryColor : const Color(0xFFF43F5E),
+        color: isCorrect ? AppColors.emerald600 : const Color(0xFFF43F5E),
         borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
         boxShadow: [
           BoxShadow(
-            color: (isCorrect ? AppColors.primaryColor : const Color(0xFFF43F5E)).withOpacity(0.3),
+            color: (isCorrect ? AppColors.emerald600 : const Color(0xFFF43F5E)).withOpacity(0.3),
             blurRadius: 20,
             spreadRadius: 2,
             offset: const Offset(0, -5),
@@ -479,11 +479,11 @@ class ArenaScreen extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isCorrect ? "إجابة عبقرية! ✨" : "مرة أخرى ستنجح! 💪",
+                      isCorrect ? "بارك الله في علمك! ✨" : "مرة أخرى ستنجح بإذن الله! 💪",
                       style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.w900, fontFamily: 'SomarSans'),
                     ),
                     Text(
-                      isCorrect ? "+10 نقاط لرصيدك" : "لا بأس، استعن بالله وراجعها ثانية",
+                      isCorrect ? "+10 نقاط في ميزان حسناتك" : "لا بأس، استعن بالله وراجعها ثانية",
                       style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14.sp, fontFamily: 'SomarSans'),
                     ),
                   ],
@@ -493,8 +493,8 @@ class ArenaScreen extends HookConsumerWidget {
                 padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
                 child: Text(
-                  "تابع التحدي",
-                  style: TextStyle(color: isCorrect ? AppColors.primaryColor : const Color(0xFFF43F5E), fontWeight: FontWeight.bold, fontSize: 13.sp, fontFamily: 'SomarSans'),
+                  "تابع المجلس",
+                  style: TextStyle(color: isCorrect ? AppColors.emerald600 : const Color(0xFFF43F5E), fontWeight: FontWeight.bold, fontSize: 13.sp, fontFamily: 'SomarSans'),
                 ),
               ),
             ],
@@ -504,7 +504,7 @@ class ArenaScreen extends HookConsumerWidget {
     ).animate().slideY(begin: 1, duration: 300.ms, curve: Curves.easeOutCubic);
   }
 
-  Widget _buildBattleHeader(Map my, Map op, double horizontalPadding, bool isDark) {
+  Widget _buildCouncilHeader(Map my, Map op, double horizontalPadding, bool isDark) {
     return Container(
       padding: EdgeInsets.fromLTRB(horizontalPadding, 15.h, horizontalPadding, 15.h),
       decoration: BoxDecoration(
@@ -514,8 +514,8 @@ class ArenaScreen extends HookConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildPlayerProfile(my, AppColors.primaryColor, true),
-          _buildBattleBadge(isDark),
+          _buildPlayerProfile(my, AppColors.emerald600, true),
+          _buildCouncilBadge(isDark),
           _buildPlayerProfile(op, const Color(0xFFF43F5E), false),
         ],
       ),
@@ -526,7 +526,7 @@ class ArenaScreen extends HookConsumerWidget {
     final score = info['score'] ?? 0;
     final name = info['name'] ?? 'لاعب';
     final pic = info['pic'] ?? '';
-    final themeColor = isLeft ? AppColors.primaryColor : const Color(0xFFF43F5E);
+    final themeColor = isLeft ? AppColors.emerald600 : const Color(0xFFF43F5E);
 
     return Column(
       children: [
@@ -572,11 +572,11 @@ class ArenaScreen extends HookConsumerWidget {
                 top: -25.h,
                 child: Text(
                   "+10 💎",
-                  style: TextStyle(
-                    color: AppColors.primaryColor,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w900,
-                  ),
+                    style: TextStyle(
+                      color: AppColors.emerald600,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w900,
+                    ),
                 )
                 .animate(key: ValueKey('points_$score'))
                 .fadeIn()
@@ -622,21 +622,21 @@ class ArenaScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildBattleBadge(bool isDark) {
+  Widget _buildCouncilBadge(bool isDark) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(25.r),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: AppColors.emerald600.withOpacity(0.1)),
       ),
       child: Row(
         children: [
-          const Text("⚡", style: TextStyle(fontSize: 14)),
-          4.horizontalSpace,
+          const Text("🕌", style: TextStyle(fontSize: 14)),
+          8.horizontalSpace,
           Text(
-            "تحدي",
-            style: TextStyle(color: isDark ? Colors.white60 : Colors.black54, fontSize: 13.sp, fontWeight: FontWeight.w900, fontFamily: 'SomarSans'),
+            "مجلس علم",
+            style: TextStyle(color: isDark ? Colors.white60 : AppColors.warmTitle, fontSize: 13.sp, fontWeight: FontWeight.w900, fontFamily: 'SomarSans'),
           ),
         ],
       ),
@@ -671,14 +671,14 @@ class ArenaScreen extends HookConsumerWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.primaryColor, 
+                            AppColors.emerald600, 
                             const Color(0xFF059669),
-                            AppColors.primaryColor.withOpacity(0.8),
+                            AppColors.emerald600.withOpacity(0.8),
                           ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryColor.withOpacity(0.4),
+                            color: AppColors.emerald600.withOpacity(0.4),
                             blurRadius: 10,
                             spreadRadius: 2,
                           ),
@@ -1187,6 +1187,7 @@ class ArenaScreen extends HookConsumerWidget {
 
 
   Widget _buildEmojiPicker(DatabaseReference matchRef, String uid, bool isPrivate, bool isSoundOn, VoidCallback onChat, bool isDark) {
+    final emojis = ['✨', '🙌', '⭐', '❤️', '🔥'];
     return Container(
       margin: EdgeInsets.only(bottom: 20.h, left: 30.w, right: 30.w),
       padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 10.w),
@@ -1201,28 +1202,21 @@ class ArenaScreen extends HookConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          if (isPrivate)
-            IconButton(
-              onPressed: onChat,
-              icon: Icon(Icons.chat_bubble_outline, color: isDark ? Colors.white : const Color(0xFF1E293B), size: 22.sp),
-              padding: EdgeInsets.zero,
-            ),
-          if (isPrivate) Container(width: 1, height: 20, color: isDark ? Colors.white10 : Colors.black12),
-          ...['😂', '🔥', '💪', '😱', '🥳'].map((e) {
-            return InkWell(
-              onTap: () {
-                if (isSoundOn) SoundService.playClickPremium();
-                matchRef.child('players/$uid/emoji').set(e);
-                Future.delayed(const Duration(seconds: 3), () => matchRef.child('players/$uid/emoji').set(''));
-              },
-              child: Padding(
-                padding: EdgeInsets.all(8.w),
-                child: Text(e, style: TextStyle(fontSize: 24.sp))
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(begin: const Offset(1, 1), end: const Offset(1.15, 1.15), duration: 2.seconds),
-              ),
-            );
-          }),
+          ...emojis.map((e) => GestureDetector(
+                onTap: () {
+                  if (isSoundOn) SoundService.playClickPremium();
+                  matchRef.child('players/$uid/lastEmoji').set(e);
+                  Future.delayed(const Duration(seconds: 2), () {
+                    matchRef.child('players/$uid/lastEmoji').set('');
+                  });
+                },
+                child: Text(e, style: TextStyle(fontSize: 24.sp)),
+              )),
+          Container(width: 1, height: 25.h, color: Colors.grey.withOpacity(0.2)),
+          IconButton(
+            icon: Icon(Icons.chat_bubble_outline_rounded, color: AppColors.emerald600, size: 22.sp),
+            onPressed: onChat,
+          ),
         ],
       ),
     );
@@ -1234,63 +1228,77 @@ class _ChallengeChatSheet extends HookWidget {
   final String myUid;
   final Function(String) onSend;
 
-  const _ChallengeChatSheet({required this.messages, required this.myUid, required this.onSend});
+  const _ChallengeChatSheet({
+    required this.messages,
+    required this.myUid,
+    required this.onSend,
+  });
 
   @override
   Widget build(BuildContext context) {
     final controller = useTextEditingController();
     final scrollController = useScrollController();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-         if (scrollController.hasClients) {
-           scrollController.jumpTo(scrollController.position.maxScrollExtent);
-         }
+      Future.microtask(() {
+        if (scrollController.hasClients) {
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
       });
       return null;
     }, [messages.length]);
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
-      height: 0.7.sh,
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0F172A) : Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
-        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
       ),
+      height: 500.h,
       child: Column(
         children: [
-          15.verticalSpace,
-          Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: isDark ? Colors.white24 : Colors.black12, borderRadius: BorderRadius.circular(10))),
+          10.verticalSpace,
+          Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(2))),
           Padding(
-            padding: EdgeInsets.all(20.w),
-            child: Text("دردشة الأصدقاء 💬", style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B), fontSize: 18.sp, fontWeight: FontWeight.w900, fontFamily: 'SomarSans')),
+            padding: EdgeInsets.all(20.r),
+            child: Text(
+              "مجلس الرفقاء 🌿",
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900, fontFamily: 'SomarSans'),
+            ),
           ),
           Expanded(
             child: ListView.builder(
               controller: scrollController,
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               itemCount: messages.length,
-              itemBuilder: (ctx, i) {
+              itemBuilder: (context, i) {
                 final m = messages[i];
                 final isMe = m['uid'] == myUid;
                 return Align(
-                  alignment: isMe ? Alignment.centerLeft : Alignment.centerRight,
+                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: EdgeInsets.only(bottom: 10.h),
-                    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
                     decoration: BoxDecoration(
-                      color: isMe ? const Color(0xFF10B981).withOpacity(isDark ? 0.2 : 0.1) : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03)),
-                      borderRadius: BorderRadius.circular(15.r),
-                      border: Border.all(color: isMe ? const Color(0xFF10B981).withOpacity(0.3) : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05))),
+                      color: isMe ? AppColors.emerald600 : (isDark ? const Color(0xFF1E293B) : Colors.grey.shade100),
+                      borderRadius: BorderRadius.circular(15.r).copyWith(
+                        bottomRight: isMe ? Radius.zero : Radius.circular(15.r),
+                        bottomLeft: !isMe ? Radius.zero : Radius.circular(15.r),
+                      ),
                     ),
                     child: Column(
-                      crossAxisAlignment: isMe ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                       children: [
-                        if (!isMe) Text(m['name'] ?? '', style: TextStyle(color: const Color(0xFFF43F5E), fontSize: 10.sp, fontWeight: FontWeight.bold)),
-                        Text(m['text'] ?? '', style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B), fontSize: 13.sp, fontFamily: 'SomarSans')),
+                        if (!isMe) Text(m['name'] ?? '', style: TextStyle(fontSize: 10.sp, color: AppColors.emerald600, fontWeight: FontWeight.bold)),
+                        Text(
+                          m['text'] ?? '',
+                          style: TextStyle(color: isMe ? Colors.white : (isDark ? Colors.white70 : Colors.black87), fontSize: 14.sp),
+                        ),
                       ],
                     ),
                   ),
@@ -1299,42 +1307,29 @@ class _ChallengeChatSheet extends HookWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(15.w),
+            padding: EdgeInsets.all(20.r),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: controller,
-                    style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B)),
                     decoration: InputDecoration(
-                      hintText: "اكتب رسالة...",
-                      hintStyle: TextStyle(color: isDark ? Colors.white24 : Colors.black26, fontSize: 14.sp),
-                      fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                      hintText: "ألقِ السلام أو قل خيراً...",
                       filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.r), 
-                        borderSide: BorderSide(color: isDark ? Colors.transparent : Colors.black.withOpacity(0.05))
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.r), 
-                        borderSide: BorderSide(color: isDark ? Colors.transparent : Colors.black.withOpacity(0.05))
-                      ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+                      fillColor: isDark ? const Color(0xFF1E293B) : Colors.grey.shade100,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15.r), borderSide: BorderSide.none),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 15.w),
                     ),
-                    onSubmitted: (val) {
-                      onSend(val);
-                      controller.clear();
-                    },
                   ),
                 ),
                 10.horizontalSpace,
                 IconButton(
+                  icon: const Icon(Icons.send_rounded, color: AppColors.emerald600),
                   onPressed: () {
                     onSend(controller.text);
                     controller.clear();
                   },
-                  icon: const Icon(Icons.send_rounded, color: Color(0xFFF59E0B)),
-                )
+                ),
               ],
             ),
           ),
@@ -1346,35 +1341,50 @@ class _ChallengeChatSheet extends HookWidget {
 
 class HexagonShapeBorder extends ShapeBorder {
   const HexagonShapeBorder();
-  @override EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
-  @override Path getInnerPath(Rect rect, {TextDirection? textDirection}) => getOuterPath(rect, textDirection: textDirection);
-  @override Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
-    final path = Path();
-    path.moveTo(rect.center.dx, rect.top);
-    path.lineTo(rect.right, rect.top + rect.height * 0.25);
-    path.lineTo(rect.right, rect.bottom - rect.height * 0.25);
-    path.lineTo(rect.center.dx, rect.bottom);
-    path.lineTo(rect.left, rect.bottom - rect.height * 0.25);
-    path.lineTo(rect.left, rect.top + rect.height * 0.25);
-    path.close();
-    return path;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => getOuterPath(rect, textDirection: textDirection);
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final double w = rect.width;
+    final double h = rect.height;
+    final double x = rect.left;
+    final double y = rect.top;
+
+    return Path()
+      ..moveTo(x + w * 0.5, y)
+      ..lineTo(x + w, y + h * 0.25)
+      ..lineTo(x + w, y + h * 0.75)
+      ..lineTo(x + w * 0.5, y + h)
+      ..lineTo(x, y + h * 0.75)
+      ..lineTo(x, y + h * 0.25)
+      ..close();
   }
-  @override void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
-  @override ShapeBorder scale(double t) => this;
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) => const HexagonShapeBorder();
 }
 
 class _HexagonClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
-    final path = Path();
-    path.moveTo(size.width * 0.5, 0);
-    path.lineTo(size.width, size.height * 0.25);
-    path.lineTo(size.width, size.height * 0.75);
-    path.lineTo(size.width * 0.5, size.height);
-    path.lineTo(0, size.height * 0.75);
-    path.lineTo(0, size.height * 0.25);
-    path.close();
-    return path;
+    return Path()
+      ..moveTo(size.width * 0.5, 0)
+      ..lineTo(size.width, size.height * 0.25)
+      ..lineTo(size.width, size.height * 0.75)
+      ..lineTo(size.width * 0.5, size.height)
+      ..lineTo(0, size.height * 0.75)
+      ..lineTo(0, size.height * 0.25)
+      ..close();
   }
-  @override bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

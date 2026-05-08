@@ -37,12 +37,12 @@ class BigButton extends HookConsumerWidget {
     switch (buttonType) {
       case ButtonType.primary:
         decoration = BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          gradient: isDark ? AppColors.primaryGradient : AppColors.warmGradient,
           borderRadius: BorderRadius.circular(20.r), // 1.25rem
           boxShadow: [
             if (isActive)
               BoxShadow(
-                color: AppColors.primaryColor.withOpacity(0.4),
+                color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.4),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -59,10 +59,10 @@ class BigButton extends HookConsumerWidget {
         decoration = BoxDecoration(
           color: isDark 
               ? AppColors.primaryColor.withOpacity(0.1) 
-              : AppColors.primaryColor.withOpacity(0.05),
+              : AppColors.warmAccent.withOpacity(0.05),
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: AppColors.primaryColor.withOpacity(0.2),
+            color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.2),
           ),
           boxShadow: [
             if (isActive)
@@ -74,7 +74,7 @@ class BigButton extends HookConsumerWidget {
           ],
         );
         textStyle = TextStyle(
-          color: isDark ? Colors.white : AppColors.primaryColor,
+          color: isDark ? Colors.white : AppColors.warmAccent,
           fontSize: 18.sp,
           fontWeight: FontWeight.bold,
           fontFamily: 'SomarSans',

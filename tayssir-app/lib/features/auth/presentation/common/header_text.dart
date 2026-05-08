@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class HeaderText extends StatelessWidget {
   final String text;
@@ -17,7 +18,7 @@ class HeaderText extends StatelessWidget {
       text,
       textAlign: TextAlign.center,
       style: TextStyle(
-        color: isDark ? Colors.white : const Color(0xFF1E293B), // Slate-800
+        color: isDark ? Colors.white : AppColors.warmTitle,
         fontSize: 28.sp,
         fontWeight: FontWeight.w900,
         fontFamily: 'SomarSans',

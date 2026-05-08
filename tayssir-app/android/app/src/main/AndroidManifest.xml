@@ -1,7 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
-    <application android:label="Tayssir" android:name="${applicationName}" android:usesCleartextTraffic="true" android:icon="@mipmap/launcher_icon">
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <application android:label="Tayssir" android:name="${applicationName}" android:usesCleartextTraffic="true" android:icon="@mipmap/launcher_icon" android:enableOnBackInvokedCallback="true">
         
         <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:taskAffinity="" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
@@ -74,6 +77,9 @@
     </intent>
     <intent>
         <action android:name="android.support.customtabs.action.CustomTabsService"/>
+    </intent>
+    <intent>
+        <action android:name="android.speech.RecognitionService" />
     </intent>
     </queries>
     

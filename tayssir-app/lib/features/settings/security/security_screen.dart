@@ -207,7 +207,7 @@ class SecurityOptionWidget extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(12.r),
               decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(isDark ? 0.15 : 0.1),
+                color: (isDark ? AppColors.goldColor : AppColors.warmAccent).withOpacity(isDark ? 0.15 : 0.1),
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: TayssirIcon(

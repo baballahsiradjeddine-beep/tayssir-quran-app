@@ -100,11 +100,11 @@ class ProfileScreen extends HookConsumerWidget {
               image: FileImage(localImage.value!),
               size: 300,
               borderRadius: 50.r,
-              topColor: const Color(0xFF10B981),
-              bottomColor: const Color(0xFF059669),
+              topColor: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
+              bottomColor: isDark ? const Color(0xFF059669) : AppColors.warmTitle,
               elevation: 20,
               borderWidth: 10,
-              borderColor: const Color(0xFF10B981),
+              borderColor: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
               onPressed: () {
                 isShowOverlay.value = false;
                 localImage.value = null;
@@ -132,7 +132,7 @@ class ProfileScreen extends HookConsumerWidget {
                   }
                   isShowOverlay.value = false;
                 },
-                icon: Icon(Icons.check_rounded, color: const Color(0xFF10B981), size: 44.sp),
+                icon: Icon(Icons.check_rounded, color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent, size: 44.sp),
               ),
             ],
           ),
@@ -151,7 +151,7 @@ class ProfileScreen extends HookConsumerWidget {
 
             return RefreshIndicator(
               onRefresh: () async => ref.invalidate(userNotifierProvider),
-              color: const Color(0xFF10B981),
+              color: isDark ? const Color(0xFF10B981) : AppColors.warmTitle,
               child: CustomScrollView(
                 physics: const ClampingScrollPhysics(),
                 slivers: [
@@ -180,7 +180,7 @@ class ProfileScreen extends HookConsumerWidget {
                                 ),
                               ),
                               8.horizontalSpace,
-                              const Icon(Icons.person_outline_rounded, color: Color(0xFF10B981)),
+                              const Icon(Icons.person_outline_rounded, color: Color(0xFF7C4A27)),
                             ],
                           ),
                           const Spacer(),
@@ -300,11 +300,12 @@ class ProfileScreen extends HookConsumerWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context, dynamic user, ValueNotifier<File?> localImage) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final badgeIconUrl = user.badge?.completeIconUrl;
     final badgeColor = user.badge?.color;
     final themeColor = badgeColor != null
         ? Color(int.parse(badgeColor.replaceAll('#', '0xFF')))
-        : const Color(0xFF10B981);
+        : (isDark ? const Color(0xFF10B981) : AppColors.warmTitle);
 
     return Hero(
       tag: 'profile_badge',
@@ -334,7 +335,7 @@ class ProfileScreen extends HookConsumerWidget {
               child: Container(
                 padding: EdgeInsets.all(10.r),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981),
+                  color: isDark ? const Color(0xFF10B981) : AppColors.warmTitle,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 3),
                   boxShadow: const [
@@ -358,7 +359,9 @@ class ProfileScreen extends HookConsumerWidget {
         title: "نوع مساهمة الوقف",
         value: subscription?.name ?? 'وقف عام',
         icon: Icons.mosque_rounded,
-        gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)]),
+        gradient: isDark 
+            ? const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)])
+            : AppColors.warmGradient,
         isDark: isDark,
       ),
     );
@@ -379,17 +382,18 @@ class ProfileScreen extends HookConsumerWidget {
     required List<Country> countries,
     required List<Region> regions,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final fields = [
       CustomTextFormField(
         controller: nameController,
         labelText: AppStrings.name,
-        suffix: const Icon(Icons.person_outline_rounded, color: Color(0xFF10B981)),
+        suffix: Icon(Icons.person_outline_rounded, color: isDark ? const Color(0xFF10B981) : AppColors.warmTitle),
       ),
       CustomTextFormField(
         controller: ageController,
         labelText: "العمر",
         keyboardType: TextInputType.number,
-        suffix: const Icon(Icons.cake_outlined, color: Color(0xFF10B981)),
+        suffix: Icon(Icons.cake_outlined, color: isDark ? const Color(0xFF10B981) : AppColors.warmTitle),
       ),
       CustomTextFormField(
         controller: phoneController,
@@ -410,7 +414,7 @@ class ProfileScreen extends HookConsumerWidget {
                 style: TextStyle(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF10B981),
+                  color: isDark ? const Color(0xFF10B981) : AppColors.warmTitle,
                 ),
               ),
             4.horizontalSpace,

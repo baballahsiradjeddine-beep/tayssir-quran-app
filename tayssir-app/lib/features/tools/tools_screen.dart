@@ -22,9 +22,9 @@ class ToolsScreen extends ConsumerWidget {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppScaffold(
+      bodyBackgroundColor: isDark ? null : AppColors.warmBackground,
       topSafeArea: false,
       extendBody: true,
-      bodyBackgroundColor: Colors.transparent,
       paddingX: 0,
       paddingB: 0,
       body: LayoutBuilder(
@@ -40,7 +40,7 @@ class ToolsScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(toolsProvider),
-            color: const Color(0xFF10B981),
+            color: isDark ? AppColors.primaryColor : AppColors.warmTitle,
             child: CustomScrollView(
               physics: const ClampingScrollPhysics(),
               slivers: [
@@ -75,7 +75,7 @@ class ToolsScreen extends ConsumerWidget {
                           width: 8.w,
                           height: 24.h,
                           decoration: BoxDecoration(
-                            color: AppColors.primaryColor,
+                            color: isDark ? AppColors.primaryColor : AppColors.warmAccent,
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                         ),
@@ -85,7 +85,7 @@ class ToolsScreen extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : AppColors.textBlack,
+                            color: isDark ? Colors.white : AppColors.warmTitle,
                             fontFamily: 'SomarSans',
                           ),
                         ),

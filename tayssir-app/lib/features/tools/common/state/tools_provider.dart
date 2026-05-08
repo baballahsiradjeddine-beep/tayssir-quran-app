@@ -58,8 +58,8 @@ final toolsProvider = Provider<List<ToolModel>>((ref) {
       ),
     ),
     ToolModel(
-      name: 'حلول البكالوريا',
-      description: 'الحلل النموجي للباكالوريات السابقة',
+      name: 'متشابهات القرآن',
+      description: 'دليلك لضبط المتشابهات اللفظية في القرآن',
       pathName: AppRoutes.bacs.name,
       startColor: const Color(0xFF4C4C4C),
       endColor: const Color(0xFFA9A9A9),
@@ -69,6 +69,30 @@ final toolsProvider = Provider<List<ToolModel>>((ref) {
         list: configs.toolBacSolutionsList.isNotEmpty ? configs.toolBacSolutionsList : Images.resolveListBg,
       ),
       isStartBottomColor: false,
+    ),
+    ToolModel(
+      name: 'حصن المسلم',
+      description: 'أذكار الصباح والمساء بعداد تفاعلي ذكي.',
+      pathName: AppRoutes.athkar.name,
+      startColor: const Color(0xFF0EA5E9),
+      endColor: const Color(0xFF1E1B4B),
+      isLocked: false,
+      toolImage: ToolImage(
+        grid: Images.successBg,
+        list: Images.successBg,
+      ),
+    ),
+    ToolModel(
+      name: 'بوصلة القبلة',
+      description: 'حدد اتجاه القبلة بتقنية الواقع المعزز AR.',
+      pathName: AppRoutes.qibla.name,
+      startColor: const Color(0xFF8B5CF6),
+      endColor: const Color(0xFF4C1D95),
+      isLocked: false,
+      toolImage: ToolImage(
+        grid: Images.failureBg,
+        list: Images.failureBg,
+      ),
     ),
   ];
   return allTools.where((tool) => !tool.isLocked).toList();

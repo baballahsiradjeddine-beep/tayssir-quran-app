@@ -427,7 +427,7 @@ class FadeThroughTransition extends StatelessWidget {
   }
 }
 
-class TayssirCustomGoRoute extends GoRoute {
+class BayanCustomGoRoute extends GoRoute {
   final TransitionType transitionType;
   final SlideDirection slideDirection;
   final Duration duration;
@@ -435,7 +435,7 @@ class TayssirCustomGoRoute extends GoRoute {
   final SharedAxisTransitionType sharedAxisType;
   final Alignment containerAlignment;
 
-  TayssirCustomGoRoute({
+  BayanCustomGoRoute({
     required super.path,
     required super.name,
     super.routes,

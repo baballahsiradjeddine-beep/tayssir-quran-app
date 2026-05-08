@@ -37,8 +37,8 @@ class DivisionModel extends Equatable implements TaysirDropdownItem {
 
   factory DivisionModel.fromMap(Map<String, dynamic> map) {
     return DivisionModel(
-      id: map['id'] as int,
-      name: map['name'] as String,
+      id: (map['id'] as int?) ?? 0,
+      name: (map['name'] as String?) ?? '',
     );
   }
 

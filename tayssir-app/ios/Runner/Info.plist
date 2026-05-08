@@ -60,6 +60,10 @@
 		<string>voip</string>
 		<string>push-to-talk</string>
 	</array>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>نحتاج للوصول للميكروفون لتمكين ميزة التسميع الذكي وتصحيح التلاوة.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>نستخدم تقنية التعرف على الكلام لمقارنة تلاوتك مع نص المصحف الشريف.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

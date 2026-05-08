@@ -49,14 +49,13 @@ class LatextTextWidget extends StatelessWidget {
             .replaceAll(r'\[', r'$$')
             .replaceAll(r'\]', r'$$');
         return Directionality(
-          textDirection: TextDirection.ltr,
+          textDirection: Directionality.of(context),
           child: LaTexT(
             delimiter: r'$',
             displayDelimiter: r'$$',
             laTeXCode: Text(
               mathFixedText,
-              textDirection: TextDirection.rtl,
-              textAlign: textAlign ?? TextAlign.center,
+              textAlign: textAlign ?? TextAlign.start,
               style: textStyle,
             ),
           ),
@@ -74,7 +73,7 @@ class LatextTextWidget extends StatelessWidget {
           },
           child: TeXViewDocument(text,
               style: const TeXViewStyle.fromCSS(
-                  'padding: 0px;  direction: rtl;   text-align: center;')),
+                  'padding: 0px; text-align: start;')),
         ),
         style: TeXViewStyle(
           contentColor: textStyle.color ?? Colors.black,

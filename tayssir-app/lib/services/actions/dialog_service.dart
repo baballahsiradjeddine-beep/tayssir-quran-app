@@ -123,6 +123,25 @@ class DialogService {
     );
   }
 
+  // show need login dialog
+  static void showNeedLoginDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return DialogContent(
+          title: 'حفظ التقدم 💾',
+          subTitle:
+              'لقد بدأت رحلة رائعة! من أجل حفظ تقدمك في الدروس ومنافسة أصدقائك، يرجى تسجيل الدخول أو إنشاء حساب جديد.',
+          buttonText: 'تسجيل الدخول',
+          onPressed: () {
+            context.pushNamed(AppRoutes.login.name);
+          },
+        );
+      },
+    );
+  }
+
   static void showBadgeCelebrationDialog(
       BuildContext context, String badgeName, String badgeIconUrl, Color badgeColor) {
     showDialog(

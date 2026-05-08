@@ -9,6 +9,7 @@ import 'package:tayssir/common/core/app_logo.dart';
 import 'package:tayssir/common/core/app_scaffold.dart';
 import 'package:tayssir/features/onboarding/onboarding_notifier.dart';
 import 'package:tayssir/utils/enums/triangle_side.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/router/app_router.dart';
 import '../../../common/bayan_bubble_talk_widget.dart';
 
@@ -69,7 +70,7 @@ class AuthScreen extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                    color: isDark ? const Color(0xFF94A3B8) : AppColors.warmSubtitle,
                     fontFamily: 'SomarSans',
                     height: 1.6,
                   ),
@@ -112,7 +113,7 @@ class AuthScreen extends ConsumerWidget {
                   child: Text(
                     '← تجربة شاشة الـ Onboarding (debug)',
                     style: TextStyle(
-                      color: const Color(0xFF334155),
+                      color: isDark ? const Color(0xFF334155) : AppColors.warmSubtitle,
                       fontSize: 11.sp,
                       fontFamily: 'SomarSans',
                       decoration: TextDecoration.underline,

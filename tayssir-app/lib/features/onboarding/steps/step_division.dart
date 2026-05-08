@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/features/onboarding/onboarding_notifier.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/features/onboarding/widgets/onboarding_button.dart';
 import 'package:tayssir/features/onboarding/widgets/refiq_speaker.dart';
 import 'package:tayssir/providers/divisions/division_model.dart';
@@ -39,6 +40,7 @@ class _StepDivisionPageState extends ConsumerState<StepDivisionPage> {
   Widget build(BuildContext context) {
     final name = ref.watch(onboardingProvider).name ?? 'صديقي';
     final divisionsAsync = ref.watch(divisionsProvider);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SafeArea(
       child: Padding(
@@ -49,7 +51,7 @@ class _StepDivisionPageState extends ConsumerState<StepDivisionPage> {
 
             // ── Tito ──
             RefiqSpeaker(
-              message: 'رائع يا $name! 🎉\nفي أي شعبة أنت؟\nحتى أختار لك المواد المناسبة',
+              message: 'رائع يا $name! 🎉\nبأي رواية تقرأ؟\nحتى أخصص لك الآيات المناسبة',
             ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.2, end: 0, curve: Curves.easeOutBack),
 
             28.verticalSpace,
@@ -77,12 +79,12 @@ class _StepDivisionPageState extends ConsumerState<StepDivisionPage> {
                     );
                   },
                 ),
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF10B981)),
+                loading: () => Center(
+                  child: CircularProgressIndicator(color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent),
                 ),
                 error: (e, _) => Center(
                   child: Text('خطأ في تحميل الشعب',
-                      style: TextStyle(color: Colors.white70, fontSize: 14.sp)),
+                      style: TextStyle(color: isDark ? Colors.white70 : AppColors.warmSubtitle, fontSize: 14.sp)),
                 ),
               ),
             ),
@@ -119,6 +121,7 @@ class _DivisionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -129,18 +132,18 @@ class _DivisionTile extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18.r),
           color: isSelected
-              ? const Color(0xFF10B981).withOpacity(0.15)
-              : const Color(0xFF1E293B),
+              ? (isDark ? const Color(0xFF10B981).withOpacity(0.15) : AppColors.warmAccent.withOpacity(0.08))
+              : (isDark ? const Color(0xFF1E293B) : Colors.white),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF10B981)
-                : const Color(0xFF334155),
+                ? (isDark ? const Color(0xFF10B981) : AppColors.warmAccent)
+                : (isDark ? const Color(0xFF334155) : AppColors.warmBorder),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF10B981).withOpacity(0.2),
+                    color: (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.15),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   )
@@ -154,17 +157,19 @@ class _DivisionTile extends StatelessWidget {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: isSelected
-                  ? const Icon(Icons.check_circle_rounded,
-                      color: Color(0xFF10B981), size: 26)
-                  : const Icon(Icons.circle_outlined,
-                      color: Color(0xFF475569), size: 26),
+                  ? Icon(Icons.check_circle_rounded,
+                      color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent, size: 26)
+                  : Icon(Icons.circle_outlined,
+                      color: isDark ? const Color(0xFF475569) : AppColors.warmBorder, size: 26),
             ),
             // Division name
             Text(
               division.name,
               textDirection: TextDirection.rtl,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                color: isSelected 
+                    ? (isDark ? Colors.white : AppColors.warmTitle) 
+                    : (isDark ? const Color(0xFF94A3B8) : AppColors.warmSubtitle),
                 fontSize: 16.sp,
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
                 fontFamily: 'SomarSans',

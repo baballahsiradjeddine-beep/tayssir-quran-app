@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/utils/enums/triangle_side.dart';
 
 class BayanBubbleTalkWidget extends StatelessWidget {
@@ -22,7 +23,7 @@ class BayanBubbleTalkWidget extends StatelessWidget {
         : Colors.white.withOpacity(0.8);
     final Color borderColor = isDark 
         ? const Color(0xFF334155) 
-        : const Color(0xFFF1F5F9);
+        : AppColors.warmBorder;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -54,7 +55,7 @@ class BayanBubbleTalkWidget extends StatelessWidget {
                     text,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                      color: isDark ? const Color(0xFFCBD5E1) : AppColors.warmTitle,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'SomarSans',

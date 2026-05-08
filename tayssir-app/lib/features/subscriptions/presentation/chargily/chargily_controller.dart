@@ -10,12 +10,15 @@ class ChargilyController extends StateNotifier<ChargilyState> {
       : super(const ChargilyState(status: AsyncValue.data(null)));
 
   Future<void> initChargilyPayment(
-      int subscriptionId, String? promotorCode) async {
+      int subscriptionId, String? promotorCode,
+      {double? amount, int? charityCampaignId}) async {
     state = state.copyWith(status: const AsyncValue.loading());
     try {
       final url = await subscriptionRepository.initChargilyPayment(
         subscriptionId,
         promotorCode,
+        amount: amount,
+        charityCampaignId: charityCampaignId,
       );
 
       state = state.copyWith(

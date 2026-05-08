@@ -74,16 +74,20 @@ class LeaderboardScreen extends HookConsumerWidget {
                               showThemeToggle: false,
                               showLogo: false,
                             ),
-                            Text(
-                              "أهل القرآن والسابقون",
-                              style: TextStyle(
-                                fontSize: 22.sp,
-                                fontWeight: FontWeight.w900,
-                                color: isDark ? Colors.white : AppColors.textBlack,
-                                fontFamily: 'SomarSans',
+                            Expanded(
+                              child: Text(
+                                "أهل القرآن والسابقون",
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  fontSize: 20.sp, // Reduced slightly to help
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark ? Colors.white : AppColors.textBlack,
+                                  fontFamily: 'SomarSans',
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            SizedBox(width: 44.sp), 
+                            SizedBox(width: 8.w), 
                           ],
                         ),
                       ).animate().fadeIn().slideY(begin: -0.1, end: 0),
@@ -95,7 +99,7 @@ class LeaderboardScreen extends HookConsumerWidget {
                         margin: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 12.h),
                         padding: EdgeInsets.all(6.sp),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+                          color: isDark ? Colors.white.withOpacity(0.05) : AppColors.warmBorder.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Row(
@@ -138,9 +142,10 @@ class LeaderboardScreen extends HookConsumerWidget {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primaryColor.withOpacity(0.08),
+                                  color: (isDark ? AppColors.primaryColor : AppColors.warmTitle).withOpacity(isDark ? 0.08 : 0.12),
                                   blurRadius: 40,
-                                  offset: const Offset(0, 8),
+                                  spreadRadius: 2,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -259,11 +264,11 @@ class LeaderboardScreen extends HookConsumerWidget {
         duration: 300.ms,
         padding: EdgeInsets.symmetric(vertical: 10.h),
         decoration: BoxDecoration(
-          color: isSelected ? (isDark ? AppColors.primaryColor : Colors.white) : Colors.transparent,
+          color: isSelected ? (isDark ? AppColors.primaryColor : AppColors.warmTitle) : Colors.transparent,
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: isSelected ? [
             BoxShadow(
-              color: isDark ? AppColors.primaryColor.withOpacity(0.3) : Colors.black.withOpacity(0.08),
+              color: isDark ? AppColors.primaryColor.withOpacity(0.3) : AppColors.warmAccent.withOpacity(0.15),
               blurRadius: 12,
               offset: const Offset(0, 4),
             )
@@ -275,7 +280,7 @@ class LeaderboardScreen extends HookConsumerWidget {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
-              color: isSelected ? (isDark ? Colors.white : AppColors.primaryColor) : (isDark ? Colors.white38 : Colors.black26),
+              color: isSelected ? Colors.white : (isDark ? Colors.white38 : AppColors.warmTitle.withOpacity(0.4)),
               fontFamily: 'SomarSans',
             ),
           ),
@@ -301,11 +306,11 @@ class _MyRankFloatingBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
       decoration: BoxDecoration(
-        color: AppColors.primaryColor,
+        color: isDark ? AppColors.primaryColor : AppColors.warmTitle,
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryColor.withOpacity(0.4),
+            color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.4),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

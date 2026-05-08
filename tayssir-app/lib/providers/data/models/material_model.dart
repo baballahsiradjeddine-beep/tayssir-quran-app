@@ -14,6 +14,7 @@ class MaterialModel extends Equatable {
   final String? description;
   final double progress;
   final TextDirection direction;
+  final String type;
   const MaterialModel({
     required this.id,
     required this.title,
@@ -24,6 +25,7 @@ class MaterialModel extends Equatable {
     required this.isActive,
     required this.progress,
     required this.direction,
+    required this.type,
     this.description,
   });
 
@@ -35,6 +37,7 @@ class MaterialModel extends Equatable {
     bool? isActive,
     String? description,
     double? progress,
+    String? type,
   }) {
     return MaterialModel(
       id: id ?? this.id,
@@ -47,6 +50,7 @@ class MaterialModel extends Equatable {
       description: description ?? this.description,
       progress: progress ?? this.progress,
       direction: direction,
+      type: type ?? this.type,
     );
   }
 
@@ -63,8 +67,8 @@ class MaterialModel extends Equatable {
       imageList: map['image'] == null ? '' : EnvironmentConfig.resolveImageUrl(map['image'] as String),
       imageGrid: map['image_grid'] == null
           ? map['image'] == null
-              ? ''
-              : EnvironmentConfig.resolveImageUrl(map['image'] as String)
+               ? ''
+               : EnvironmentConfig.resolveImageUrl(map['image'] as String)
           : EnvironmentConfig.resolveImageUrl(map['image_grid'] as String),
       isActive: map['isActive'] ?? true,
       progress: map['progress'] == null
@@ -76,6 +80,7 @@ class MaterialModel extends Equatable {
           map['description'] == null ? '' : map['description'] as String,
       direction:
           map['direction'] == 'RTL' ? TextDirection.rtl : TextDirection.ltr,
+      type: map['type'] as String? ?? 'ahkam',
     );
   }
 
@@ -91,6 +96,7 @@ class MaterialModel extends Equatable {
         progress,
         direction,
         imageGrid,
+        type,
       ];
 
   @override

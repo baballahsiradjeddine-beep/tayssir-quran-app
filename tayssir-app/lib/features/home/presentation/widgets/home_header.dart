@@ -9,7 +9,7 @@ class HomeHeader extends StatelessWidget {
   const HomeHeader({
     super.key,
     required this.viewStyle,
-    this.title = 'المواد المتاحة',
+    this.title = 'البرامج المتاحة',
   });
 
   final ValueNotifier<ViewStyle> viewStyle;
@@ -27,7 +27,7 @@ class HomeHeader extends StatelessWidget {
               width: 6.w,
               height: 22.h,
               decoration: BoxDecoration(
-                color: AppColors.primaryColor,
+                color: isDark ? AppColors.primaryColor : AppColors.warmAccent,
                 borderRadius: BorderRadius.circular(3.r),
               ),
             ),

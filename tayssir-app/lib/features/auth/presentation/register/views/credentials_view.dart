@@ -11,6 +11,7 @@ import 'package:tayssir/features/auth/presentation/login/custom_text_form_field.
 import 'package:tayssir/features/auth/presentation/login/google_sign_in_widget.dart';
 import 'package:tayssir/features/auth/presentation/widgets/or_widget.dart';
 import 'package:tayssir/utils/validators.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/features/auth/presentation/register/widgets/change_auth_type_widget.dart';
 import '../../common/auth_button.dart';
 import '../../common/header_text.dart';
@@ -94,7 +95,7 @@ class RegisterCredentialsView extends HookConsumerWidget {
                 AppStrings.passwordAdvice,
                 textAlign: TextAlign.start,
                 style: TextStyle(
-                  color: const Color(0xFF10B981),
+                  color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w900,
                   fontFamily: 'SomarSans',

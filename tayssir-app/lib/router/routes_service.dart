@@ -139,25 +139,20 @@ class RoutesManager {
         return null;
       }
     } else {
-      // Not logged in
+      // Not logged in (Guest)
       if (!isOnboardingComplete.value) {
         if (!isReadyForTour.value) {
-          // Allow login routes even during onboarding
           if (loginRoutes.contains(path)) return null;
-
-          // Haven't given name+division yet → go to onboarding
           if (path != '/onboarding') {
             redirectLog(path, '/onboarding');
             return '/onboarding';
           }
           return null;
         } else {
-          // Name+division done → allow home for real tour. Block onboarding page.
           if (path == '/onboarding' || path == '/startup') {
             redirectLog(path, '/home');
             return '/home';
           }
-          // Keep them in home routes during tour, redirect from login routes
           if (loginRoutes.contains(path) && path != '/welcome') {
             redirectLog(path, '/home');
             return '/home';
@@ -165,11 +160,11 @@ class RoutesManager {
           return null;
         }
       }
-      // Onboarding fully complete but not logged in → welcome
-      if ((path == '/startup' || homeRoutes.contains(path)) &&
-          !loginRoutes.contains(path)) {
-        redirectLog(path, '/welcome');
-        return '/welcome';
+      // Onboarding fully complete but not logged in (Guest)
+      // ALLOW home routes for guests. Don't force /welcome.
+      if (path == '/startup' || path == '/welcome') {
+        redirectLog(path, '/home');
+        return '/home';
       }
     }
     redirectLog(path, 'NAN');

@@ -40,10 +40,12 @@ class ExerciseState extends Equatable {
   final double bestProgress;
   final AsyncValue<void> submittingStatus;
   final AsyncValue<void> reportingStatus;
+  final List<ExerciseModel>? allChapterExercises;
   final bool isReviewMode;
 
   const ExerciseState({
     required this.exercises,
+    this.allChapterExercises,
     required this.currentExerciceIndex,
     required this.pageController,
     required this.currentPage,
@@ -127,10 +129,12 @@ class ExerciseState extends Equatable {
     double? bestProgress,
     AsyncValue<void>? submittingStatus,
     AsyncValue<void>? reportingStatus,
+    List<ExerciseModel>? allChapterExercises,
     bool? isReviewMode,
   }) {
     return ExerciseState(
       exercises: exercises ?? this.exercises,
+      allChapterExercises: allChapterExercises ?? this.allChapterExercises,
       currentExerciceIndex: currentExercice ?? currentExerciceIndex,
       pageController: pageController ?? this.pageController,
       currentPage: currentPage ?? this.currentPage,
@@ -219,6 +223,7 @@ class ExerciseState extends Equatable {
         bestProgress,
         submittingStatus,
         reportingStatus,
+        allChapterExercises,
         isReviewMode,
       ];
 }

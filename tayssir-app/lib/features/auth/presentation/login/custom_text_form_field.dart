@@ -62,7 +62,7 @@ class CustomTextFormField extends HookConsumerWidget {
           child: Text(
             labelText,
             style: TextStyle(
-              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+              color: isDark ? const Color(0xFF94A3B8) : AppColors.warmTitle,
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               fontFamily: 'SomarSans',
@@ -76,7 +76,7 @@ class CustomTextFormField extends HookConsumerWidget {
             boxShadow: [
               if (isFocused.value)
                 BoxShadow(
-                  color: AppColors.primaryColor.withOpacity(0.2),
+                  color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.15),
                   blurRadius: 15,
                   spreadRadius: 0,
                 ),
@@ -94,7 +94,7 @@ class CustomTextFormField extends HookConsumerWidget {
             textDirection: textDirection,
             textAlign: textAlign ?? TextAlign.start,
             style: TextStyle(
-              color: isDark ? Colors.white : const Color(0xFF1E293B),
+              color: isDark ? Colors.white : AppColors.warmTitle,
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               fontFamily: 'SomarSans',
@@ -102,7 +102,7 @@ class CustomTextFormField extends HookConsumerWidget {
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyle(
-                color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+                color: isDark ? const Color(0xFF475569) : AppColors.warmSubtitle.withOpacity(0.6),
                 fontSize: 14.sp,
                 fontFamily: 'SomarSans',
               ),
@@ -111,7 +111,9 @@ class CustomTextFormField extends HookConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: IconTheme(
                         data: IconThemeData(
-                          color: isFocused.value ? AppColors.primaryColor : (isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8)),
+                          color: isFocused.value 
+                              ? (isDark ? AppColors.primaryColor : AppColors.warmAccent) 
+                              : (isDark ? const Color(0xFF475569) : AppColors.warmSubtitle),
                           size: 22.sp,
                         ),
                         child: prefix!,
@@ -122,7 +124,9 @@ class CustomTextFormField extends HookConsumerWidget {
                   ? IconButton(
                       icon: Icon(
                         isHidden.value ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                        color: isFocused.value ? AppColors.primaryColor : const Color(0xFF94A3B8),
+                        color: isFocused.value 
+                            ? (isDark ? AppColors.primaryColor : AppColors.warmAccent) 
+                            : (isDark ? const Color(0xFF475569) : AppColors.warmSubtitle),
                         size: 22.sp,
                       ),
                       onPressed: () => isHidden.value = !isHidden.value,
@@ -131,7 +135,7 @@ class CustomTextFormField extends HookConsumerWidget {
               filled: true,
               fillColor: isDark 
                   ? (isFocused.value ? const Color(0xFF1E293B) : const Color(0xFF0F172A))
-                  : (isFocused.value ? Colors.white : const Color(0xFFF8FAFC)),
+                  : (isFocused.value ? Colors.white : AppColors.warmBackground),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 20.w,
                 vertical: 14.h,
@@ -139,21 +143,21 @@ class CustomTextFormField extends HookConsumerWidget {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.r),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  color: isDark ? const Color(0xFF334155) : AppColors.warmBorder,
                   width: 1,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.r),
                 borderSide: BorderSide(
-                  color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  color: isDark ? const Color(0xFF334155) : AppColors.warmBorder,
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.r),
-                borderSide: const BorderSide(
-                  color: AppColors.primaryColor,
+                borderSide: BorderSide(
+                  color: isDark ? AppColors.primaryColor : AppColors.warmAccent,
                   width: 2,
                 ),
               ),

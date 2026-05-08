@@ -11,6 +11,7 @@ import 'package:tayssir/utils/extensions/context.dart';
 import 'package:tayssir/services/sounds/sound_manager.dart';
 import 'package:tayssir/providers/special_effect/special_effect_provider.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 import '../../../resources/resources.dart';
 import 'package:tayssir/common/core/app_assets/dynamic_app_asset.dart';
@@ -43,13 +44,13 @@ class MidResultScreen extends HookConsumerWidget {
     Color getStatusColor() {
       switch (exercisesState.resultStatus) {
         case ResultStatus.good:
-          return const Color(0xFF38DBA3);
+          return AppColors.warmAccent;
         case ResultStatus.bad:
           return const Color(0xFFF87B7C);
         case ResultStatus.average:
           return const Color(0xFFFFB74D);
         default:
-          return const Color(0xFF10B981);
+          return AppColors.warmAccent;
       }
     }
 

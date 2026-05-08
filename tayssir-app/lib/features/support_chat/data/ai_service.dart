@@ -49,7 +49,7 @@ class AIService {
         : '';
 
     final fullInstructions =
-        '$persona\n\nمعلومات إضافية عن التطبيق:\n- هدف التطبيق: $appGoal\n- أسعار الاشتراك: $subscriptionPrice\n- المواد المتوفرة: $availableMaterials\n- حساباتنا: $socialLinks\n\n$strictRule';
+        '$persona\n\nمعلومات إضافية عن التطبيق:\n- هدف التطبيق: $appGoal\n- أسعار الاشتراك: $subscriptionPrice\n- البرامج المتوفرة: $availableMaterials\n- حساباتنا: $socialLinks\n\n$strictRule';
 
     model = GenerativeModel(
       model: 'gemini-flash-latest',

@@ -17,12 +17,7 @@ class ExeciseNumberWidget extends ConsumerWidget {
       alignment: Alignment.center,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryColor,
-            Color(0xff0080FF),
-          ],
-        ),
+        gradient: AppColors.accentGradient,
       ),
       child: Text(
         ref.watch(exercicesProvider).currentExerciceIndex + 1 < 10

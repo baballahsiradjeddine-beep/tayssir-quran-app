@@ -190,4 +190,16 @@ class AdminNavigation
         'sort' => 105,
         'group' => self::APP_SETTINGS_GROUP,
     ];
+
+    public const CHARITY_CAMPAIGN_RESOURCE = [
+        'icon' => 'heroicon-o-heart',
+        'sort' => 250,
+        'group' => self::MANAGEMENT_GROUP,
+    ];
+
+    public const CHARITY_PAYMENT_RESOURCE = [
+        'icon' => 'heroicon-o-banknotes',
+        'sort' => 251,
+        'group' => self::MANAGEMENT_GROUP,
+    ];
 }

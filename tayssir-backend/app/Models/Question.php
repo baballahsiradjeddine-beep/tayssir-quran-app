@@ -25,6 +25,7 @@ class Question extends Model implements HasMedia
      */
     protected $fillable = [
         'question',
+        'concept_id',
         'hint',
         'explanation_text',
         'options',

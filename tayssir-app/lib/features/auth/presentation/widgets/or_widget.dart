@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class OrWidget extends StatelessWidget {
   const OrWidget({super.key});
@@ -7,7 +8,7 @@ class OrWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color lineColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final Color lineColor = isDark ? const Color(0xFF334155) : AppColors.warmBorder;
     
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -20,7 +21,7 @@ class OrWidget extends StatelessWidget {
             child: Text(
               'أو بالبريد الإلكتروني',
               style: TextStyle(
-                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                color: isDark ? const Color(0xFF64748B) : AppColors.warmSubtitle,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'SomarSans',

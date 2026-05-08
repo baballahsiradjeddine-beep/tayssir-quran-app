@@ -8,10 +8,25 @@ use App\Http\Controllers\API\V2\PurchaseControllerV2;
 use App\Http\Controllers\API\V2\SubscriptionControllerV2;
 use App\Http\Controllers\API\V2\StreakControllerV2;
 use App\Http\Controllers\API\V2\SocialController;
+use App\Http\Controllers\API\V2\CharityController;
+use App\Http\Controllers\API\V2\DesignSystemController;
 use Illuminate\Support\Facades\Route;
 
 // MENNADOS PEDADAA
 Route::prefix('v2')->group(function () {
+    Route::get('design-system', [DesignSystemController::class, 'index'])
+        ->summary('Get Design System colors')
+        ->description('Returns the current color palette for both Light and Dark modes.');
+
+    Route::prefix('charity')->group(function () {
+        Route::get('/campaigns', [CharityController::class, 'index'])
+            ->summary('Get all charity campaigns')
+            ->description('Returns all active charity campaigns with their media and status.');
+
+        Route::get('/campaigns/{id}', [CharityController::class, 'show'])
+            ->summary('Get specific charity campaign details');
+    });
+
     Route::prefix('subscriptions')->group(function () {
         Route::get('/', [SubscriptionControllerV2::class, 'index'])
             ->middleware(['auth:sanctum', 'access'])

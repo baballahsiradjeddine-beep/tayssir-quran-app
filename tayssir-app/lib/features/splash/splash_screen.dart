@@ -130,7 +130,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               ),
               Column(
                 children: [
-                  const TayssirDataLoader(),
+                  const BayanDataLoader(),
                   30.verticalSpace,
                 ],
               ),
@@ -142,8 +142,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 }
 
-class TayssirDataLoader extends StatelessWidget {
-  const TayssirDataLoader({
+class BayanDataLoader extends StatelessWidget {
+  const BayanDataLoader({
     super.key,
     this.textSize = 20,
     this.iconSize = 50,
@@ -166,7 +166,7 @@ class TayssirDataLoader extends StatelessWidget {
         ),
         10.verticalSpace,
         LoadingAnimationWidget.progressiveDots(
-            size: iconSize, color: AppColors.secondaryColor),
+            size: iconSize, color: isDark ? AppColors.secondaryColor : AppColors.warmAccent),
       ],
     );
   }

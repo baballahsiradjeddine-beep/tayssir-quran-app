@@ -8,6 +8,7 @@ import 'package:tayssir/providers/data/models/fill_in_the_blank_exercise.dart';
 import 'package:tayssir/providers/data/models/latex_field.dart';
 import 'package:tayssir/providers/data/models/pair_two_words_exercise.dart';
 import 'package:tayssir/providers/data/models/select_multiple_option_exercise.dart';
+import 'package:tayssir/providers/data/models/slide_exercise.dart';
 import 'package:tayssir/providers/data/models/true_false_exercise.dart';
 
 enum ExerciseType {
@@ -16,6 +17,9 @@ enum ExerciseType {
   pairTwoWords,
   fillInTheBlank,
   anomalyWord,
+  slide,
+  ordering, // New: Verse Reconstruction
+  audioRecording, // New: AI Voice Analysis
 }
 
 enum ExerciseDirection {
@@ -32,6 +36,7 @@ enum ExerciseScope {
 
 abstract class ExerciseModel {
   final int id;
+  final List<String> tags; // New: Dynamic Skill Tags (e.g., 'Ikhfa', 'Madd')
   final ExerciseType type;
   final int chapterId;
   final List<LatexField<String>> hints;
@@ -46,6 +51,7 @@ abstract class ExerciseModel {
 
   ExerciseModel({
     required this.id,
+    this.tags = const [],
     required this.type,
     required this.chapterId,
     required this.hints,
@@ -59,8 +65,29 @@ abstract class ExerciseModel {
     this.explanationVideo,
   });
 
-  factory ExerciseModel.fromMap(Map<String, dynamic> map) {
-    switch (map['type'] as String) {
+  factory ExerciseModel.fromMap(Map<String, dynamic> rawMap) {
+    // Handle Filament Builder Block structure
+    Map<String, dynamic> map = rawMap;
+    String blockType = '';
+    
+    if (rawMap.containsKey('type') && rawMap.containsKey('data')) {
+      blockType = rawMap['type'] as String;
+      map = Map<String, dynamic>.from(rawMap['data'] as Map);
+      // Inject IDs for internal consistency if missing
+      map['id'] ??= -1; 
+      map['chapter_id'] ??= -1;
+    } else {
+      blockType = rawMap['type'] as String;
+    }
+
+    if (blockType == 'slide') {
+      return SlideExercise.fromMap(map);
+    }
+
+    // Question logic
+    final questionType = map['type'] as String? ?? blockType;
+
+    switch (questionType) {
       case 'multiple_choices':
         return SelectMultipleOptionExercise.fromMap(map);
       case 'true_or_false':
@@ -68,70 +95,22 @@ abstract class ExerciseModel {
       case 'match_with_arrows':
         return PairTwoWordsExercise.fromMap(map);
       case 'fill_in_the_blanks':
-        return FillInTheBlankExercise.fromMap(map
-//           {
-//             "id": 347,
-//             "type": "fill_in_the_blanks",
-//             "chapter_id": 120,
-//             "image": null,
-//             "difficulty": "medium",
-//             "points": 5,
-//             "scope": "lesson",
-//             "hint": [],
-//             "explanation_text": {"value": null, "is_latex": false},
-//             "explanationVideo": null,
-//             "hintImage": null,
-//             "question": {
-//               "value": """
-// <p>
-// أكمل: التركيز الكتلي لمحلول يُرمز له بـ ([1]) ويحسب بالعلاقة ([2] = \frac{m}{V})
-// </p>
-// """,
-//               "is_latex": false
-//             },
-//             "direction": "RTL",
-//             "paragraph": {
-//               "value": """
-// <p>
-// أكمل: التركيز الكتلي لمحلول يُرمز له بـ ([1]) ويحسب بالعلاقة ([2] = \frac{m}{V})
-// </p>
-// """,
-//               "is_latex": false
-//             },
-//             "blanks": [
-//               {
-//                 "correct_word": {
-//                   "value": "التكتلات والمشاريع",
-//                   "is_latex": false
-//                 },
-//                 "position": 1
-//               },
-//               {
-//                 "correct_word": {
-//                   "value": "القواعد والأحلاف",
-//                   "is_latex": false
-//                 },
-//                 "position": 2
-//               },
-//               {
-//                 "correct_word": {"value": "الجوسسة", "is_latex": false},
-//                 "position": 3
-//               }
-//             ],
-//             "suggestions": [
-//               {"value": "التكتلات والمشاريع", "is_latex": false},
-//               {"value": "القواعد والأحلاف", "is_latex": false},
-//               {"value": "الجوسسة", "is_latex": false},
-//               {"value": "التعاون الثقافي", "is_latex": false},
-//               {"value": "المساعدات الإنسانية", "is_latex": false},
-//               {"value": "المفاوضات المباشرة", "is_latex": false}
-//             ]
-//           },
-            );
+        return FillInTheBlankExercise.fromMap(map);
       case "pick_the_intruder":
         return AnomalyWordExercise.fromMap(map);
+      case "ordering":
+        // Fallback to multiple choice for now if specific view not ready, but register type
+        return SelectMultipleOptionExercise.fromMap(map); 
+      case "audio_recording":
+        return SelectMultipleOptionExercise.fromMap(map);
+      case "slide":
+        return SlideExercise.fromMap(map);
       default:
-        throw Exception('Invalid exercise type');
+        // Attempt fallback for question_text based models if coming from Builder
+        if (map.containsKey('question_text')) {
+           return SelectMultipleOptionExercise.fromMap(map);
+        }
+        throw Exception('Invalid exercise type: $questionType');
     }
   }
 
@@ -155,6 +134,7 @@ extension ExerciseMapExtension on Map<String, dynamic> {
     try {
       return ExerciseBaseParams(
         id: _toInt(this['id']),
+        tags: List<String>.from(this['tags'] ?? []),
         chapterId: _toInt(this['chapter_id']),
         points: _toInt(this['points']),
         hints: List<LatexField<String>>.from((this['hint'] as List<dynamic>?)
@@ -177,6 +157,7 @@ extension ExerciseMapExtension on Map<String, dynamic> {
       log('Error parsing exo Id: ${this['id']} - $e');
       return ExerciseBaseParams(
         id: _toInt(this['id']),
+        tags: [],
         chapterId: -1,
         points: 0,
         hints: [],
@@ -196,6 +177,7 @@ extension ExerciseMapExtension on Map<String, dynamic> {
 
 class ExerciseBaseParams {
   final int id;
+  final List<String> tags;
   final int chapterId;
   final List<LatexField<String>> hints;
   final LatexField<String?> explanation;
@@ -209,6 +191,7 @@ class ExerciseBaseParams {
 
   ExerciseBaseParams({
     required this.id,
+    this.tags = const [],
     required this.chapterId,
     required this.points,
     required this.scope,

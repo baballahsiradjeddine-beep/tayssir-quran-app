@@ -11,19 +11,19 @@ class FillInTheBlankExercise extends ExerciseModel {
 
   FillInTheBlankExercise({
     required super.id,
-    required this.question,
-    required this.sentence,
-    required this.blanks,
-    required this.suggestions,
+    super.tags,
     required super.chapterId,
-    required super.scope,
-    // required super.difficulty,
-    required super.points,
-    required super.direction,
-    required super.explanation,
     required super.hints,
+    required super.explanation,
+    required super.points,
+    required super.scope,
+    required super.direction,
     super.image,
     super.explanationVideo,
+    required this.question,
+    required this.blanks,
+    required this.sentence,
+    required this.suggestions,
     super.hintImage,
   }) : super(
           type: ExerciseType.fillInTheBlank,
@@ -34,6 +34,7 @@ class FillInTheBlankExercise extends ExerciseModel {
 
     return FillInTheBlankExercise(
       id: baseParams.id,
+      tags: baseParams.tags,
       chapterId: baseParams.chapterId,
       points: baseParams.points,
       scope: baseParams.scope,

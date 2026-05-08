@@ -271,7 +271,7 @@ class _QuickSuggestions extends ConsumerWidget {
         ? configs.refiqQaList
         : [
             RefiqQA(label: "كم سعر الاشتراك؟", value: ""),
-            RefiqQA(label: "ما هي المواد المتاحة؟", value: ""),
+            RefiqQA(label: "ما هي البرامج المتاحة؟", value: ""),
             RefiqQA(label: "ما هو هدف التطبيق؟", value: ""),
             RefiqQA(label: "كيف أتواصل معكم؟", value: "")
           ];

@@ -28,8 +28,8 @@ class BayanBackground extends StatelessWidget {
                       AppColors.secondaryDark,
                     ]
                   : [
-                      AppColors.surfaceWhite,
-                      AppColors.scaffoldColor,
+                      AppColors.warmBackground,
+                      AppColors.warmBackground,
                     ],
               ),
             ),

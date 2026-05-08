@@ -5,6 +5,7 @@ import 'package:tayssir/features/units/widgets/unit_circle_progress_widget.dart'
 import 'package:tayssir/providers/data/data_provider.dart';
 import 'package:tayssir/providers/user/user_notifier.dart';
 import 'package:tayssir/common/painters/islamic_pattern_painter.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class UserProgressWidget extends StatelessWidget {
   const UserProgressWidget({
@@ -62,20 +63,31 @@ class UserProgressWidget extends StatelessWidget {
 
         final bool isDesktop = MediaQuery.sizeOf(context).width > 800;
 
+        final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
         return Container(
           width: double.infinity,
           height: isDesktop ? 135.h : 120.h,
           margin: EdgeInsets.zero,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF064E3B), Color(0xFF065F46)], // Emerald Gradients
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+          gradient: isDark 
+              ? const LinearGradient(
+                  colors: [Color(0xFF064E3B), Color(0xFF065F46)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : const LinearGradient(
+                  colors: [Color(0xFFB45309), Color(0xFF7C4A27)], // Bronze → Brown
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
             borderRadius: BorderRadius.circular(32.r),
+            border: null,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF064E3B).withOpacity(0.3),
+                color: isDark 
+                  ? const Color(0xFF064E3B).withOpacity(0.3) 
+                  : const Color(0xFFB45309).withOpacity(0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -129,9 +141,9 @@ class UserProgressWidget extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              _buildStatBadge(Icons.auto_stories_rounded, '$completedChapters / $totalChapters', 'سورة'),
+                              _buildStatBadge(Icons.auto_stories_rounded, '$completedChapters / $totalChapters', 'سورة', isDark),
                               20.horizontalSpace,
-                              _buildStatBadge(Icons.stars_rounded, '$userPoints', 'نقطة ولاية'),
+                              _buildStatBadge(Icons.stars_rounded, '$userPoints', 'نقطة ولاية', isDark),
                             ],
                           ),
                         ],
@@ -185,7 +197,7 @@ class UserProgressWidget extends StatelessWidget {
                             style: TextStyle(
                               fontSize: isDesktop ? 14.sp : 10.sp,
                               fontWeight: FontWeight.w900,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withOpacity(0.85),
                             ),
                           ),
                         ],
@@ -201,17 +213,17 @@ class UserProgressWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatBadge(IconData icon, String value, String unit) {
+  Widget _buildStatBadge(IconData icon, String value, String unit, bool isDark) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: isDark ? Colors.white.withOpacity(0.15) : AppColors.warmBorder.withOpacity(0.2),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+        border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : AppColors.warmBorder, width: 1),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 24.w),
+          Icon(icon, color: isDark ? Colors.white : AppColors.warmTitle, size: 24.w),
           12.horizontalSpace,
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +232,7 @@ class UserProgressWidget extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: isDark ? Colors.white : AppColors.warmTitle,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w900,
                   fontFamily: 'SomarSans',
@@ -229,7 +241,7 @@ class UserProgressWidget extends StatelessWidget {
               Text(
                 unit,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: isDark ? Colors.white.withOpacity(0.7) : AppColors.warmSubtitle,
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'SomarSans',

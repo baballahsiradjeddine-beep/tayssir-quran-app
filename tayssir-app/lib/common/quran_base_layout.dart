@@ -42,7 +42,11 @@ class QuranBaseLayout extends StatelessWidget {
           ),
           actions: actions,
           centerTitle: true,
-          leading: const BackButton(color: Colors.white),
+          leading: BackButton(
+            color: Theme.of(context).brightness == Brightness.dark 
+                ? Colors.white 
+                : AppColors.textBlack,
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -69,13 +73,17 @@ class QuranBaseLayout extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.07),
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.white.withOpacity(0.07)
+                        : Colors.black.withOpacity(0.03),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(40),
                       topRight: Radius.circular(40),
                     ),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.white.withOpacity(0.1)
+                          : Colors.black.withOpacity(0.05),
                       width: 1,
                     ),
                   ),

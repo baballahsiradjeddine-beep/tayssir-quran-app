@@ -33,6 +33,7 @@ class Payment extends Model implements HasMedia
         'promoter_margin_percentage',
         'promoter_margin_amount',
         'metadata',
+        'charity_campaign_id',
     ];
 
     protected function casts(): array
@@ -59,9 +60,14 @@ class Payment extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-    public function subscription(): BelongsTo
+    public function subscription()
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    public function charityCampaign()
+    {
+        return $this->belongsTo(CharityCampaign::class);
     }
 
     public function promoCode(): BelongsTo

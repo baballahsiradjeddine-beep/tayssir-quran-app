@@ -4,6 +4,8 @@ import 'package:tayssir/debug/app_logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CheckoutWebView extends ConsumerStatefulWidget {
   final String checkoutUrl;
@@ -26,25 +28,25 @@ class _CheckoutWebViewState extends ConsumerState<CheckoutWebView> {
         NavigationDelegate(
           onPageStarted: (url) {
             AppLogger.logInfo("Started loading: $url");
+            if (url.contains("success")) {
+              AppLogger.logInfo('Success detected in onPageStarted: $url');
+              context.pop(true);
+            } else if (url.contains("failure") || url.contains("failed")) {
+              AppLogger.logInfo('Failure detected in onPageStarted: $url');
+              context.pop(false);
+            }
           },
           onPageFinished: (url) {
-            // debugPrint("Finished: $url");
             AppLogger.logInfo("Finished loading: $url");
           },
           onNavigationRequest: (request) {
             AppLogger.logInfo('Navigating to: ${request.url}');
             if (request.url.contains("success")) {
               AppLogger.logInfo('Payment successful, URL: ${request.url}');
-              // ref.read(chargilyControllerProvider.notifier).setResponse(
-              //       ChargilyResponse.success,
-              //     );
               context.pop(true);
               return NavigationDecision.prevent;
             } else if (request.url.contains("failure") ||
                 request.url.contains("failed")) {
-              // ref.read(chargilyControllerProvider.notifier).setResponse(
-              //       ChargilyResponse.failure,
-              //     );
               AppLogger.logInfo('Payment failed, URL: ${request.url}');
               context.pop(false);
               return NavigationDecision.prevent;

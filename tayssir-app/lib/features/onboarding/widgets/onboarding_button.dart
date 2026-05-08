@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class OnboardingButton extends StatelessWidget {
   final String label;
@@ -18,7 +19,8 @@ class OnboardingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonColor = color ?? const Color(0xFF10B981);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonColor = color ?? (isDark ? const Color(0xFF10B981) : AppColors.warmAccent);
 
     return GestureDetector(
       onTap: enabled ? onPressed : null,
@@ -28,9 +30,9 @@ class OnboardingButton extends StatelessWidget {
         height: 58.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
-          color: enabled ? buttonColor : const Color(0xFF1E293B),
+          color: enabled ? buttonColor : (isDark ? const Color(0xFF1E293B) : AppColors.warmBorder.withOpacity(0.3)),
           border: Border.all(
-            color: enabled ? buttonColor : const Color(0xFF334155),
+            color: enabled ? buttonColor : (isDark ? const Color(0xFF334155) : AppColors.warmBorder),
             width: 2,
           ),
           boxShadow: enabled
@@ -47,7 +49,7 @@ class OnboardingButton extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: enabled ? Colors.white : const Color(0xFF475569),
+              color: enabled ? Colors.white : (isDark ? const Color(0xFF475569) : AppColors.warmSubtitle),
               fontSize: 18.sp,
               fontWeight: FontWeight.w900,
               fontFamily: 'SomarSans',

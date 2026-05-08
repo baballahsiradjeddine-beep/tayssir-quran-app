@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/features/onboarding/onboarding_notifier.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/features/onboarding/widgets/onboarding_button.dart';
 import 'package:tayssir/features/onboarding/widgets/refiq_speaker.dart';
 import 'package:go_router/go_router.dart';
@@ -50,6 +51,8 @@ class _StepNamePageState extends ConsumerState<StepNamePage> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
@@ -79,7 +82,7 @@ class _StepNamePageState extends ConsumerState<StepNamePage> {
                   Text(
                     'اسمك',
                     style: TextStyle(
-                      color: const Color(0xFF94A3B8),
+                      color: isDark ? const Color(0xFF94A3B8) : AppColors.warmTitle,
                       fontSize: 14.sp,
                       fontFamily: 'SomarSans',
                       fontWeight: FontWeight.w600,
@@ -97,7 +100,7 @@ class _StepNamePageState extends ConsumerState<StepNamePage> {
                 'سيخاطبك رفيق بيان باسمك طوال رحلة الحفظ 🌟',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: const Color(0xFF64748B),
+                  color: isDark ? const Color(0xFF64748B) : AppColors.warmSubtitle,
                   fontSize: 13.sp,
                   fontFamily: 'SomarSans',
                 ),
@@ -120,12 +123,12 @@ class _StepNamePageState extends ConsumerState<StepNamePage> {
                 child: Text(
                   'لدي حساب سابق',
                   style: TextStyle(
-                    color: const Color(0xFF94A3B8),
+                    color: isDark ? const Color(0xFF94A3B8) : AppColors.warmTitle,
                     fontSize: 15.sp,
                     fontFamily: 'SomarSans',
                     fontWeight: FontWeight.w700,
                     decoration: TextDecoration.underline,
-                    decorationColor: const Color(0xFF94A3B8).withOpacity(0.3),
+                    decorationColor: (isDark ? const Color(0xFF94A3B8) : AppColors.warmTitle).withOpacity(0.3),
                   ),
                 ),
               ).animate().fadeIn(delay: 800.ms),
@@ -149,12 +152,13 @@ class _NameTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF10B981).withOpacity(0.15),
+            color: (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -165,7 +169,7 @@ class _NameTextField extends StatelessWidget {
         textAlign: TextAlign.right,
         textDirection: TextDirection.rtl,
         style: TextStyle(
-          color: Colors.white,
+          color: isDark ? Colors.white : AppColors.warmTitle,
           fontSize: 22.sp,
           fontFamily: 'SomarSans',
           fontWeight: FontWeight.w900,
@@ -173,19 +177,19 @@ class _NameTextField extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'مثال: أحمد',
           hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.25),
+            color: isDark ? Colors.white.withOpacity(0.25) : AppColors.warmSubtitle.withOpacity(0.4),
             fontSize: 20.sp,
             fontFamily: 'SomarSans',
           ),
           filled: true,
-          fillColor: const Color(0xFF1E293B),
+          fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20.r),
-            borderSide: BorderSide.none,
+            borderSide: isDark ? BorderSide.none : const BorderSide(color: AppColors.warmBorder),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20.r),
-            borderSide: const BorderSide(color: Color(0xFF10B981), width: 2),
+            borderSide: BorderSide(color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent, width: 2),
           ),
           contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 22.h),
         ),

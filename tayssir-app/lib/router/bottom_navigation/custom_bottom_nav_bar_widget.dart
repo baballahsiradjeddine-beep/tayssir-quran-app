@@ -70,7 +70,7 @@ class CustomBottomNavBarWidget extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _buildItem(context, 0, Icons.category_outlined, Icons.category_rounded, "أدوات", isDark),
+                _buildItem(context, 0, Icons.menu_book_outlined, Icons.menu_book_rounded, "المصحف", isDark),
                 _buildItem(context, 1, Icons.leaderboard_outlined, Icons.leaderboard_rounded, "ترتيب", isDark),
                 _buildItem(context, 2, Icons.home_outlined, Icons.home_rounded, "الرئيسية", isDark),
                 _buildItem(context, 3, Icons.flag_outlined, Icons.flag_rounded, "تحديات", isDark),

@@ -9,18 +9,18 @@ class SelectMultipleOptionExercise extends ExerciseModel {
 
   SelectMultipleOptionExercise({
     required super.id,
-    required this.question,
-    required this.options,
-    required this.correctOptions,
+    super.tags,
     required super.chapterId,
+    required super.hints,
+    required super.explanation,
     required super.points,
     required super.scope,
-    // required super.difficulty,
     required super.direction,
-    required super.explanation,
-    required super.hints,
     super.image,
     super.explanationVideo,
+    required this.options,
+    required this.question,
+    required this.correctOptions,
     super.hintImage,
   }) : super(
           type: ExerciseType.multipleChoices,
@@ -31,6 +31,8 @@ class SelectMultipleOptionExercise extends ExerciseModel {
 
     return SelectMultipleOptionExercise(
       id: baseParams.id,
+      tags: baseParams.tags,
+      chapterId: baseParams.chapterId,
       question:
           LatexField<String>.fromMap(map['question'] as Map<String, dynamic>),
       options: List<LatexField<String>>.from(
@@ -43,10 +45,8 @@ class SelectMultipleOptionExercise extends ExerciseModel {
         if (e is String) return int.tryParse(e) ?? 0;
         return 0;
       })),
-      chapterId: baseParams.chapterId,
       points: baseParams.points,
       scope: baseParams.scope,
-      // difficulty: baseParams.difficulty,
       direction: baseParams.direction,
       hints: baseParams.hints,
       explanation: baseParams.explanation,

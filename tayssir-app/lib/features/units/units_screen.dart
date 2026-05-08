@@ -10,11 +10,14 @@ import 'package:tayssir/providers/user/user_notifier.dart';
 import 'package:tayssir/router/app_router.dart';
 import 'package:tayssir/services/actions/dialog_service.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:tayssir/providers/auth/auth_notifier.dart';
+import 'package:tayssir/utils/enums/auth_state.dart';
 
 import '../../providers/data/data_provider.dart';
 import '../exercice/presentation/state/exercice_controller.dart';
 import 'widgets/unit_progress_widget.dart';
 
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/common/bayan_background.dart';
 
 class UnitsScreen extends HookConsumerWidget {
@@ -24,6 +27,9 @@ class UnitsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authStatus = ref.watch(authNotifierProvider).status;
+    final isGuest = authStatus == AuthStatus.unauthenticated || authStatus == AuthStatus.unknown;
+    
     final isSub = ref.watch(userNotifierProvider).valueOrNull?.isSub ?? false;
     final state = ref.watch(dataProvider);
     final units = state.getUnitsByCourseId(courseId);
@@ -63,7 +69,7 @@ class UnitsScreen extends HookConsumerWidget {
                       left: horizontalPadding, 
                       right: horizontalPadding, 
                       top: isDesktop ? 30.h : 8.h, 
-                      bottom: 16.h
+                      bottom: 8.h
                     ),
                     child: Row(
                       children: [
@@ -80,11 +86,11 @@ class UnitsScreen extends HookConsumerWidget {
                               color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0),
-                                width: 1,
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : AppColors.emerald600.withOpacity(0.15),
+                                width: 1.2,
                               ),
                             ),
-                            child: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp),
+                            child: Icon(Icons.arrow_back_ios_new_rounded, size: 18.sp, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.emerald800),
                           ),
                         ),
                       ],
@@ -99,10 +105,10 @@ class UnitsScreen extends HookConsumerWidget {
                     padding: EdgeInsets.only(
                       left: horizontalPadding, 
                       right: horizontalPadding, 
-                      top: 20.h, 
-                      bottom: 24.h // Increased from 1.h
+                      top: 0.h, 
+                      bottom: 16.h // Increased from 1.h
                     ),
-                    child: TayssirProgressWidget(
+                    child: BayanProgressWidget(
                       name: material.description,
                       progress: material.progress,
                       upperText: material.title,
@@ -115,7 +121,7 @@ class UnitsScreen extends HookConsumerWidget {
                 ),
   
                 // 4. Spacer before Grid
-                SliverToBoxAdapter(child: SizedBox(height: isDesktop ? 24.h : 16.h)),
+                SliverToBoxAdapter(child: SizedBox(height: isDesktop ? 16.h : 8.h)),
   
                 // 5. Units List
                 SliverPadding(
@@ -135,18 +141,20 @@ class UnitsScreen extends HookConsumerWidget {
                               final isCurrent = state.isCurrentUnit(units[index].id, courseId);
                               final isPremiumUnit = state.isPremiumUnit(units[index].id);
                               return CustomLessonWidget(
-                                onPressed: isPremiumUnit && !isSub
-                                    ? () => DialogService.showNeedSubscriptionDialog(context)
-                                    : () {
-                                        ref.read(currentUnitIdProvider.notifier).state = units[index].id;
-                                        context.pushNamed(
-                                          AppRoutes.chapters.name,
-                                          pathParameters: {
-                                            'courseId': courseId.toString(),
-                                            'unitId': units[index].id.toString()
-                                          },
-                                        );
-                                      },
+                                onPressed: isGuest 
+                                    ? () => DialogService.showNeedLoginDialog(context)
+                                    : (isPremiumUnit && !isSub
+                                        ? () => DialogService.showNeedSubscriptionDialog(context)
+                                        : () {
+                                            ref.read(currentUnitIdProvider.notifier).state = units[index].id;
+                                            context.pushNamed(
+                                              AppRoutes.chapters.name,
+                                              pathParameters: {
+                                                'courseId': courseId.toString(),
+                                                'unitId': units[index].id.toString()
+                                              },
+                                            );
+                                          }),
                                 imageUrl: units[index].image,
                                 progress: units[index].progress,
                                 title: units[index].title,
@@ -167,18 +175,20 @@ class UnitsScreen extends HookConsumerWidget {
                               return Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2.h), // Reduced as card has internal margin
                                 child: CustomLessonWidget(
-                                  onPressed: isPremiumUnit && !isSub
-                                      ? () => DialogService.showNeedSubscriptionDialog(context)
-                                      : () {
-                                          ref.read(currentUnitIdProvider.notifier).state = units[index].id;
-                                          context.pushNamed(
-                                            AppRoutes.chapters.name,
-                                            pathParameters: {
-                                              'courseId': courseId.toString(),
-                                              'unitId': units[index].id.toString()
-                                            },
-                                          );
-                                        },
+                                  onPressed: isGuest 
+                                      ? () => DialogService.showNeedLoginDialog(context)
+                                      : (isPremiumUnit && !isSub
+                                          ? () => DialogService.showNeedSubscriptionDialog(context)
+                                          : () {
+                                              ref.read(currentUnitIdProvider.notifier).state = units[index].id;
+                                              context.pushNamed(
+                                                AppRoutes.chapters.name,
+                                                pathParameters: {
+                                                  'courseId': courseId.toString(),
+                                                  'unitId': units[index].id.toString()
+                                                },
+                                              );
+                                            }),
                                   imageUrl: units[index].image,
                                   progress: units[index].progress,
                                   title: units[index].title,

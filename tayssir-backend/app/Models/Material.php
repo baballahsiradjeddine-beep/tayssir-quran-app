@@ -31,6 +31,7 @@ class Material extends Model implements HasMedia
         'description',
         'division_id',
         'direction',
+        'type',
         'active',
     ];
 

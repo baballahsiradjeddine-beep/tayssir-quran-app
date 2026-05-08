@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/common/core/app_scaffold.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 
 class BacsLoadingView extends StatelessWidget {
   const BacsLoadingView({super.key});
@@ -14,7 +15,7 @@ class BacsLoadingView extends StatelessWidget {
       paddingX: 20.w,
       bodyBackgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: Text(
-        'مواضيع البكالوريا 🎓',
+        'المتشابهات القرآنية 📖',
         style: TextStyle(
           fontSize: 22.sp,
           fontWeight: FontWeight.w900,
@@ -29,8 +30,8 @@ class BacsLoadingView extends StatelessWidget {
             SizedBox(
               width: 40.w,
               height: 40.w,
-              child: const CircularProgressIndicator(
-                color: Color(0xFF10B981),
+              child: CircularProgressIndicator(
+                color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
                 strokeWidth: 3,
               ),
             ),

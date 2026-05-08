@@ -30,5 +30,6 @@ Route::get('referral-sources', [ReferralSourceController::class, 'index'])
 // Chargily basic checkout (non-versioned) - consider moving to versioned routes later
 // Route::post('chargilypay/redirect', [\App\Http\Controllers\ChargilyPayController::class, 'redirect'])->name('chargilypay.redirect');
 Route::get('chargilypay/back', [\App\Http\Controllers\ChargilyPayController::class, 'back'])->name('chargilypay.back');
+Route::post('chargilypay/webhook', [\App\Http\Controllers\ChargilyPayController::class, 'webhook'])->name('chargilypay.webhook_endpoint');
 
 

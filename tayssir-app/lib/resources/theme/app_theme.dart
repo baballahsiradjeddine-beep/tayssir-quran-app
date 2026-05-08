@@ -2,81 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tayssir/resources/colors/app_colors.dart';
+import 'package:tayssir/resources/theme/design_system.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme => ThemeData(
-        fontFamily: 'SomarSans',
-        scaffoldBackgroundColor: AppColors.scaffoldColor,
-        brightness: Brightness.light,
+  static ThemeData theme(DesignSystem ds, Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+
+    return ThemeData(
+      fontFamily: 'SomarSans',
+      scaffoldBackgroundColor: ds.background,
+      brightness: brightness,
+      shadowColor: AppColors.shadowColor,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: ds.primary,
+        primary: ds.primary,
+        secondary: ds.secondary,
+        tertiary: ds.accent,
+        surface: ds.surface,
+        onSurface: isDark ? Colors.white : AppColors.textBlack,
+        outline: AppColors.borderColor,
+        brightness: brightness,
+      ),
+      cardTheme: CardThemeData(
+        elevation: isDark ? 0 : 2,
         shadowColor: AppColors.shadowColor,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryColor,
-          primary: AppColors.primaryColor,
-          secondary: AppColors.secondaryColor,
-          tertiary: AppColors.goldColor,
-          surface: AppColors.surfaceWhite,
-          onSurface: AppColors.textBlack,
-          outline: AppColors.borderColor,
-          brightness: Brightness.light,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+        color: ds.surface,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.textBlack),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         ),
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shadowColor: AppColors.shadowColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
-          color: AppColors.surfaceWhite,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          iconTheme: IconThemeData(color: AppColors.textBlack),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.dark,
-            statusBarBrightness: Brightness.light,
-          ),
-        ),
-        textTheme: _textTheme(Brightness.light),
-      );
+      ),
+      textTheme: _textTheme(ds, brightness),
+    );
+  }
 
-  static ThemeData get darkTheme => ThemeData(
-        fontFamily: 'SomarSans',
-        scaffoldBackgroundColor: AppColors.darkColor,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryColor,
-          primary: AppColors.primaryColor,
-          secondary: AppColors.secondaryColor,
-          tertiary: AppColors.goldColor,
-          surface: AppColors.secondaryDark,
-          onSurface: Colors.white,
-          brightness: Brightness.dark,
-        ),
-        cardTheme: CardThemeData(
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
-          color: AppColors.secondaryDark,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          iconTheme: IconThemeData(color: Colors.white),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.dark,
-          ),
-        ),
-        textTheme: _textTheme(Brightness.dark),
-      );
-
-  static TextTheme _textTheme(Brightness brightness) {
-    final headerColor = brightness == Brightness.light ? AppColors.primaryColor : Colors.white;
-    final bodyColor = brightness == Brightness.light ? AppColors.textBody : Colors.white.withOpacity(0.9);
+  static TextTheme _textTheme(DesignSystem ds, Brightness brightness) {
+    final headerColor = ds.textPrimary;
+    final bodyColor = ds.textSecondary;
 
     return TextTheme(
       displayLarge: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w900, color: headerColor, letterSpacing: -0.5, fontFamily: 'SomarSans'),

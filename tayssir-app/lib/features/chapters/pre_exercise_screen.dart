@@ -100,7 +100,7 @@ class PreExerciseScreen extends HookConsumerWidget {
                       style: TextStyle(
                         fontSize: 22.sp,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.primaryColor,
+                        color: isDark ? AppColors.primaryColor : AppColors.warmAccent,
                         fontFamily: 'SomarSans',
                       ),
                     ),
@@ -132,14 +132,16 @@ class PreExerciseScreen extends HookConsumerWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20.r),
-                              gradient: const LinearGradient(
-                                colors: [AppColors.primaryColor, AppColors.secondaryColor],
-                                begin: Alignment.centerRight,
-                                end: Alignment.centerLeft,
-                              ),
+                              gradient: isDark 
+                                ? const LinearGradient(
+                                    colors: [AppColors.primaryColor, AppColors.secondaryColor],
+                                    begin: Alignment.centerRight,
+                                    end: Alignment.centerLeft,
+                                  )
+                                : AppColors.warmGradient,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primaryColor.withOpacity(0.3),
+                                  color: (isDark ? AppColors.primaryColor : AppColors.warmAccent).withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),

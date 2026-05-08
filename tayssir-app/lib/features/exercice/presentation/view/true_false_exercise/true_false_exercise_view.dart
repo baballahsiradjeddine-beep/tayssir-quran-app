@@ -6,6 +6,7 @@ import 'package:tayssir/constants/strings.dart';
 import 'package:tayssir/features/exercice/presentation/view/question_content_widget.dart';
 import 'package:tayssir/providers/data/models/true_false_exercise.dart';
 import 'package:tayssir/features/exercice/presentation/view/true_false_exercise/true_false_exercise_controller.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import '../fill_in_the_blank/exercise_template.dart';
 
 class TrueFalseExerciseView extends ConsumerWidget {
@@ -48,7 +49,7 @@ class TrueFalseExerciseView extends ConsumerWidget {
                   text: 'صحيح',
                   isSelected: state.isTruePicked,
                   onTap: () => setSelection(true),
-                  color: const Color(0xFF10B981),
+                  color: AppColors.warmAccent,
                   isDark: isDark,
                   index: 0,
                 ),

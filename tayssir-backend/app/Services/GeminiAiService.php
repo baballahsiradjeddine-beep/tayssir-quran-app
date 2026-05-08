@@ -147,6 +147,72 @@ class GeminiAiService
     }
 
     /**
+     * Real-time Recitation Analysis (Audio + Text)
+     * Analyzes student audio against target Quranic text
+     */
+    public static function analyzeRecitation(string $audioFilePath, string $targetText): array
+    {
+        $prompt = <<<PROMPT
+You are an expert Quran and Tajweed teacher. 
+I am providing you with an audio recording of a student reciting a specific text.
+TARGET TEXT: "{$targetText}"
+
+Your task is to analyze the audio and compare it to the target text.
+Focus on:
+1. Word accuracy (did they say the right words?).
+2. Tashkeel (vowels) accuracy.
+3. Basic Tajweed (Ghunnah, Qalqalah, Madd) if applicable.
+
+Output ONLY a JSON object with this structure:
+{
+  "is_correct": boolean,
+  "accuracy_score": integer (0-100),
+  "feedback_text": "A short, encouraging feedback in Arabic (max 15 words)",
+  "errors": [
+    {"word": "the_wrong_word", "error_type": "pronunciation|tashkeel|missing", "correction": "how_it_should_be"}
+  ]
+}
+PROMPT;
+
+        // Custom call logic to handle audio file
+        $apiKey = self::getApiKey();
+        $parts = [
+            ['text' => $prompt],
+            [
+                'inline_data' => [
+                    'mime_type' => 'audio/mpeg', // Assuming mp3/mpeg from mobile
+                    'data' => base64_encode(file_get_contents($audioFilePath))
+                ]
+            ]
+        ];
+
+        $payload = [
+            'contents' => [['role' => 'user', 'parts' => $parts]],
+            'generationConfig' => [
+                'temperature' => 0.2,
+                'response_mime_type' => 'application/json'
+            ]
+        ];
+
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}";
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->timeout(60)->post($url, $payload);
+
+        if (!$response->successful()) {
+            throw new \Exception("AI Analysis failed: " . $response->body());
+        }
+
+        $result = $response->json();
+        $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? '{}';
+        return json_decode(trim(preg_replace('/^```json\s*|```\s*$/', '', $text)), true) ?? [];
+    }
+
+    protected static function getApiKey(): string
+    {
+        $dbKey = \App\Models\GeminiSetting::where('key', 'api_key')->first()?->value;
+        return trim($dbKey ?: env('GEMINI_API_KEY'));
+    }
+
+    /**
      * Utilities
      */
     public static function listModels(): array
@@ -172,6 +238,59 @@ class GeminiAiService
 
     public static function getDefaultTemplate(): string
     {
-        return "You are an educator. Generate {count} {types} questions in Arabic based on the content provided. Output only JSON array.";
+        return <<<PROMPT
+You are an expert Islamic Educator and Quran Teacher. Generate {count} high-quality questions in Arabic based on the provided content.
+Types requested: {types} (if 'mix', use a variety of the types below).
+
+Output ONLY a JSON array of objects. Each object MUST follow this structure based on the type:
+
+1. For 'multiple_choices':
+{
+  "question_text": "...",
+  "question_type": "multiple_choices",
+  "hint_text": "A helpful hint for the student during the exercise",
+  "explanation_text": "Detailed explanation after solving",
+  "options": [
+    {"option_text": "Correct answer", "is_correct": true},
+    {"option_text": "Wrong answer", "is_correct": false}
+  ]
+}
+
+2. For 'ordering' (VERSE/SENTENCE RECONSTRUCTION - DUOLINGO STYLE):
+{
+  "question_text": "أعد ترتيب كلمات الآية الكريمة:",
+  "question_type": "ordering",
+  "hint_text": "تلميح بيداغوجي يساعد في الترتيب",
+  "explanation_text": "شرح للسياق أو القاعدة التجويدية في الآية",
+  "ordering_items": [
+    {"text": "الكلمة الأولى"},
+    {"text": "الكلمة الثانية"},
+    {"text": "الكلمة الثالثة"}
+  ]
+}
+
+3. For 'true_or_false':
+{
+  "question_text": "...",
+  "question_type": "true_or_false",
+  "hint_text": "...",
+  "explanation_text": "...",
+  "true_or_false": {"is_true": true}
+}
+
+4. For 'fill_in_the_blanks':
+{
+  "question_text": "نص يحتوي على [فراغ] واحد أو أكثر",
+  "question_type": "fill_in_the_blanks",
+  "hint_text": "...",
+  "explanation_text": "...",
+  "blank_items": [
+    {"word": "الكلمة المحذوفة"}
+  ]
+}
+
+IMPORTANT: Ensure the 'ordering' type is used effectively for Quranic verses by breaking them into logical word segments.
+Output ONLY the JSON array. No markdown blocks, no extra text.
+PROMPT;
     }
 }

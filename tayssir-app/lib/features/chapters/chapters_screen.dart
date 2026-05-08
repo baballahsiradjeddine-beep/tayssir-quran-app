@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tayssir/common/core/app_scaffold.dart';
 import 'package:tayssir/common/core/custom_app_bar.dart';
 import 'package:tayssir/debug/app_logger.dart';
-import 'package:tayssir/features/chapters/widgets/custom_lesson_widget.dart';
+import 'package:tayssir/features/chapters/widgets/roadmap_node.dart';
 import 'package:tayssir/features/home/presentation/subscribe_section.dart';
 import 'package:tayssir/features/units/empty_content_widget.dart';
 import 'package:tayssir/providers/user/user_notifier.dart';
@@ -34,54 +35,29 @@ class ChaptersScreen extends HookConsumerWidget {
     final user = ref.watch(userNotifierProvider).valueOrNull;
     final isSub = user?.isSub ?? false;
     final isSoundOn = ref.watch(isSoundEnabledProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(dataProvider);
     final chapters = state.getChaptersByUnitId(unitId);
     final unit = state.getUnitById(unitId);
     final material = state.getMaterialById(unit.materialId);
+
+    final startColor = _hexToColor(material.gradiantColorStart);
+    final endColor = _hexToColor(material.gradiantColorEnd);
 
     if (chapters.isEmpty) {
       return const EmptyContentWidget(
         message: 'سيتم إضافة دروس وآيات لهذه السورة قريباً',
       );
     }
-    
-    Map<String, List<ChapterModel>> groupChapters(List<ChapterModel> chapters) {
-      final Map<String, List<ChapterModel>> groupedChapters = {};
-      String? lastDescription;
-      int groupCounter = 0;
-
-      for (final chapter in chapters) {
-        final currentDescription = (chapter.description == null || chapter.description!.isEmpty) 
-            ? null 
-            : chapter.description;
-        
-        if (currentDescription != lastDescription || groupedChapters.isEmpty) {
-          final groupKey = currentDescription ?? 'default_group_${groupCounter++}';
-          groupedChapters[groupKey] = [chapter];
-          lastDescription = currentDescription;
-        } else {
-          groupedChapters[groupedChapters.keys.last]!.add(chapter);
-        }
-      }
-
-      return groupedChapters;
-    }
-
-    bool isUniqueChapter(String groupTitle) {
-      return groupTitle.startsWith('default_group_');
-    }
-
-    final groupedChapters = groupChapters(chapters);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final double availableWidth = constraints.maxWidth;
-        final bool isDesktop = availableWidth > 800;
-        const double targetContentWidth = 1050;
+        final bool isDesktop = availableWidth > 900;
+        final double targetContentWidth = isDesktop ? 1000.w : 600; 
 
-        // Centering and alignment logic
         final double horizontalPadding = isDesktop 
-            ? (availableWidth > targetContentWidth + 160 ? (availableWidth - targetContentWidth) / 2 : 80.0)
+            ? (availableWidth - targetContentWidth) / 2 
             : 20.w;
 
         return BayanBackground(
@@ -92,130 +68,93 @@ class ChaptersScreen extends HookConsumerWidget {
             topSafeArea: false,
             bodyBackgroundColor: Colors.transparent,
             body: CustomScrollView(
-              physics: const ClampingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               slivers: [
-                // 1. Header (Part of the total scroll)
+                // 1. Premium Header
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.only(
-                      left: horizontalPadding, 
-                      right: horizontalPadding, 
-                      top: isDesktop ? 30.h : 8.h, 
-                      bottom: 16.h
+                      left: isDesktop ? 60.w : 20.w, 
+                      right: isDesktop ? 60.w : 20.w, 
+                      top: isDesktop ? 40.h : 6.h, 
+                      bottom: 20.h
                     ),
-                    child: Row(
+                    child: Column(
                       children: [
-                        // Actions/Avatar (Right side)
-                        const CustomAppBar(reverse: true, showLogo: false, showActions: true),
-                        const Spacer(),
-                        // Back Button (Left side)
-                        GestureDetector(
-                          onTap: () => context.pop(),
-                          child: Container(
-                            width: 44.sp,
-                            height: 44.sp,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0),
-                                width: 1,
-                              ),
-                            ),
-                            child: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp),
-                          ),
+                        Row(
+                          children: [
+                            const CustomAppBar(reverse: true, showLogo: false, showActions: true),
+                            const Spacer(),
+                            _buildBackButton(context),
+                          ],
                         ),
+                        30.verticalSpace,
+                        _buildPremiumTitleSection(unit, isDark, isDesktop, startColor),
                       ],
                     ),
-                  ).animate().fadeIn().slideY(begin: -0.1, end: 0),
-                ),
-  
-  
-                // 3. Progress Widget
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: horizontalPadding, 
-                      right: horizontalPadding, 
-                      top: 20.h, 
-                      bottom: 32.h // Increased bottom padding
-                    ),
-                    child: TayssirProgressWidget(
-                      name: unit.description,
-                      progress: unit.progress,
-                      upperText: unit.title,
-                      direction: state.getUnitDirection(unitId),
-                      startColor: _hexToColor(material.gradiantColorStart),
-                      endColor: _hexToColor(material.gradiantColorEnd),
-                      imageUrl: material.imageList,
-                    ).animate().fadeIn().slideY(begin: -0.1, end: 0),
                   ),
                 ),
-  
-                // 4. Extra Spacer before Chapters
-                SliverToBoxAdapter(child: SizedBox(height: 10.h)), // Reduced spacer as new cards are larger
-  
-                // 5. Chapters List
+
+                // 2. Roadmap Path
                 SliverPadding(
                   padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        final groupTitle = groupedChapters.keys.elementAt(index);
-                        final chaptersInGroup = groupedChapters[groupTitle]!;
-  
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            isUniqueChapter(groupTitle)
-                                ? index == 0
-                                    ? const SizedBox(height: 0)
-                                    : _buildDivider(state, unitId, chaptersInGroup.first.id, isSub)
-                                : _buildGroupHeader(context, state, unitId, chaptersInGroup.first.id, groupTitle, isSub),
-                            
-                            ...chaptersInGroup.map((chapter) {
-                              final isPro = state.isPremiumChapter(chapter.id);
-                              return CustomLessonWidget(
-                                onPressed: isPro && !isSub
-                                    ? () => DialogService.showNeedSubscriptionDialog(context)
-                                    : state.isLockedChapter(unitId, chapter.id, isSub)
-                                        ? null
-                                        : () {
-                                            if (isSoundOn) {
-                                              SoundService.play('assets/sounds/ui_click_premium.mp3');
-                                              HapticFeedback.lightImpact();
-                                            }
-                                            if (user?.email != null) {
-                                              AppLogger.sendLog(
-                                                email: user!.email,
-                                                content: 'Opened chapter: ${chapter.title}',
-                                                type: LogType.chapters,
-                                              );
-                                            }
-                                            ref.read(currentChapterIdProvider.notifier).state = chapter.id;
-                                            if (chapter.type == 'lesson') {
-                                              context.pushNamed(AppRoutes.lesson.name);
-                                            } else {
-                                              context.pushReplacementNamed(AppRoutes.exercices.name);
-                                            }
-                                          },
-                                progress: chapter.progress,
-                                imageUrl: chapter.image,
-                                title: chapter.title,
-                                isCurrent: state.isCurrentCHapter(chapter.id, unitId, isSub),
-                                isPremium: isPro,
-                                forceListLayout: true,
-                              ).animate().fadeIn(delay: (index * 80).ms).scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1), curve: Curves.easeOutCubic, duration: 400.ms).slideY(begin: 0.1, end: 0);
-                            }),
-                          ],
+                        final chapter = chapters[index];
+                        final isPro = state.isPremiumChapter(chapter.id);
+                        final isLocked = state.isLockedChapter(unitId, chapter.id, isSub);
+                        final isCurrent = state.isCurrentCHapter(chapter.id, unitId, isSub);
+                        
+                        final double alignment = _getAlignment(index, isDesktop);
+                        final double nodeHeight = isDesktop ? 220.h : 150.h;
+
+                        return SizedBox(
+                          height: nodeHeight,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              if (index > 0)
+                                CustomPaint(
+                                  size: Size(targetContentWidth, nodeHeight),
+                                  painter: RoadmapPathPainter(
+                                    prevAlignment: _getAlignment(index - 1, isDesktop),
+                                    currentAlignment: alignment,
+                                    color: isDark 
+                                        ? (isLocked ? Colors.white10 : startColor)
+                                        : (isLocked ? Colors.black.withOpacity(0.05) : AppColors.warmTitle.withOpacity(0.15)),
+                                    isDashed: isLocked,
+                                    isDesktop: isDesktop,
+                                  ),
+                                ),
+                              
+                              Align(
+                                alignment: Alignment(alignment, 0),
+                                child: Transform.scale(
+                                  scale: isDesktop ? 1.3 : 1.0,
+                                  child: RoadmapNode(
+                                    title: chapter.title,
+                                    imageUrl: chapter.image,
+                                    progress: chapter.progress,
+                                    isLocked: isLocked,
+                                    isCurrent: isCurrent,
+                                    isPremium: isPro,
+                                    startColor: startColor,
+                                    endColor: endColor,
+                                    onTap: () => _onChapterTap(context, ref, state, chapter, user, isPro, isSub, isSoundOn),
+                                  ).animate().fadeIn(delay: (index * 50).ms).scale(duration: 400.ms),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       },
-                      childCount: groupedChapters.length,
+                      childCount: chapters.length,
                     ),
                   ),
                 ),
-  
-                SliverToBoxAdapter(child: 120.verticalSpace),
+
+                SliverToBoxAdapter(child: 150.verticalSpace),
               ],
             ),
           ),
@@ -224,87 +163,182 @@ class ChaptersScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildDivider(dynamic state, int unitId, int chapterId, bool isSub) {
-    return Builder(
-      builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+  Widget _buildPremiumTitleSection(dynamic unit, bool isDark, bool isDesktop, Color accentColor) {
+    return Column(
+      children: [
+        Text(
+          unit.title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: isDesktop ? 48.sp : 26.sp,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'SomarSans',
+            color: isDark ? Colors.white : AppColors.warmTitle,
+            height: 1.1,
+          ),
+        ).animate().fadeIn().slideY(begin: 0.2, end: 0),
+        20.verticalSpace,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 14.h),
+          decoration: BoxDecoration(
+            color: isDark ? accentColor.withOpacity(0.1) : AppColors.warmTitle.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(40.r),
+            border: Border.all(
+              color: isDark ? accentColor.withOpacity(0.2) : AppColors.warmTitle.withOpacity(0.1), 
+              width: 1.5,
+            ),
+          ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: Container(
-                  height: 1.5,
-                  decoration: BoxDecoration(
-                    gradient: state.isLockedChapter(unitId, chapterId, isSub)
-                        ? null
-                        : LinearGradient(
-                            colors: [
-                              Colors.transparent, 
-                              const Color(0xFFF59E0B).withOpacity(0.3),
-                              Colors.transparent
-                            ],
-                          ),
-                    color: state.isLockedChapter(unitId, chapterId, isSub) 
-                        ? (isDark ? const Color(0xFF334155) : const Color(0xFFD3D3D3)) 
-                        : null,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+              Icon(Icons.auto_awesome_rounded, size: 20.sp, color: isDark ? accentColor : AppColors.warmTitle),
+              14.horizontalSpace,
+              Text(
+                'المستوى: ${unit.description}',
+                style: TextStyle(
+                  fontSize: isDesktop ? 20.sp : 14.sp,
+                  color: isDark ? accentColor : AppColors.warmTitle,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'SomarSans',
                 ),
               ),
             ],
           ),
-        );
-      }
+        ).animate().fadeIn(delay: 200.ms).scale(),
+      ],
     );
   }
 
-  Widget _buildGroupHeader(BuildContext context, dynamic state, int unitId, int chapterId, String groupTitle, bool isSub) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        children: [
-          Expanded(child: _gradientLine(true)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
-            child: Text(
-              groupTitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: state.isLockedChapter(unitId, chapterId, isSub)
-                    ? const Color(0xFF909090)
-                    : Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xff1E293B),
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'SomarSans',
-              ),
+  double _getAlignment(int index, bool isDesktop) {
+    final double amplitude = isDesktop ? 0.9 : 0.7;
+    final pattern = [0.0, 0.4 * amplitude, 1.0 * amplitude, 0.4 * amplitude, 0.0, -0.4 * amplitude, -1.0 * amplitude, -0.4 * amplitude];
+    return pattern[index % pattern.length];
+  }
+
+  Widget _buildBackButton(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: () => context.pop(),
+      child: Container(
+        width: 54.sp,
+        height: 54.sp,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+             BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
+          ],
+          border: Border.all(
+            color: isDark ? Colors.white.withOpacity(0.1) : AppColors.warmBorder,
+            width: 1,
           ),
-          Expanded(child: _gradientLine(false)),
-        ],
+        ),
+        child: Icon(Icons.arrow_back_ios_new_rounded, size: 22.sp),
       ),
     );
   }
 
-  Widget _gradientLine(bool reverse) {
-    return Container(
-      height: 3,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: reverse 
-            ? [Colors.transparent, const Color(0xFFF59E0B).withOpacity(0.6)]
-            : [const Color(0xFFF59E0B).withOpacity(0.6), Colors.transparent],
-        ),
-        borderRadius: BorderRadius.circular(10),
-      ),
-    );
+  void _onChapterTap(BuildContext context, WidgetRef ref, dynamic state, ChapterModel chapter, dynamic user, bool isPro, bool isSub, bool isSoundOn) {
+    if (isPro && !isSub) {
+      DialogService.showNeedSubscriptionDialog(context);
+      return;
+    }
+    if (isSoundOn) {
+      SoundService.play('assets/sounds/ui_click_premium.mp3');
+      HapticFeedback.lightImpact();
+    }
+    ref.read(currentChapterIdProvider.notifier).state = chapter.id;
+    if (chapter.type == 'lesson') {
+      context.pushNamed(AppRoutes.lesson.name);
+    } else {
+      context.pushReplacementNamed(AppRoutes.exercices.name);
+    }
   }
 
   Color _hexToColor(String hex) {
     hex = hex.replaceAll('#', '');
-    if (hex.length == 6) {
-      hex = 'FF$hex';
-    }
+    if (hex.length == 6) hex = 'FF$hex';
     return Color(int.parse(hex, radix: 16));
   }
+}
+
+class RoadmapPathPainter extends CustomPainter {
+  final double prevAlignment;
+  final double currentAlignment;
+  final Color color;
+  final bool isDashed;
+  final bool isDesktop;
+
+  RoadmapPathPainter({
+    required this.prevAlignment,
+    required this.currentAlignment,
+    required this.color,
+    required this.isDashed,
+    required this.isDesktop,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Highly subtle opacity for the path
+    final pathOpacity = isDashed ? 0.15 : 0.35;
+    
+    final paint = Paint()
+      ..color = color.withOpacity(pathOpacity)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = isDesktop ? 2.5 : 2.0
+      ..strokeCap = StrokeCap.round;
+
+    final glowPaint = Paint()
+      ..color = color.withOpacity(0.08)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = isDesktop ? 6.0 : 4.0
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+
+    final double xMultiplier = isDesktop ? 2.1 : 2.5;
+    final startX = size.width / 2 + (prevAlignment * (size.width / xMultiplier));
+    final endX = size.width / 2 + (currentAlignment * (size.width / xMultiplier));
+
+    // Further increased vertical offset to completely avoid text below nodes
+    final double nodeRadiusOffset = isDesktop ? 100.h : 75.h;
+    
+    final path = Path();
+    path.moveTo(startX, -size.height / 2 + nodeRadiusOffset); 
+    
+    path.cubicTo(
+      startX, size.height * 0.05,
+      endX, size.height * 0.05,
+      endX, size.height / 2 - nodeRadiusOffset,
+    );
+
+    if (isDashed) {
+      _drawDottedPath(canvas, path, paint);
+    } else {
+      canvas.drawPath(path, glowPaint);
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  void _drawDottedPath(Canvas canvas, Path path, Paint paint) {
+    final double dotRadius = isDesktop ? 2.0 : 1.5;
+    const double spacing = 16.0;
+    
+    for (final pathMetric in path.computeMetrics()) {
+      double distance = 0.0;
+      while (distance < pathMetric.length) {
+        final tangent = pathMetric.getTangentForOffset(distance);
+        if (tangent != null) {
+          canvas.drawCircle(tangent.position, dotRadius, paint);
+        }
+        distance += spacing;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -27,9 +27,9 @@ class PodiumUserWidget extends ConsumerWidget {
       case 1:
         return const Color(0xFFFFD700); // Gold
       case 2:
-        return const Color(0xFFC0C0C0); // Silver
+        return const Color(0xFF94A3B8); // Slate Silver
       case 3:
-        return const Color(0xFFCD7F32); // Bronze
+        return const Color(0xFFB45309); // Rich Bronze
       default:
         return Colors.grey;
     }
@@ -70,11 +70,12 @@ class PodiumUserWidget extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20.r),
                       boxShadow: [
                         BoxShadow(
-                          color: placeColor.withOpacity(0.3),
-                          blurRadius: 8,
+                          color: placeColor.withOpacity(isDark ? 0.3 : 0.2),
+                          blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
+                      border: Border.all(color: Colors.white.withOpacity(0.4), width: 1.5.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -107,12 +108,12 @@ class PodiumUserWidget extends ConsumerWidget {
                       width: 24.sp,
                       height: 24.sp,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
+                        color: isDark ? AppColors.primaryColor : AppColors.warmTitle,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2.w),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF10B981).withOpacity(0.3),
+                            color: (isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.3),
                             blurRadius: 10,
                           ),
                         ],
@@ -134,7 +135,7 @@ class PodiumUserWidget extends ConsumerWidget {
                   fontWeight: FontWeight.w900,
                   fontSize: size > 100 ? 16.sp : 14.sp,
                   color: isMe 
-                      ? AppColors.primaryColor 
+                      ? (isDark ? AppColors.primaryColor : AppColors.warmTitle) 
                       : (isDark ? Colors.white : AppColors.secondaryDark),
                   fontFamily: 'SomarSans',
                   height: 1.2,
@@ -157,7 +158,9 @@ class PodiumUserWidget extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w900,
-                color: isMe ? AppColors.goldColor : (isDark ? AppColors.goldColorLight : AppColors.primaryColor),
+                color: isMe 
+                    ? AppColors.goldColor 
+                    : (isDark ? AppColors.primaryColor : AppColors.warmTitle),
                 fontFamily: 'SomarSans',
               ),
             ),

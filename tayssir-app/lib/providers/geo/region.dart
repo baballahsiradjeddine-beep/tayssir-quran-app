@@ -18,9 +18,9 @@ class Region extends Equatable implements TaysirDropdownItem {
 
   factory Region.fromJson(Map<String, dynamic> json) {
     return Region(
-      id: json['id'],
-      name: json['name'],
-      code: json['code'],
+      id: (json['id'] as int?) ?? 0,
+      name: (json['name'] as String?) ?? '',
+      code: json['code'] as String?,
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:tayssir/features/exercice/presentation/view/fill_in_the_blank/fill_in_the_blank_provider.dart';
 import 'package:tayssir/providers/data/models/fill_in_the_blank_exercise.dart';
@@ -75,7 +76,7 @@ class FillInTheBlankExerciseView extends ConsumerWidget {
         final isWrongAnswer = isChecked && isFilled && !state.isCorrectWord(blankIndex);
 
         // Color scheme based on state
-        final Color correctColor = const Color(0xFF10B981);
+        final Color correctColor = AppColors.warmAccent;
         final Color wrongColor = const Color(0xFFEF4444);
         final LinearGradient? fillGradient = isChecked
             ? null // use solid color instead when checked

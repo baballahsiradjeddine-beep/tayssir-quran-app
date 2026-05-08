@@ -3,7 +3,7 @@ import 'package:tayssir/providers/data/models/fill_in_the_blank_exercise.dart';
 
 class FillInTheBlankState extends Equatable {
   final FillInTheBlankExercise exercise;
-  final List<String?> filledBlanks;
+  final List<int?> filledBlanks;
   final List<bool> wordSelectionState;
   final int? selectedBlankIndex;
   final bool isChecked;
@@ -20,7 +20,7 @@ class FillInTheBlankState extends Equatable {
 
   FillInTheBlankState copyWith({
     FillInTheBlankExercise? exercise,
-    List<String?>? filledBlanks,
+    List<int?>? filledBlanks,
     List<bool>? wordSelectionState,
     int? selectedBlankIndex,
     bool? isChecked,
@@ -66,8 +66,8 @@ class FillInTheBlankState extends Equatable {
   bool checkAnswer() {
     final blanks = exercise.blanks;
     for (int i = 0; i < blanks.length; i++) {
-      //todo FITB
-      if (blanks[i].correctWord != filledBlanks[i]) {
+      if (filledBlanks[i] == null) return false;
+      if (blanks[i].correctWord != exercise.suggestions[filledBlanks[i]!]) {
         return false;
       }
     }
@@ -75,12 +75,17 @@ class FillInTheBlankState extends Equatable {
   }
 
   bool isAnswered(int blankIndex) => filledBlanks[blankIndex] != null;
-  String getBlankAnswer(int blankIndex) =>
-      filledBlanks[blankIndex] ?? List.filled(5, "_").join("");
+  
+  String getBlankAnswer(int blankIndex) {
+    if (filledBlanks[blankIndex] != null) {
+      return exercise.suggestions[filledBlanks[blankIndex]!];
+    }
+    return List.filled(5, "_").join("");
+  }
 
   bool isCorrectWord(int blankIndex) {
-    //todo FITB
-    return exercise.blanks[blankIndex].correctWord == filledBlanks[blankIndex];
+    if (filledBlanks[blankIndex] == null) return false;
+    return exercise.blanks[blankIndex].correctWord == exercise.suggestions[filledBlanks[blankIndex]!];
   }
 
   @override

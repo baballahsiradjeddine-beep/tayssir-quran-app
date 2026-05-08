@@ -140,11 +140,11 @@ class _DesktopCardState extends State<_DesktopCard> {
   Widget build(BuildContext context) {
     final Color primaryColor = widget.isLocked
         ? (widget.isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
-        : const Color(0xFF10B981); // Emerald
+        : (widget.isDark ? const Color(0xFF10B981) : AppColors.warmTitle); // Emerald or Bronze
 
     final Color textColor = widget.isLocked
         ? (widget.isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
-        : (widget.isDark ? Colors.white : const Color(0xFF1E293B));
+        : (widget.isDark ? Colors.white : AppColors.warmTitle);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -162,8 +162,8 @@ class _DesktopCardState extends State<_DesktopCard> {
               color: widget.isDark ? const Color(0xFF1E293B) : Colors.white,
               border: Border.all(
                 color: widget.isCurrent 
-                  ? const Color(0xFF10B981) 
-                  : (widget.isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9)),
+                  ? (widget.isDark ? const Color(0xFF10B981) : AppColors.warmTitle) 
+                  : (widget.isDark ? Colors.white.withOpacity(0.05) : AppColors.warmBorder),
                 width: 2,
               ),
               boxShadow: [
@@ -174,21 +174,21 @@ class _DesktopCardState extends State<_DesktopCard> {
                 ),
                 if (widget.isCurrent)
                   BoxShadow(
-                    color: const Color(0xFF10B981).withOpacity(0.2),
+                    color: (widget.isDark ? const Color(0xFF10B981) : AppColors.warmAccent).withOpacity(0.2),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
               ],
             ),
             child: Directionality(
-              textDirection: TextDirection.rtl,
+              textDirection: Directionality.of(context),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
                 child: Row(
                   children: [
                     AnimatedCircularProgressWidget(
                       percentage: widget.progress,
-                      color: widget.isLocked ? Colors.grey : const Color(0xFF10B981),
+                      color: widget.isLocked ? Colors.grey : (widget.isDark ? const Color(0xFF10B981) : AppColors.warmTitle),
                       imageUrl: widget.imageUrl,
                       size: 54,
                       borderWidth: 3.5,
@@ -213,22 +213,27 @@ class _DesktopCardState extends State<_DesktopCard> {
                               height: 1.2,
                             ),
                           ),
-                          4.verticalSpace,
-                          Row(
-                            children: [
-                              Icon(widget.lessonIcon, size: 14.sp, color: const Color(0xFF10B981)),
-                              8.horizontalSpace,
-                              Text(
-                                widget.isLocked ? 'مغلق' : (widget.isComplete ? 'مكتمل ✅' : 'ابدأ الآن ✨'),
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'SomarSans',
-                                  color: const Color(0xFF10B981),
+                          if (widget.isLocked || widget.isComplete)
+                            Column(
+                              children: [
+                                4.verticalSpace,
+                                Row(
+                                  children: [
+                                    Icon(widget.lessonIcon, size: 14.sp, color: widget.isDark ? const Color(0xFF10B981) : AppColors.warmTitle),
+                                    8.horizontalSpace,
+                                    Text(
+                                      widget.isLocked ? 'مغلق' : 'مكتمل ✅',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'SomarSans',
+                                        color: widget.isDark ? const Color(0xFF10B981) : AppColors.warmTitle,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -272,30 +277,43 @@ class _MobileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color activeColor = isDark ? const Color(0xFF10B981) : AppColors.emerald700;
+    final Color goldAccent = const Color(0xFFD97706);
+    final Color cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 12.h),
+        margin: EdgeInsets.only(bottom: 16.h),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24.r),
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          gradient: isCurrent 
+            ? LinearGradient(
+                colors: isDark 
+                    ? [const Color(0xFF0F172A), const Color(0xFF1E293B)] 
+                    : [const Color(0xFFFFFBEB), Colors.white],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+          color: isCurrent ? null : cardBg,
           border: Border.all(
             color: isCurrent 
-                ? const Color(0xFF10B981) 
-                : (isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9)),
-            width: isCurrent ? 2 : 1,
+                ? goldAccent.withOpacity(0.3) 
+                : (isDark ? Colors.white.withOpacity(0.04) : AppColors.emerald600.withOpacity(0.06)),
+            width: isCurrent ? 2.0 : 1.2,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
             if (isCurrent)
               BoxShadow(
-                color: const Color(0xFF10B981).withOpacity(0.15),
+                color: goldAccent.withOpacity(isDark ? 0.12 : 0.06),
                 blurRadius: 20,
-                spreadRadius: 1,
+                spreadRadius: 2,
               ),
           ],
         ),
@@ -303,47 +321,63 @@ class _MobileCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24.r),
           child: Stack(
             children: [
-              // Subtle background gradient for current lesson
-              if (isCurrent)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: 100.w,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFF10B981).withOpacity(0.1),
-                          const Color(0xFF10B981).withOpacity(0.0),
-                        ],
-                        begin: Alignment.centerRight,
-                        end: Alignment.centerLeft,
+              // Bottom Progress Bar (Subtle)
+              Positioned(
+                bottom: 0, left: 0, right: 0,
+                height: 4.h,
+                child: Container(
+                  color: (isDark ? Colors.white : AppColors.emerald600).withOpacity(0.05),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerRight,
+                    widthFactor: progress / 100,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            isCurrent ? goldAccent : activeColor,
+                            (isCurrent ? goldAccent : activeColor).withOpacity(0.6),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              
+              ),
+
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 20.h),
                 child: Directionality(
-                  textDirection: TextDirection.rtl,
+                  textDirection: Directionality.of(context),
                   child: Row(
                     children: [
-                      // Progress Image
-                      AnimatedCircularProgressWidget(
-                        percentage: progress,
-                        color: isLocked ? Colors.grey : const Color(0xFF10B981),
-                        imageUrl: imageUrl,
-                        size: 54,
-                        borderWidth: 3.5,
-                        isLocked: isLocked,
-                        backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                      // Folder/Unit Image with Progress Ring
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          AnimatedCircularProgressWidget(
+                            percentage: progress,
+                            color: isLocked ? Colors.grey : (isCurrent ? goldAccent : activeColor),
+                            imageUrl: imageUrl,
+                            size: 56.sp,
+                            borderWidth: 3.0,
+                            isLocked: isLocked,
+                            backgroundColor: isDark ? Colors.black26 : Colors.grey.shade50,
+                          ),
+                          if (isComplete)
+                            Positioned(
+                              bottom: 0, right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                                child: Icon(Icons.check_circle, size: 16.sp, color: activeColor),
+                              ),
+                            ),
+                        ],
                       ),
                       
-                      20.horizontalSpace,
+                      16.horizontalSpace,
                       
-                      // Text info
+                      // Info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,29 +389,31 @@ class _MobileCard extends StatelessWidget {
                               style: TextStyle(
                                 color: isLocked 
                                   ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
-                                  : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                                  : (isDark ? Colors.white : AppColors.emerald900),
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w900,
                                 fontFamily: 'SomarSans',
                                 height: 1.2,
                               ),
                             ),
-                            4.verticalSpace,
+                            6.verticalSpace,
                             Row(
                               children: [
                                 if (isPremium && !isSub)
                                   Padding(
-                                    padding: EdgeInsets.only(left: 8.w),
-                                    child: Icon(Icons.stars_rounded, size: 16.sp, color: const Color(0xFFF59E0B)),
+                                    padding: EdgeInsets.only(left: 6.w),
+                                    child: Icon(Icons.stars_rounded, size: 14.sp, color: goldAccent),
                                   ),
                                 Text(
                                   isLocked 
                                     ? 'الفصل التالي' 
-                                    : (isComplete ? 'مكتمل ✅' : (progress > 0 ? 'تابع التعلم ✨' : 'ابدأ الآن 🚀')),
+                                    : (isComplete ? 'تم الإنجاز بنجاح ✓' : (isCurrent ? 'تابع تعلمك الآن ✨' : 'ابدأ الدرس')),
                                   style: TextStyle(
-                                    color: isLocked ? Colors.grey : const Color(0xFF10B981),
+                                    color: isLocked 
+                                        ? (isDark ? Colors.white12 : Colors.grey.shade400)
+                                        : (isCurrent ? goldAccent : activeColor).withOpacity(0.9),
                                     fontSize: 12.sp,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w800,
                                     fontFamily: 'SomarSans',
                                   ),
                                 ),
@@ -386,23 +422,36 @@ class _MobileCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      
-                      // Action Icon
+
+                      10.horizontalSpace,
+
+                      // Play Button
                       Container(
-                        width: 40.sp,
-                        height: 40.sp,
+                        width: 42.sp, height: 42.sp,
                         decoration: BoxDecoration(
-                          color: isLocked 
-                              ? Colors.transparent 
-                              : const Color(0xFF10B981).withOpacity(0.1),
                           shape: BoxShape.circle,
+                          gradient: isLocked 
+                            ? null 
+                            : LinearGradient(
+                                colors: isCurrent 
+                                  ? [goldAccent, const Color(0xFFB45309)] 
+                                  : [activeColor, activeColor.withOpacity(0.8)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                          color: isLocked ? (isDark ? Colors.white10 : Colors.grey.shade100) : null,
+                          boxShadow: isLocked ? null : [
+                            BoxShadow(
+                              color: (isCurrent ? goldAccent : activeColor).withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            )
+                          ],
                         ),
                         child: Icon(
-                          lessonIcon,
-                          color: isLocked 
-                              ? (isDark ? Colors.white12 : Colors.grey.shade300) 
-                              : const Color(0xFF10B981),
-                          size: 20.sp,
+                          isLocked ? Icons.lock_rounded : (isComplete ? Icons.replay_rounded : Icons.play_arrow_rounded),
+                          color: isLocked ? (isDark ? Colors.white24 : Colors.grey.shade400) : Colors.white,
+                          size: 22.sp,
                         ),
                       ),
                     ],

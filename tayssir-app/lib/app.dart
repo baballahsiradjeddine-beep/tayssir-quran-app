@@ -8,6 +8,8 @@ import 'package:tayssir/resources/resources.dart';
 import 'package:tayssir/resources/theme/app_theme.dart';
 import 'package:tayssir/router/routes_service.dart';
 import 'package:tayssir/providers/settings/settings_provider.dart';
+import 'package:tayssir/resources/theme/design_system.dart';
+import 'package:tayssir/providers/theme/design_system_provider.dart';
 import 'router/app_router.dart';
 
 import 'package:upgrader/upgrader.dart';
@@ -23,6 +25,8 @@ class BayanQuranApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     initImages(context);
     final router = ref.watch(appRouterProvider);
+    final ds = ref.watch(designSystemProvider);
+    final darkDs = ref.watch(darkDesignSystemProvider);
     final settings = ref.watch(settingsNotifierProvider);
     
     final size = MediaQueryData.fromView(View.of(context)).size;
@@ -67,8 +71,8 @@ class BayanQuranApp extends ConsumerWidget {
               DefaultWidgetsLocalizations.delegate,
             ],
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: AppTheme.theme(ds, Brightness.light),
+            darkTheme: AppTheme.theme(darkDs, Brightness.dark),
             themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           ),
         );

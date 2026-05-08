@@ -287,7 +287,7 @@ class ResumesDataView extends HookWidget {
                                 ),
                               ),
                               Text(
-                                currentMaterial.value == 0 ? "كل المواد" : "مادة محددة",
+                                currentMaterial.value == 0 ? "كل البرامج" : "برنامج محدد",
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   color: isDark ? Colors.white54 : Colors.black45,

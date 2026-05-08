@@ -65,7 +65,10 @@ class ExerciseNotifier extends StateNotifier<ExerciseState> {
 
   void getExercices() async {
     final exercises = courseService.getExercises(chapterId);
-    state = state.copyWith(exercises: exercises);
+    state = state.copyWith(
+      exercises: exercises,
+      allChapterExercises: exercises,
+    );
   }
 
   Duration _calculateElapsedTime() {
@@ -282,22 +285,45 @@ class ExerciseNotifier extends StateNotifier<ExerciseState> {
     goToFirstPage();
     // _startTimer();
   }
-
   //Side Note:  I can get rid of context here and just use the ref.listen to listen  ,
   //and have  a state varaible to check if it get correct or no and based on that show the dialogs ,
   // for now i will keep it like this , if the application get bigger i will change it to the other way
-  void checkAnswer(BuildContext context, bool isCorrect
-      //  {
-      /// @deperacted
-      // VoidCallback? onSuccess,
-      // VoidCallback? onError,
-      // }
-      ) async {
+  // Adaptive Reinforcement Logic (Tag-based Cross-Testing)
+  void _reinforceConcept(ExerciseModel failedExo) {
+    if (failedExo.tags.isEmpty) return;
+
+    // 1. Find potential mirror questions (share at least one tag, different ID, not a slide)
+    final mirrorQuestion = (state.allChapterExercises ?? []).firstWhere(
+      (ex) => 
+        ex.id != failedExo.id && 
+        ex.type != ExerciseType.slide &&
+        ex.tags.any((tag) => failedExo.tags.contains(tag)),
+      orElse: () => failedExo, // Fallback to same concept if no mirror found
+    );
+
+    if (mirrorQuestion != failedExo) {
+      AppLogger.logInfo('Injecting reinforcement for tags: ${failedExo.tags}');
+      
+      // Check if already in queue
+      final alreadyInQueue = state.exercises.skip(state.currentExerciceIndex + 1).any((ex) => ex.id == mirrorQuestion.id);
+      
+      if (!alreadyInQueue) {
+        final updatedExercises = List<ExerciseModel>.from(state.exercises)..add(mirrorQuestion);
+        state = state.copyWith(exercises: updatedExercises);
+      }
+    }
+  }
+
+  void checkAnswer(BuildContext context, bool isCorrect) async {
     final currentExercise = state.currentExercise;
 
-    // final isCorrect = currentExercise.checkAnswer(answer);
     state = state.copyWith(isShowResult: true, isCorrect: isCorrect);
     
+    // Adaptive Logic: If wrong, reinforce based on tags
+    if (!isCorrect && currentExercise.tags.isNotEmpty) {
+      _reinforceConcept(currentExercise);
+    }
+
     final isSoundOn = ref.read(isSoundEnabledProvider);
     if (isSoundOn) {
       if (state.isCorrect) {
@@ -310,22 +336,13 @@ class ExerciseNotifier extends StateNotifier<ExerciseState> {
     if (state.isCorrect) {
       BottomSheetService.showSuccessBottomSheet(context, state.isCorrect, () {
         nextExerise(context);
-        // if (onSuccess != null) {
-        //   onSuccess();
-        // }
-
         context.pop();
-        // handleRemarks(context);
       });
     } else {
       BottomSheetService.showErrorBottomSheet(
           context, currentExercise.getFeedback(), () {
         nextExerise(context);
-        // if (onError != null) {
-        //   onError();
-        // }
         context.pop();
-        // handleRemarks(context);
       }, currentExercise.explanation.isLatex);
     }
   }

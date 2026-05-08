@@ -119,7 +119,10 @@ class CardSwipperLoadingView extends StatelessWidget {
                   SizedBox(
                     width: 18.sp,
                     height: 18.sp,
-                    child: const CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF10B981)),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
+                    ),
                   ),
                   SizedBox(width: 8.w),
                   Text(
@@ -247,7 +250,7 @@ class CardSwipperDataView extends HookConsumerWidget {
                             .read(cardSwipperControllerProvider.notifier)
                             .resetFilters();
                       },
-                      filterColor: const Color(0xFF10B981),
+                      filterColor: isDark ? const Color(0xFF10B981) : AppColors.warmAccent,
                       getLabel: (item) {
                         return item.name;
                       },
