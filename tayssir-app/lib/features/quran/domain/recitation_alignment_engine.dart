@@ -30,8 +30,8 @@ class RecitationAlignmentEngine {
     int currentIdx = (lastCorrectForWindow >= 0) ? lastCorrectForWindow + 1 : 0;
     if (currentIdx >= currentStatuses.length) currentIdx = currentStatuses.length - 1;
 
-    // Window: Start 2 words before current position (minimal backtrack), end 20 words after
-    int windowStart = math.max(0, currentIdx - 2);
+    // Window: Start 5 words before current position, end 20 words after
+    int windowStart = math.max(0, currentIdx - 5);
     int windowEnd = math.min(targetWords.length, currentIdx + 20);
     List<String> windowTarget = targetWords.sublist(windowStart, windowEnd);
 
@@ -257,10 +257,7 @@ class RecitationAlignmentEngine {
     if (_anchors.contains(n)) return 0.85; // Anchors always strict
     if (word.length <= 2) return 0.90;     // Very short: هم، في، من — must be exact
     if (word.length <= 4) return 0.75;     // Short: بما، قال
-    if (word.length <= 6) return 0.75;     // Medium: كتاب، ربهم
-    return 0.80;                            // Long words (7+ chars): STRICT
-    // Reason: long words like المفلحون vs الصالحون share prefix/suffix (0.75 sim)
-    // but are completely different words. Higher threshold prevents false acceptance.
+    return 0.75;                            // Medium & Long words: الصلوة، يقيمون، المفلحون
   }
 
   static double wordSimilarity(String w1, String w2) {
