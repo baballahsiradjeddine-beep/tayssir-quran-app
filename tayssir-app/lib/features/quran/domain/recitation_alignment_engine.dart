@@ -56,14 +56,30 @@ class RecitationAlignmentEngine {
     
     int relativeLastCorrect = lastCorrectIdx - windowStart;
     
-    // PEDAGOGICAL FIX (Expert suggestion):
-    // If we are at the start of a page (no correct words in window yet),
-    // allow matching the full window to find the start.
-    // Otherwise, limit jump to 12 words ahead of the last correct one.
-    int forwardLimit = 4; // Tight window: enough for fast reading, prevents big jumps
-    int maxAllowedJ = (relativeLastCorrect < 0) 
-        ? m  
-        : math.min(m, relativeLastCorrect + forwardLimit);
+    // STRICT SEQUENTIAL MODE:
+    // If there is an incorrect (red) word after the last correct word,
+    // collapse the window to ONLY that word. The user MUST fix it before advancing.
+    int firstErrorIdx = -1;
+    for (int k = lastCorrectIdx + 1; k < currentStatuses.length; k++) {
+      if (currentStatuses[k] == WordStatus.incorrect) {
+        firstErrorIdx = k;
+        break;
+      }
+    }
+
+    int maxAllowedJ;
+    if (firstErrorIdx >= 0) {
+      // Strict: only allow matching up to and including the error word
+      int relativeError = firstErrorIdx - windowStart;
+      maxAllowedJ = (relativeError >= 0 && relativeError < m) 
+          ? relativeError + 1  // +1 so the user CAN fix this exact word
+          : (relativeLastCorrect < 0 ? m : math.min(m, relativeLastCorrect + 4));
+    } else {
+      // No error: allow normal 4-word forward reading
+      maxAllowedJ = (relativeLastCorrect < 0) 
+          ? m  
+          : math.min(m, relativeLastCorrect + 4);
+    }
 
     for (int i = 1; i <= n; i++) {
       for (int j = 1; j <= m; j++) {
