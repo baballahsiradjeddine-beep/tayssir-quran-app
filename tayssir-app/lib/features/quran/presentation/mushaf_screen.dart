@@ -145,6 +145,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     _isWordLocked = List.filled(_pageWords.length, false);
     _errorConfirmationCounts.clear();
     _transcriptBuffer.lastWords = [];
+    _sessionStartWordIdx = 0; // Reset: new page always starts from word 0
     if (_wordStatuses.isNotEmpty) _wordStatuses[0] = WordStatus.current;
 
     setState(() {});
