@@ -308,13 +308,22 @@ class RecitationAlignmentEngine {
 
     double literalSim = _levenshteinSimilarity(n1, n2);
 
-    // PREFIX SENSITIVITY (Wa vs Fa)
-    // Punish mismatching critical Quranic prefixes.
+    // SIGNIFICANT FIRST-LETTER SENSITIVITY
+    // Punish mismatching the first letter of the root (ignoring 'ال').
     if (n1.isNotEmpty && n2.isNotEmpty) {
-      final c1 = n1[0];
-      final c2 = n2[0];
-      if ((c1 == 'و' && c2 == 'ف') || (c1 == 'ف' && c2 == 'و')) {
-        literalSim *= 0.8; // Apply 20% penalty for Wa/Fa mismatch
+      String stripAL(String s) {
+        if (s.startsWith('ال')) return s.substring(2);
+        if (s.startsWith('وال')) return s.substring(3);
+        if (s.startsWith('فال')) return s.substring(3);
+        if (s.startsWith('و') || s.startsWith('ف')) return s.substring(1);
+        return s;
+      }
+
+      String s1Root = stripAL(n1);
+      String s2Root = stripAL(n2);
+      
+      if (s1Root.isNotEmpty && s2Root.isNotEmpty && s1Root[0] != s2Root[0]) {
+        literalSim *= 0.7; // Heavy 30% penalty for different starting letters
       }
     }
 
@@ -329,12 +338,19 @@ class RecitationAlignmentEngine {
     double phoneticSim = _levenshteinSimilarity(p1, p2);
     
     if (phoneticSim >= 0.95) {
-      // Apply prefix penalty to phonetic too!
+      // Apply root-letter penalty to phonetic too!
       if (n1.isNotEmpty && n2.isNotEmpty) {
-        final c1 = n1[0];
-        final c2 = n2[0];
-        if ((c1 == 'و' && c2 == 'ف') || (c1 == 'ف' && c2 == 'و')) {
-          phoneticSim *= 0.8;
+        String stripAL(String s) {
+          if (s.startsWith('ال')) return s.substring(2);
+          if (s.startsWith('وال')) return s.substring(3);
+          if (s.startsWith('فال')) return s.substring(3);
+          if (s.startsWith('و') || s.startsWith('ف')) return s.substring(1);
+          return s;
+        }
+        String s1Root = stripAL(n1);
+        String s2Root = stripAL(n2);
+        if (s1Root.isNotEmpty && s2Root.isNotEmpty && s1Root[0] != s2Root[0]) {
+          phoneticSim *= 0.7;
         }
       }
       if (phoneticSim >= 0.95) return literalSim > 0.4 ? 0.90 : 0.80;
