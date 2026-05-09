@@ -109,7 +109,13 @@ class RecitationAlignmentEngine {
         if (j > maxAllowedJ) {
           matchScore = mismatchPenalty * 2;
         } else {
-          matchScore = (sim >= threshold) ? (sim * 2.0) : mismatchPenalty;
+          double finalSim = sim;
+          // SEQUENTIAL CONTEXT BONUS:
+          // If we are at (i,j) and there was a match at (i-1, j-1), reward the sequence.
+          if (i > 1 && j > 1 && scoreMatrix[i - 1][j - 1] > 0) {
+            finalSim += 0.2; // 20% sequential boost
+          }
+          matchScore = (finalSim >= threshold) ? (finalSim * 2.0) : mismatchPenalty;
         }
 
         scoreMatrix[i][j] = [

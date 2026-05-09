@@ -66,6 +66,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
   int _startVerseNumber = -1;
   int _sessionStartWordIdx = 0; // First tracking-word index of the chosen start verse
   int _maxReachedWordIdx = 0;  // Furthest index ever reached (for visual stability)
+  bool _isMemorizationMode = false; // "Tashmee" Mode: Hide words until read correctly
 
   // Word-by-Word tracking state for the entire page
   List<String> _pageWords = [];          // expanded (Muqatta'at split into letters)
@@ -486,13 +487,38 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                       BoxShadow(color: AppColors.goldColor.withOpacity(0.5), blurRadius: 15, spreadRadius: 2)
                     ]
                   ) : null,
-                  child: IconButton(
-                    onPressed: _toggleListening,
-                    icon: Icon(
-                      _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                      color: AppColors.goldColor,
-                      size: isDesktop ? 30.sp : 26.sp,
-                    ).animate(target: _isListening ? 1 : 0).scaleXY(end: 1.1).shake(hz: 2, curve: Curves.easeInOutCubic),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Memorization Mode Toggle
+                      IconButton(
+                        onPressed: () {
+                          setState(() => _isMemorizationMode = !_isMemorizationMode);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(_isMemorizationMode ? 'تم تفعيل وضع التسميع 🙈' : 'تم تفعيل وضع القراءة 👁️'),
+                              duration: const Duration(seconds: 1),
+                              backgroundColor: AppColors.goldColor,
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          _isMemorizationMode ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                          color: _isMemorizationMode ? AppColors.goldColor : textColor.withOpacity(0.5),
+                          size: isDesktop ? 26.sp : 22.sp,
+                        ),
+                        tooltip: 'وضع التسميع',
+                      ).animate(target: _isMemorizationMode ? 1 : 0).shimmer(duration: 2.seconds),
+                      
+                      IconButton(
+                        onPressed: _toggleListening,
+                        icon: Icon(
+                          _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                          color: AppColors.goldColor,
+                          size: isDesktop ? 30.sp : 26.sp,
+                        ),
+                      ).animate(target: _isListening ? 1 : 0).scaleXY(end: 1.1).shake(hz: 2, curve: Curves.easeInOutCubic),
+                    ],
                   ),
                 ),
               ),
@@ -768,16 +794,21 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                             wordColor = Colors.orange; 
                             break;
                           case WordStatus.current:
-                            // The next word to read must be VISIBLE (white), not hidden!
-                            wordColor = textColor;
+                            // In Memorization mode, hide the next word too for a real challenge
+                            wordColor = _isMemorizationMode ? Colors.transparent : textColor;
                             break;
                           case WordStatus.pending:
                             // Show in white if: before session start OR before progress position
-                            wordColor = (trackingStart < _sessionStartWordIdx ||
-                                         trackingStart <= lastCorrectTrackingIdx ||
-                                         trackingStart <= _maxReachedWordIdx)
-                                ? textColor
-                                : Colors.transparent;
+                            // BUT in Memorization mode, EVERYTHING ahead is transparent
+                            if (_isMemorizationMode) {
+                              wordColor = Colors.transparent;
+                            } else {
+                              wordColor = (trackingStart < _sessionStartWordIdx ||
+                                           trackingStart <= lastCorrectTrackingIdx ||
+                                           trackingStart <= _maxReachedWordIdx)
+                                  ? textColor
+                                  : Colors.transparent;
+                            }
                             break;
                         }
                       } else if (verseNum == _activeVerseIndex) {
