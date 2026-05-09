@@ -26,12 +26,14 @@ class RecitationAlignmentEngine {
     // SLIDING WINDOW DP ALIGNMENT
     // ══════════════════════════════════════════════════════════════════════
     
-    // Find our current "Window of Interest" to keep performance O(constant)
-    int currentIdx = currentStatuses.indexWhere((s) => s == WordStatus.current || s == WordStatus.pending || s == WordStatus.incorrect);
-    if (currentIdx == -1) currentIdx = 0;
+    // Find our current "Window of Interest" centered on LAST CORRECT word
+    // (not first pending/incorrect, which could be a stale error from earlier in the page)
+    int lastCorrectForWindow = currentStatuses.lastIndexWhere((s) => s == WordStatus.correct);
+    int currentIdx = (lastCorrectForWindow >= 0) ? lastCorrectForWindow + 1 : 0;
+    if (currentIdx >= currentStatuses.length) currentIdx = currentStatuses.length - 1;
 
-    // Window: Start 8 words before current, end 20 words after
-    int windowStart = math.max(0, currentIdx - 8);
+    // Window: Start 5 words before current position, end 20 words after
+    int windowStart = math.max(0, currentIdx - 5);
     int windowEnd = math.min(targetWords.length, currentIdx + 20);
     List<String> windowTarget = targetWords.sublist(windowStart, windowEnd);
 
