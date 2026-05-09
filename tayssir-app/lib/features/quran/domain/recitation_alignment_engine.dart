@@ -205,9 +205,24 @@ class RecitationAlignmentEngine {
     // --- PEDAGOGICAL FORCE (Patient Mode) ---
     // Only force red hint if the user said something NEW that was NOT matched.
     if (n > 0 && lastMatchedI < n && bestJ <= relativeLastCorrect + 1) {
-      int hintIdx = relativeLastCorrect + 1;
-      if (hintIdx >= 0 && hintIdx < m && windowStatuses[hintIdx] == WordStatus.pending) {
-        windowStatuses[hintIdx] = WordStatus.incorrect;
+      // REPETITION CHECK: If the unmatched spoken words are actually repetitions
+      // of words we already marked correct, don't punish the user.
+      bool isRepetition = false;
+      for (int i = lastMatchedI; i < n; i++) {
+        for (int j = 0; j <= relativeLastCorrect; j++) {
+           if (wordSimilarity(spokenWords[i], windowTarget[j]) >= _getThreshold(windowTarget[j])) {
+             isRepetition = true;
+             break;
+           }
+        }
+        if (isRepetition) break;
+      }
+
+      if (!isRepetition) {
+        int hintIdx = relativeLastCorrect + 1;
+        if (hintIdx >= 0 && hintIdx < m && windowStatuses[hintIdx] == WordStatus.pending) {
+          windowStatuses[hintIdx] = WordStatus.incorrect;
+        }
       }
     }
 
