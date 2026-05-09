@@ -758,8 +758,12 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                           case WordStatus.current:   
                             wordColor = Colors.transparent; 
                             break;
-                          case WordStatus.pending:   
-                            wordColor = Colors.transparent; 
+                          case WordStatus.pending:
+                            // Words BEFORE the reading position = visible white (already passed)
+                            // Words AFTER the reading position = hidden (not yet reached)
+                            wordColor = (trackingStart <= lastCorrectTrackingIdx)
+                                ? textColor          // before reading position → show in white
+                                : Colors.transparent; // after reading position → hidden
                             break;
                         }
                       } else if (verseNum == _activeVerseIndex) {
