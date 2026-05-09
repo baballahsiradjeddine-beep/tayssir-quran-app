@@ -72,7 +72,6 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
   List<WordStatus> _wordStatuses = [];
   List<bool> _isWordLocked = []; // Prevent revisions of confirmed words
   List<int> _displayWordTrackingStart = []; 
-  String _currentSpeechSession = "";
 
 
   final Map<int, int> _errorConfirmationCounts = {};
@@ -206,6 +205,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     if (_currentPage >= 604) return;
     
     _speech.stop();
+    _startVerseNumber = -1; // Reset: next page starts fresh, no verse pre-selection
     setState(() => _isListening = false);
 
     await _pageController.animateToPage(

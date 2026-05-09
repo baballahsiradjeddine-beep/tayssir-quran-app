@@ -4,8 +4,6 @@ import '../../../utils/arabic_utils.dart';
 enum WordStatus { pending, current, correct, incorrect, partial }
 
 class RecitationAlignmentEngine {
-  static const double _correctThreshold = 0.70;
-  
   // Cache for performance optimization
   static final Map<String, double> _similarityCache = {};
 
