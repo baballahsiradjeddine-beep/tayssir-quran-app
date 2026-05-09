@@ -174,9 +174,9 @@ class RecitationAlignmentEngine {
     }
 
     // --- GAP ENFORCEMENT (Strict Sequential Mode) ---
-    // If a gap (skipped target word) was detected, ALL correct words that
-    // come AFTER the first gap must be reset to 'pending'.
-    // This prevents silently-skipped words from being credited as correct.
+    // If a gap (skipped target word) was detected, AND there is a correct word 
+    // AFTER the gap, reset those post-gap correct words to 'pending'.
+    // (If no correct word follows the gap, it's just the reading boundary — no action.)
     int firstGapInWindow = -1;
     for (int k = 0; k < m; k++) {
       if (windowStatuses[k] == WordStatus.incorrect) {
@@ -185,10 +185,19 @@ class RecitationAlignmentEngine {
       }
     }
     if (firstGapInWindow >= 0) {
-      // Reset everything AFTER the first gap to pending (uncredit them)
+      bool hasCorrectAfterGap = false;
       for (int k = firstGapInWindow + 1; k < m; k++) {
         if (windowStatuses[k] == WordStatus.correct) {
-          windowStatuses[k] = WordStatus.pending;
+          hasCorrectAfterGap = true;
+          break;
+        }
+      }
+      if (hasCorrectAfterGap) {
+        // Real skip detected: pull back post-gap correct words to pending
+        for (int k = firstGapInWindow + 1; k < m; k++) {
+          if (windowStatuses[k] == WordStatus.correct) {
+            windowStatuses[k] = WordStatus.pending;
+          }
         }
       }
     }
