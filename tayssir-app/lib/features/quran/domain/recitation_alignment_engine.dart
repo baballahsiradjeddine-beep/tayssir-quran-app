@@ -82,13 +82,13 @@ class RecitationAlignmentEngine {
       // Strict: only allow matching up to and including the error word
       int relativeError = firstErrorIdx - windowStart;
       maxAllowedJ = (relativeError >= 0 && relativeError < m) 
-          ? relativeError + 1  // +1 so the user CAN fix this exact word
-          : (relativeLastCorrect < 0 ? m : math.min(m, relativeLastCorrect + 3));
+          ? relativeError + 1  
+          : (relativeLastCorrect < 0 ? m : math.min(m, relativeLastCorrect + 4));
     } else {
-      // No error: allow normal 3-word forward reading
+      // No error: allow normal 4-word forward reading
       maxAllowedJ = (relativeLastCorrect < 0) 
           ? m  
-          : math.min(m, relativeLastCorrect + 3);
+          : math.min(m, relativeLastCorrect + 4);
     }
 
     for (int i = 1; i <= n; i++) {
@@ -98,10 +98,10 @@ class RecitationAlignmentEngine {
         final normTarget = ArabicUtils.normalize(windowTarget[j - 1]);
         double threshold = _getThreshold(windowTarget[j - 1]);
 
-        // If the word is a duplicate in this window, demand ultra-high precision (0.95)
+        // If the word is a duplicate in this window, demand higher precision (0.88)
         // to ensure the DP doesn't jump to the wrong instance of the word.
         if ((windowWordFreq[normTarget] ?? 1) > 1) {
-          threshold = math.max(threshold, 0.95);
+          threshold = math.max(threshold, 0.88);
         }
         
         // Disable matching if j is beyond our strict forward limit
