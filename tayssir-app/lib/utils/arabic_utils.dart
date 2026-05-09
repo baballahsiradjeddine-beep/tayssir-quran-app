@@ -4,10 +4,14 @@ class ArabicUtils {
 
     // ═══════════════════════════════════════════════════
     // 1. Remove standard diacritics (Tashkeel) U+064B-U+0652
-    //    + U+0653 (maddah above ٓ — used on الٓمٓ in Quran package!)
-    //    + U+0654 (hamza above) + superscript alef U+0670 + tatweel U+0640
+    //    + U+0653 (maddah above ٓ)
+    //    + U+0654 (hamza above) + tatweel U+0640
     // ═══════════════════════════════════════════════════
-    normalized = normalized.replaceAll(RegExp(r'[\u064B-\u0654\u0670\u0640]'), '');
+    normalized = normalized.replaceAll(RegExp(r'[\u064B-\u0654\u0640]'), '');
+
+    // Normalize superscript alef U+0670 to a full alef
+    // because STT transcribes these as spoken vowels (Alef)
+    normalized = normalized.replaceAll('\u0670', 'ا');
 
     // ═══════════════════════════════════════════════════
     // 2. Remove extended Quranic annotation marks
@@ -19,7 +23,7 @@ class ArabicUtils {
     // ═══════════════════════════════════════════════════
     // 3. Normalize ALL Alif variants → ا (U+0627)
     //    أ U+0623, إ U+0625, آ U+0622
-    //    ٱ U+0671 (alef wasla — very common in Quran, e.g. ٱلْحَمْدُ)
+    //    ٱ U+0671 (alef wasla)
     //    ٲ U+0672, ٳ U+0673, ٵ U+0675
     // ═══════════════════════════════════════════════════
     normalized = normalized.replaceAll(RegExp(r'[إأآٱ\u0671\u0672\u0673\u0675]'), 'ا');
@@ -32,10 +36,10 @@ class ArabicUtils {
     normalized = normalized.replaceAll(RegExp(r'[ىئ]'), 'ي');
 
     // ═══════════════════════════════════════════════════
-    // 5. Normalize Te Marbuta → ه
-    //    (STT reads it as haa sound)
+    // 5. Note: We no longer convert 'ة' to 'ه' here to maintain precision
+    // for distinguishing words like 'رحمة' from 'رحمه'.
+    // They will only be merged in the phonetic layer.
     // ═══════════════════════════════════════════════════
-    normalized = normalized.replaceAll('ة', 'ه');
 
     // ═══════════════════════════════════════════════════
     // 6. Normalize Hamza variants
@@ -64,6 +68,23 @@ class ArabicUtils {
 
   static bool compareWords(String spoken, String original) {
     return normalize(spoken) == normalize(original);
+  }
+
+  static String phoneticNormalize(String input) {
+    String s = normalize(input);
+
+    // Group similar sounding letters to handle STT phonetic errors
+    // Group 1: Alef variants (Safe to collapse as STT doesn't distinguish well)
+    s = s.replaceAll(RegExp(r'[آأإٱا]'), 'A');
+
+    // Group 2: H-sounds (merging Teh Marbuta and Ha ONLY)
+    // Removed 'ح' as it is distinct in Quranic phonetics
+    s = s.replaceAll(RegExp(r'[هة]'), 'H');
+
+    // Note: Other groups (Dhad/Dal, Sin/Sad) removed as per expert advice
+    // to maintain high Quranic precision. Similarity handles them via Levenshtein.
+    
+    return s;
   }
 
   /// Expands a Quranic Muqatta'at token into its spoken letter names.

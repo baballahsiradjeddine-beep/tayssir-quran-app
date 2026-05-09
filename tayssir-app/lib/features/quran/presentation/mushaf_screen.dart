@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
@@ -11,6 +12,34 @@ import 'package:tayssir/resources/colors/app_colors.dart';
 import 'package:tayssir/utils/arabic_utils.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:tayssir/features/quran/domain/recitation_alignment_engine.dart';
+
+/// A buffer that handles unstable STT transcripts by extracting only the new/revised tokens.
+class StreamingTranscriptBuffer {
+  List<String> lastWords = [];
+
+  /// Returns the full list of words if anything changed, otherwise returns null.
+  List<String>? process(String transcript) {
+    final normalized = ArabicUtils.normalize(transcript);
+    final words = normalized
+        .split(' ')
+        .where((w) => w.trim().isNotEmpty)
+        .toList();
+
+    if (words.length == lastWords.length) {
+      bool identical = true;
+      for (int i = 0; i < words.length; i++) {
+        if (words[i] != lastWords[i]) {
+          identical = false;
+          break;
+        }
+      }
+      if (identical) return null;
+    }
+
+    lastWords = words;
+    return words;
+  }
+}
 
 class MushafScreen extends ConsumerStatefulWidget {
   const MushafScreen({super.key});
@@ -24,6 +53,9 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final stt.SpeechToText _speech = stt.SpeechToText();
+  final AudioPlayer _errorPlayer = AudioPlayer();
+  final StreamingTranscriptBuffer _transcriptBuffer = StreamingTranscriptBuffer();
+  DateTime _lastErrorSoundTime = DateTime.now().subtract(const Duration(seconds: 3));
 
   int _currentPage = 1;
   int _activeVerseIndex = -1;
@@ -37,22 +69,45 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
   List<String> _pageWords = [];          // expanded (Muqatta'at split into letters)
   List<int> _pageWordVerseMapping = [];  // verse number for each tracking word
   List<WordStatus> _wordStatuses = [];
-  List<int> _displayWordTrackingStart = []; // maps display word idx → first tracking idx
+  List<bool> _isWordLocked = []; // Prevent revisions of confirmed words
+  List<int> _displayWordTrackingStart = []; 
   String _currentSpeechSession = "";
 
 
+  final Map<int, int> _errorConfirmationCounts = {};
+  
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_syncActiveVerseOnScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initPageTracking(_currentPage));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initPageTracking(_currentPage);
+      // Pre-load audio assets for zero-latency feedback
+      _errorPlayer.setAsset('assets/sounds/error_soft.mp3').catchError((_) => null);
+      _errorPlayer.setVolume(0.3);
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     _scrollController.dispose();
+    _errorPlayer.dispose();
     super.dispose();
+  }
+
+  void _playErrorSound() async {
+    // Throttle: don't play more than once every 3 seconds
+    if (DateTime.now().difference(_lastErrorSoundTime).inSeconds < 3) return;
+    _lastErrorSoundTime = DateTime.now();
+
+    try {
+      if (_errorPlayer.playing) await _errorPlayer.stop();
+      await _errorPlayer.seek(Duration.zero);
+      _errorPlayer.play();
+    } catch (e) {
+      debugPrint("Error playing error sound: $e");
+    }
   }
 
   List<String> _lastSpokenWords = [];
@@ -86,6 +141,9 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     }
 
     _wordStatuses = List.filled(_pageWords.length, WordStatus.pending);
+    _isWordLocked = List.filled(_pageWords.length, false);
+    _errorConfirmationCounts.clear();
+    _transcriptBuffer.lastWords = [];
     if (_wordStatuses.isNotEmpty) _wordStatuses[0] = WordStatus.current;
 
     setState(() {});
@@ -142,6 +200,26 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     await _beginListening();
   }
 
+  Future<void> _moveToNextPage() async {
+    if (_currentPage >= 604) return;
+    
+    _speech.stop();
+    setState(() => _isListening = false);
+
+    await _pageController.animateToPage(
+      _currentPage, 
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOut,
+    );
+
+    // Start listening almost immediately
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        _beginListening();
+      }
+    });
+  }
+
   Future<void> _beginListening() async {
     bool available = false;
     const bool isWeb = bool.fromEnvironment('dart.library.js_util');
@@ -180,7 +258,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
       });
 
       _speech.listen(
-        onResult: (val) => _analyzeSpeech(val.recognizedWords),
+        onResult: (val) => _analyzeSpeech(val.recognizedWords, val.finalResult),
         localeId: 'ar-SA',
         listenMode: stt.ListenMode.dictation,
         partialResults: true,
@@ -190,184 +268,149 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
 
   /// Fast-forward tracking state to begin at a specific verse number.
   void _seekToVerse(int verseNum) {
-    // Mark all words BEFORE the chosen verse as already-correct
+    bool foundVerseStart = false;
     for (int i = 0; i < _pageWords.length; i++) {
       final v = _pageWordVerseMapping[i];
       if (v < verseNum) {
         _wordStatuses[i] = WordStatus.correct;
-      } else if (v == verseNum) {
+        _isWordLocked[i] = true;
+      } else if (v == verseNum && !foundVerseStart) {
         _wordStatuses[i] = WordStatus.current;
+        foundVerseStart = true;
+      } else if (v == verseNum) {
+        _wordStatuses[i] = WordStatus.pending;
+      } else {
         break;
       }
     }
   }
 
 
-  void _analyzeSpeech(String text) {
-    if (text.isEmpty || _pageWords.isEmpty) return;
+  void _analyzeSpeech(String text, bool isFinal) {
+    if (text.isEmpty || _pageWords.isEmpty || !_isListening) return;
     
-    final normalizedSpoken = ArabicUtils.normalize(text);
-    final spokenWords = normalizedSpoken.split(' ').where((w) => w.trim().isNotEmpty).toList();
-    if (spokenWords.isEmpty) return;
+    // 1. Get the current FULL transcript from the buffer
+    final allWords = _transcriptBuffer.process(text);
+    if (allWords == null) return; // Nothing changed
 
-    List<String> newWords = [];
-    
-    // Check if the STT is continuing the same sentence
-    bool isContinuation = false;
-    if (spokenWords.length >= _lastSpokenWords.length) {
-      isContinuation = true;
-      for (int i = 0; i < _lastSpokenWords.length; i++) {
-        if (spokenWords[i] != _lastSpokenWords[i]) {
-          isContinuation = false;
-          break;
+    // 2. WINDOWED DP ALIGNMENT
+    final newStatuses = RecitationAlignmentEngine.alignPage(
+      spokenWords: allWords,
+      targetWords: _pageWords,
+      currentStatuses: List.from(_wordStatuses),
+    );
+
+    // 4. Update UI State with Error Smoothing and LOCKING
+    final List<WordStatus> smoothedStatuses = List.from(_wordStatuses);
+    bool errorConfirmed = false;
+
+    for (int i = 0; i < smoothedStatuses.length; i++) {
+      // SUCCESS PROTECTION: If a word is already locked as CORRECT, never let it turn red.
+      if (_isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) continue;
+
+      if (newStatuses[i] == WordStatus.incorrect) {
+        // If it was ALREADY CORRECT in this session, be extremely suspicious of turning it red
+        if (_wordStatuses[i] == WordStatus.correct) {
+          continue; // Keep it green! STT revisions shouldn't break existing success.
         }
+
+        _errorConfirmationCounts[i] = (_errorConfirmationCounts[i] ?? 0) + 1;
+        
+        // FLICKER FIX: Partial results need MORE confirmations before showing red.
+        // This prevents the brief red flash caused by imperfect partial STT transcriptions.
+        int requiredConfirmations = isFinal ? 2 : 4;
+        
+        if (_errorConfirmationCounts[i]! >= requiredConfirmations) {
+          smoothedStatuses[i] = WordStatus.incorrect;
+          if (_wordStatuses[i] != WordStatus.incorrect) errorConfirmed = true;
+          if (isFinal && _errorConfirmationCounts[i]! >= 3) {
+            _isWordLocked[i] = true;
+          }
+        }
+      } else if (newStatuses[i] == WordStatus.correct) {
+        smoothedStatuses[i] = WordStatus.correct;
+        _errorConfirmationCounts.remove(i);
+        _isWordLocked[i] = false; 
+        if (isFinal) _isWordLocked[i] = true;
       }
     }
 
-    if (isContinuation) {
-      newWords = spokenWords.sublist(_lastSpokenWords.length);
-    } else {
-      // STT restarted or revised its result.
-      // Greedily align the START of the new result with already-matched tracking words
-      // using a LOOSE threshold (0.50). This skips any leading spoken words that merely
-      // re-cover already-processed positions, preventing false matches.
-      final int lastCorrectIdx = _wordStatuses.lastIndexWhere((s) => s == WordStatus.correct);
-      if (lastCorrectIdx < 0) {
-        // No progress yet: treat the last 4 words as new
-        newWords = spokenWords.length > 4 ? spokenWords.sublist(spokenWords.length - 4) : spokenWords;
-      } else {
-        // Walk through spokenWords and _pageWords[0..lastCorrectIdx] in parallel.
-        // If a spoken word loosely matches the next expected tracked word, consume it
-        // (it's already accounted for). Otherwise, advance only the tracking position.
-        int pagePos = 0;
-        int spokenPos = 0;
-        while (spokenPos < spokenWords.length && pagePos <= lastCorrectIdx) {
-          final sim = RecitationAlignmentEngine.wordSimilarity(
-              spokenWords[spokenPos], _pageWords[pagePos]);
-          if (sim >= 0.50) {
-            spokenPos++; // This word is already tracked — skip it
-          }
-          pagePos++; // Always advance page position to keep alignment moving
-        }
-        // Remaining spoken words (from spokenPos) are genuinely new input
-        newWords = spokenWords.sublist(spokenPos);
-        if (newWords.length > 4) newWords = newWords.sublist(newWords.length - 4);
-      }
-    }
+    if (errorConfirmed) _playErrorSound();
 
-    _lastSpokenWords = spokenWords;
-
-    if (newWords.isEmpty) return;
-
-    bool advanced = false;
-
-    // Find first unresolved position (incorrect takes priority over pending/current)
-    int targetIdx = _wordStatuses.indexWhere((s) => s == WordStatus.incorrect);
-    if (targetIdx == -1) {
-      targetIdx = _wordStatuses.indexWhere((s) => s == WordStatus.current || s == WordStatus.pending);
-    }
-    if (targetIdx == -1) return; // Page complete
-
-    // Check if we're blocked by unresolved errors
-    final bool hasErrors = _wordStatuses.any((s) => s == WordStatus.incorrect);
-
-    for (String sWord in newWords) {
-      if (targetIdx >= _pageWords.length) break;
-
-      int matchIdx = -1;
-
-      if (hasErrors) {
-        // ─── STRICT ERROR MODE ────────────────────────────────────────────
-        // Only allow:
-        // a) Fixing an incorrect word (at targetIdx or nearby incorrect words)
-        // b) Do NOT allow skipping past incorrect words
-        for (int lookAhead = 0; lookAhead < 4; lookAhead++) {
-          int checkIdx = targetIdx + lookAhead;
-          if (checkIdx >= _pageWords.length) break;
-          // Stop lookahead as soon as we hit a non-incorrect word
-          if (_wordStatuses[checkIdx] != WordStatus.incorrect) break;
-          if (RecitationAlignmentEngine.wordSimilarity(sWord, _pageWords[checkIdx]) >= 0.65) {
-            matchIdx = checkIdx;
-            break;
-          }
-        }
-      } else {
-        // ─── NORMAL READING MODE ─────────────────────────────────────────
-        // 1. Backtrack: check if user is fixing a recent incorrect word
-        for (int back = 1; back <= 4; back++) {
-          int checkIdx = targetIdx - back;
-          if (checkIdx >= 0 && _wordStatuses[checkIdx] == WordStatus.incorrect) {
-            if (RecitationAlignmentEngine.wordSimilarity(sWord, _pageWords[checkIdx]) >= 0.65) {
-              matchIdx = checkIdx;
-              break;
-            }
-          }
-        }
-
-        // 2. Forward: look ahead up to 3 words
-        if (matchIdx == -1) {
-          for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-            if (targetIdx + lookAhead >= _pageWords.length) break;
-            if (RecitationAlignmentEngine.wordSimilarity(sWord, _pageWords[targetIdx + lookAhead]) >= 0.65) {
-              matchIdx = targetIdx + lookAhead;
-              break;
-            }
-          }
-        }
-      }
-
-      // ─── APPLY MATCH ─────────────────────────────────────────────────────
-      if (matchIdx != -1) {
-        if (matchIdx < targetIdx) {
-          // BACKTRACKED: user is correcting a previous mistake
-          _wordStatuses[matchIdx] = WordStatus.correct;
-          // Reset words after the fix so user can re-read them
-          for (int i = matchIdx + 1; i < _pageWords.length; i++) {
-            if (_wordStatuses[i] == WordStatus.correct || _wordStatuses[i] == WordStatus.incorrect) {
-              _wordStatuses[i] = WordStatus.pending;
-            }
-          }
-          targetIdx = matchIdx + 1;
-          // Clear lastSpokenWords so the next STT result uses fresh greedy alignment
-          // instead of being compared against the stale pre-correction sequence
-          _lastSpokenWords = [];
-        } else {
-          // FORWARD: mark skipped words as incorrect (only words between targetIdx and matchIdx)
-          for (int i = targetIdx; i < matchIdx; i++) {
-            _wordStatuses[i] = WordStatus.incorrect;
-          }
-          _wordStatuses[matchIdx] = WordStatus.correct;
-          targetIdx = matchIdx + 1;
-        }
-        advanced = true;
-      } else if (isContinuation && !hasErrors && sWord.length >= 3) {
-        // ─── SMART MISTAKE DETECTION ─────────────────────────────────────
-        // Conditions: continuation (reliable STT), no prior errors, word >= 3 chars
-        // ALSO: similarity with target must be < 0.40 (substantially different).
-        // This prevents partial STT captures like 'اي' from 'إياك' (sim≈0.50)
-        // from falsely triggering incorrect marking on Alef-initial words.
-        final double simWithTarget = RecitationAlignmentEngine.wordSimilarity(
-            sWord, _pageWords[targetIdx]);
-        if (simWithTarget < 0.40 && _wordStatuses[targetIdx] != WordStatus.incorrect) {
-          _wordStatuses[targetIdx] = WordStatus.incorrect;
-          advanced = true;
-        }
-      }
-    }
-
-    if (advanced) {
-      // Find next unresolved errors
-      final bool stillHasErrors = _wordStatuses.any((s) => s == WordStatus.incorrect);
-      if (!stillHasErrors && targetIdx < _pageWords.length) {
-        _wordStatuses[targetIdx] = WordStatus.current;
-      }
-      setState(() {
+    setState(() {
+      _wordStatuses = smoothedStatuses;
+      
+      // Update targetIdx - FORWARD ONLY logic
+      int targetIdx = _wordStatuses.indexWhere((s) => 
+        s == WordStatus.current || s == WordStatus.pending || s == WordStatus.incorrect);
+      
+      if (targetIdx != -1) {
         int activeVerse = _pageWordVerseMapping[math.min(targetIdx, _pageWords.length - 1)];
-        if (activeVerse != _activeVerseIndex) {
+        // Only move forward (unless it's a huge jump/reset)
+        if (activeVerse > _activeVerseIndex || (activeVerse - _activeVerseIndex).abs() > 5) {
           _activeVerseIndex = activeVerse;
+        }
+      }
+    });
+
+    // 5. Automation: Move to next page if completed
+    final bool isPageComplete = _wordStatuses.every((s) => s == WordStatus.correct);
+    if (isPageComplete) {
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (mounted && _isListening && _wordStatuses.every((s) => s == WordStatus.correct)) {
+          _moveToNextPage();
         }
       });
     }
+  }
+
+  void _runAlignmentSimulation() {
+    if (_pageWords.isEmpty) return;
+    int count = (_pageWords.length * 0.7).floor();
+    List<String> simulatedSpoken = _pageWords.sublist(0, count);
+    final simulatedStatuses = RecitationAlignmentEngine.alignPage(
+      spokenWords: simulatedSpoken,
+      targetWords: _pageWords,
+      currentStatuses: List.filled(_pageWords.length, WordStatus.pending),
+    );
+    setState(() {
+      _wordStatuses = simulatedStatuses;
+      _activeVerseIndex = _pageWordVerseMapping[math.min(count, _pageWords.length - 1)];
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('تمت محاكاة قراءة %70 من الصفحة (اختبار المحرك)'), backgroundColor: Colors.green),
+    );
+  }
+
+  void _runAlignmentSimulationWithErrors() {
+    if (_pageWords.isEmpty) return;
+    
+    // Create a version of the words where some are WRONG
+    List<String> simulatedSpoken = List.from(_pageWords.sublist(0, math.min(15, _pageWords.length)));
+    if (simulatedSpoken.length > 5) {
+      simulatedSpoken[3] = "كلمة_خاطئة"; // Deliberate error
+      simulatedSpoken[7] = "نطق_غير_صحيح"; // Another error
+    }
+
+    final simulatedStatuses = RecitationAlignmentEngine.alignPage(
+      spokenWords: simulatedSpoken,
+      targetWords: _pageWords,
+      currentStatuses: List.filled(_pageWords.length, WordStatus.pending),
+    );
+
+    setState(() {
+      _wordStatuses = simulatedStatuses;
+      _activeVerseIndex = _pageWordVerseMapping[0];
+    });
+
+    _playErrorSound(); // Trigger the actual error sound logic
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('تمت المحاكاة: لاحظ تلوين الأخطاء باللون الأحمر!'),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
   }
 
   @override
@@ -440,16 +483,17 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                 onPageChanged: (p) {
                   setState(() {
                     _currentPage = p + 1;
+                    _startVerseNumber = -1;
                     _activeVerseIndex = -1;
                     _initPageTracking(_currentPage);
                   });
 
                   if (_isListening) {
                      _speech.stop();
-                     Future.delayed(const Duration(milliseconds: 500), () {
+                     Future.delayed(const Duration(milliseconds: 100), () {
                        if (mounted && _isListening) {
                          _speech.listen(
-                           onResult: (val) => _analyzeSpeech(val.recognizedWords),
+                           onResult: (val) => _analyzeSpeech(val.recognizedWords, val.finalResult),
                            localeId: 'ar-SA',
                            listenMode: stt.ListenMode.dictation,
                            partialResults: true,
@@ -681,41 +725,44 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                           ? _displayWordTrackingStart[globalWordCounter + 1]
                           : _pageWords.length;
 
-                      WordStatus worstStatus = WordStatus.correct;
-                      for (int t = trackingStart; t < trackingEnd; t++) {
-                        if (t < _wordStatuses.length) {
-                          final s = _wordStatuses[t];
-                          if (s == WordStatus.incorrect) { worstStatus = WordStatus.incorrect; break; }
-                          if (s == WordStatus.pending) worstStatus = WordStatus.pending;
-                          if (s == WordStatus.current && worstStatus != WordStatus.pending) worstStatus = WordStatus.current;
-                          if (s == WordStatus.partial && worstStatus == WordStatus.correct) worstStatus = WordStatus.partial;
-                        }
-                      }
+                      WordStatus worstStatus = _computeDisplayStatus(trackingStart, trackingEnd);
 
-                      bool isLastCorrect = trackingEnd - 1 == lastCorrectTrackingIdx && worstStatus == WordStatus.correct;
+                      bool isLastCorrect = (trackingEnd - 1 == lastCorrectTrackingIdx || (lastCorrectTrackingIdx >= trackingStart && lastCorrectTrackingIdx < trackingEnd)) 
+                          && worstStatus == WordStatus.correct;
 
                       if (_isListening) {
                         switch (worstStatus) {
                           case WordStatus.correct:
-                            wordColor = isLastCorrect ? Colors.green : textColor;
+                            wordColor = isLastCorrect ? const Color(0xFF4ADE80) : textColor;
                             break;
-                          case WordStatus.incorrect: wordColor = Colors.redAccent; break;
-                          case WordStatus.partial:   wordColor = Colors.orange; break;
-                          case WordStatus.current:   wordColor = Colors.transparent; break;
-                          case WordStatus.pending:   wordColor = Colors.transparent; break;
+                          case WordStatus.incorrect: 
+                            wordColor = Colors.redAccent; 
+                            break;
+                          case WordStatus.partial:   
+                            wordColor = Colors.orange; 
+                            break;
+                          case WordStatus.current:   
+                            wordColor = Colors.transparent; 
+                            break;
+                          case WordStatus.pending:   
+                            wordColor = Colors.transparent; 
+                            break;
                         }
                       } else if (verseNum == _activeVerseIndex) {
                         wordColor = AppColors.goldColor;
                       }
                     }
 
-                    wordWidgets.add(Text(
-                      "${w < displayWords.length ? displayWords[w] : normalizedWords[w]} ",
-                      style: TextStyle(
-                        fontFamily: 'UthmanicHafs',
-                        fontSize: isDesktop ? 38.sp : (isSpecialPage ? 28.sp : 22.sp),
-                        height: isDesktop ? 1.9 : (isSpecialPage ? 2.3 : 2.0),
-                        color: wordColor,
+                    wordWidgets.add(GestureDetector(
+                      onTap: () => _onVerseTapped(verseNum),
+                      child: Text(
+                        "${w < displayWords.length ? displayWords[w] : normalizedWords[w]} ",
+                        style: TextStyle(
+                          fontFamily: 'UthmanicHafs',
+                          fontSize: isDesktop ? 38.sp : (isSpecialPage ? 28.sp : 22.sp),
+                          height: isDesktop ? 1.9 : (isSpecialPage ? 2.3 : 2.0),
+                          color: wordColor,
+                        ),
                       ),
                     ));
                     globalWordCounter++;
@@ -725,9 +772,12 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                       ? Colors.redAccent
                       : isVerseCompleted && _isListening ? Colors.green : AppColors.goldColor;
 
-                  wordWidgets.add(_buildAyahMarker(
-                    verseNum, badgeColor, isDesktop,
+                  wordWidgets.add(GestureDetector(
                     onTap: () => _onVerseTapped(verseNum),
+                    child: _buildAyahMarker(
+                      verseNum, badgeColor, isDesktop,
+                      onTap: () => _onVerseTapped(verseNum),
+                    ),
                   ));
 
                   verseWidgets.add(Wrap(
@@ -843,6 +893,23 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
               ],
             ),
           ),
+          ListTile(
+            leading: Icon(Icons.bug_report_rounded, color: AppColors.goldColor),
+            title: Text("محاكاة القراءة (مثالية)", style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontFamily: 'SomarSans')),
+            onTap: () {
+              Navigator.pop(context);
+              _runAlignmentSimulation();
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.error_outline_rounded, color: Colors.redAccent),
+            title: Text("محاكاة القراءة (بها أخطاء)", style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontFamily: 'SomarSans')),
+            onTap: () {
+              Navigator.pop(context);
+              _runAlignmentSimulationWithErrors();
+            },
+          ),
+          Divider(color: textColor.withOpacity(0.1)),
           Expanded(
             child: ListView.separated(
               padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -879,6 +946,29 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     String s = n.toString();
     for (int i = 0; i < 10; i++) s = s.replaceAll(english[i], arabic[i]);
     return s;
+  }
+
+  WordStatus _computeDisplayStatus(int trackingStart, int trackingEnd) {
+    bool hasIncorrect = false;
+    bool hasPendingOrCurrent = false;
+    bool hasCorrect = false;
+
+    for (int t = trackingStart; t < trackingEnd; t++) {
+      if (t >= _wordStatuses.length) break;
+      switch (_wordStatuses[t]) {
+        case WordStatus.incorrect: hasIncorrect = true; break;
+        case WordStatus.correct:   hasCorrect = true; break;
+        case WordStatus.pending:
+        case WordStatus.current:   hasPendingOrCurrent = true; break;
+        default: break;
+      }
+    }
+
+    bool isExpanded = (trackingEnd - trackingStart) > 1;
+    if (isExpanded && hasIncorrect && hasCorrect) return WordStatus.partial;
+    if (hasIncorrect) return WordStatus.incorrect;
+    if (hasPendingOrCurrent) return WordStatus.pending;
+    return WordStatus.correct;
   }
 }
 

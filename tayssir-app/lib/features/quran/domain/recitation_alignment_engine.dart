@@ -1,68 +1,276 @@
-import 'dart:math';
+import 'dart:math' as math;
+import '../../../utils/arabic_utils.dart';
 
 enum WordStatus { pending, current, correct, incorrect, partial }
 
 class RecitationAlignmentEngine {
   static const double _correctThreshold = 0.70;
+  
+  // Cache for performance optimization
+  static final Map<String, double> _similarityCache = {};
+
+  // Anchor Words to prevent 'Drift' (re-sync points)
+  static const Set<String> _anchors = {
+    'الله', 'الرحمن', 'الرحيم', 'قال', 'قل', 'يا', 'ايها', 'الذين', 'امنوا', 'رب', 'العالمين',
+    'ذلك', 'هدى', 'الكتاب', 'الذي', 'انزل', 'ناس', 'نعبد', 'نستعين'
+  };
 
   static List<WordStatus> alignPage({
-    required String spokenText,
+    required List<String> spokenWords,
     required List<String> targetWords,
+    required List<WordStatus> currentStatuses,
   }) {
-    List<WordStatus> statuses = List.filled(targetWords.length, WordStatus.pending);
-    if (spokenText.isEmpty) {
-      if (statuses.isNotEmpty) statuses[0] = WordStatus.current;
-      return statuses;
+    if (spokenWords.isEmpty) return currentStatuses;
+
+    // ══════════════════════════════════════════════════════════════════════
+    // SLIDING WINDOW DP ALIGNMENT
+    // ══════════════════════════════════════════════════════════════════════
+    
+    // Find our current "Window of Interest" to keep performance O(constant)
+    int currentIdx = currentStatuses.indexWhere((s) => s == WordStatus.current || s == WordStatus.pending || s == WordStatus.incorrect);
+    if (currentIdx == -1) currentIdx = 0;
+
+    // Window: Start 8 words before current, end 20 words after
+    int windowStart = math.max(0, currentIdx - 8);
+    int windowEnd = math.min(targetWords.length, currentIdx + 20);
+    List<String> windowTarget = targetWords.sublist(windowStart, windowEnd);
+
+    int n = spokenWords.length;
+    int m = windowTarget.length;
+
+    // scoreMatrix[i][j] for window alignment
+    List<List<double>> scoreMatrix = List.generate(n + 1, (_) => List.filled(m + 1, 0.0));
+    
+    const double gapPenalty = -0.5;
+    const double mismatchPenalty = -1.0;
+
+    // STRICT FORWARD LOGIC: 
+    // Find where the user actually is (last correct word)
+    int lastCorrectIdx = -1;
+    for (int k = currentStatuses.length - 1; k >= 0; k--) {
+      if (currentStatuses[k] == WordStatus.correct) {
+        lastCorrectIdx = k;
+        break;
+      }
+    }
+    
+    int relativeLastCorrect = lastCorrectIdx - windowStart;
+    
+    // PEDAGOGICAL FIX (Expert suggestion):
+    // If we are at the start of a page (no correct words in window yet),
+    // allow matching the full window to find the start.
+    // Otherwise, limit jump to 12 words ahead of the last correct one.
+    int forwardLimit = 4; // Tight window: enough for fast reading, prevents big jumps
+    int maxAllowedJ = (relativeLastCorrect < 0) 
+        ? m  
+        : math.min(m, relativeLastCorrect + forwardLimit);
+
+    for (int i = 1; i <= n; i++) {
+      for (int j = 1; j <= m; j++) {
+        double sim = wordSimilarity(spokenWords[i - 1], windowTarget[j - 1]);
+        double threshold = _getThreshold(windowTarget[j - 1]);
+        
+        // Disable matching if j is beyond our strict forward limit
+        double matchScore;
+        if (j > maxAllowedJ) {
+          matchScore = mismatchPenalty * 2;
+        } else {
+          matchScore = (sim >= threshold) ? (sim * 2.0) : mismatchPenalty;
+        }
+
+        scoreMatrix[i][j] = [
+          scoreMatrix[i - 1][j - 1] + matchScore,
+          scoreMatrix[i - 1][j] + gapPenalty,
+          scoreMatrix[i][j - 1] + gapPenalty,
+        ].reduce(math.max);
+      }
     }
 
-    final spokenWords = spokenText.split(' ').where((w) => w.trim().isNotEmpty).toList();
-    
-    int targetIdx = 0;
-    
-    for (int spokenIdx = 0; spokenIdx < spokenWords.length; spokenIdx++) {
-      String sWord = spokenWords[spokenIdx];
-      if (targetIdx >= targetWords.length) break;
-
-      bool foundMatch = false;
-      int matchIdx = -1;
-      
-      // Look ahead up to 3 words to find a match (allowing 2 skipped words max)
-      for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-        if (targetIdx + lookAhead >= targetWords.length) break;
-        
-        String tWord = targetWords[targetIdx + lookAhead];
-        if (wordSimilarity(sWord, tWord) >= _correctThreshold) {
-          foundMatch = true;
-          matchIdx = targetIdx + lookAhead;
+    // 3. BACKTRACK: Start from the best matching end-point in the target window
+    // EARLIEST MATCH PRIORITY: Among positions with similar scores, prefer the 
+    // earliest (lowest j) to avoid matching duplicate words to later occurrences.
+    int bestJ = 0;
+    double maxScore = -double.infinity;
+    // First pass: find the maximum score
+    for (int j_ptr = 0; j_ptr <= m; j_ptr++) {
+      if (scoreMatrix[n][j_ptr] > maxScore) {
+        maxScore = scoreMatrix[n][j_ptr];
+      }
+    }
+    // Second pass: pick the EARLIEST j that is within epsilon of the max score
+    // AND is within the allowed forward range from the last correct word
+    const double scoreTolerance = 0.5; // within 0.5 points of maximum is "good enough"
+    for (int j_ptr = 0; j_ptr <= m; j_ptr++) {
+      if (scoreMatrix[n][j_ptr] >= maxScore - scoreTolerance) {
+        bestJ = j_ptr;
+        break; // take the first (earliest) good match
+      }
+    }
+    // If no match found with tolerance, fall back to the absolute maximum
+    if (bestJ == 0 && maxScore > 0) {
+      for (int j_ptr = 0; j_ptr <= m; j_ptr++) {
+        if (scoreMatrix[n][j_ptr] == maxScore) {
+          bestJ = j_ptr;
           break;
         }
       }
+    }
 
-      if (foundMatch) {
-        // Mark skipped words as incorrect
-        for (int i = targetIdx; i < matchIdx; i++) {
-          statuses[i] = WordStatus.incorrect;
-        }
-        // Mark matched word as correct
-        statuses[matchIdx] = WordStatus.correct;
-        targetIdx = matchIdx + 1; // Move pointer past the match
+    List<WordStatus> windowStatuses = List.filled(m, WordStatus.pending);
+    int i = n;
+    int j = bestJ;
+    const double epsilon = 0.0001;
+    
+    int lastMatchedI = -1;
+    
+    // Everything after bestJ is definitely pending
+    for (int k = bestJ; k < m; k++) windowStatuses[k] = WordStatus.pending;
+
+    int consecutiveSkips = 0;
+    while (i > 0 && j > 0) {
+      double sim = wordSimilarity(spokenWords[i - 1], windowTarget[j - 1]);
+      double currentScore = scoreMatrix[i][j];
+      double threshold = _getThreshold(windowTarget[j - 1]);
+      double matchScore = (sim >= threshold) ? (sim * 2.0) : mismatchPenalty;
+      double diagonal = scoreMatrix[i - 1][j - 1];
+      double up = scoreMatrix[i - 1][j];
+
+      if ((currentScore - (diagonal + matchScore)).abs() < epsilon) {
+        windowStatuses[j - 1] = WordStatus.correct;
+        if (i > lastMatchedI) lastMatchedI = i;
+        consecutiveSkips = 0; // Reset skips on match
+        i--;
+        j--;
+      } else if ((currentScore - (up + gapPenalty)).abs() < epsilon) {
+        i--; // Skip extra spoken word
+      } else {
+        // Gap in spoken (Skip in target)
+        windowStatuses[j - 1] = WordStatus.incorrect;
+        consecutiveSkips++;
+        j--;
       }
     }
 
-    // After processing all spoken words, mark the NEXT target word as 'current'
-    if (targetIdx < targetWords.length) {
-      statuses[targetIdx] = WordStatus.current;
+    // Remaining words at the very beginning of the window are pending
+    while (j > 0) {
+      windowStatuses[j - 1] = WordStatus.pending;
+      j--;
     }
 
-    return statuses;
+    // --- PEDAGOGICAL FORCE (Patient Mode) ---
+    // Only force red hint if the user said something NEW that was NOT matched.
+    // i.e., the last spoken word (n) was NOT the last matched word.
+    if (n > 0 && lastMatchedI < n && bestJ <= relativeLastCorrect + 1) {
+      int hintIdx = relativeLastCorrect + 1;
+      if (hintIdx >= 0 && hintIdx < m && windowStatuses[hintIdx] == WordStatus.pending) {
+        windowStatuses[hintIdx] = WordStatus.incorrect;
+      }
+    }
+
+    // --- SMART HINT POST-PROCESSING ---
+    // If we have a large gap of incorrect words, only keep the FIRST one 
+    // (the one at the lowest index) as red, and hide the rest.
+    int k = 0;
+    while (k < m) {
+      if (windowStatuses[k] == WordStatus.incorrect) {
+        int blockStart = k;
+        while (k < m && windowStatuses[k] == WordStatus.incorrect) {
+          k++;
+        }
+        int blockEnd = k;
+        int blockSize = blockEnd - blockStart;
+        
+        if (blockSize > 2) {
+          // Keep only the first 2 words as a hint, hide the rest
+          for (int hideIdx = blockStart + 2; hideIdx < blockEnd; hideIdx++) {
+            windowStatuses[hideIdx] = WordStatus.pending;
+          }
+        }
+      } else {
+        k++;
+      }
+    }
+
+    // Merge window results back into full page statuses
+    List<WordStatus> finalStatuses = List.from(currentStatuses);
+    for (int k = 0; k < m; k++) {
+      finalStatuses[windowStart + k] = windowStatuses[k];
+    }
+
+    // Refine: Next word logic
+    int lastCorrect = finalStatuses.lastIndexOf(WordStatus.correct);
+    if (lastCorrect + 1 < finalStatuses.length && finalStatuses[lastCorrect + 1] == WordStatus.pending) {
+      finalStatuses[lastCorrect + 1] = WordStatus.current;
+    } else if (lastCorrect == -1 && finalStatuses.isNotEmpty) {
+      finalStatuses[0] = WordStatus.current;
+    }
+
+    return finalStatuses;
   }
 
-  static double wordSimilarity(String s1, String s2) {
-    if (s1 == s2) return 1.0;
-    if (s1.isEmpty || s2.isEmpty) return 0.0;
+  static double _getThreshold(String word) {
+    String n = ArabicUtils.normalize(word);
+    if (_anchors.contains(n)) return 0.85; // Slightly lower but still strict for anchors
+    if (word.length <= 2) return 0.90;
+    if (word.length <= 4) return 0.70; // More tolerant for medium words
+    return 0.65;
+  }
 
+  static double wordSimilarity(String w1, String w2) {
+    if (w1 == w2) return 1.0;
+    if (w1.isEmpty || w2.isEmpty) return 0.0;
+
+    // Cache key: combined words
+    final String cacheKey = "${w1}|${w2}";
+    if (_similarityCache.containsKey(cacheKey)) {
+      return _similarityCache[cacheKey]!;
+    }
+
+    final double result = _calculateSimilarity(w1, w2);
+    
+    _evictCache();
+    _similarityCache[cacheKey] = result;
+    
+    return result;
+  }
+
+  static void _evictCache() {
+    if (_similarityCache.length <= 500) return;
+    // Remove oldest 250 entries (Dart Map maintains insertion order)
+    final keysToRemove = _similarityCache.keys.take(250).toList();
+    for (final key in keysToRemove) {
+      _similarityCache.remove(key);
+    }
+  }
+
+  static double _calculateSimilarity(String w1, String w2) {
+    String n1 = ArabicUtils.normalize(w1);
+    String n2 = ArabicUtils.normalize(w2);
+
+    double literalSim = _levenshteinSimilarity(n1, n2);
+    double threshold = _getThreshold(w2);
+    
+    // Tier 1: Literal Match (High weight)
+    if (literalSim >= threshold) return literalSim;
+
+    // Tier 2: Phonetic Match (Lower weight fallback)
+    String p1 = ArabicUtils.phoneticNormalize(w1);
+    String p2 = ArabicUtils.phoneticNormalize(w2);
+    double phoneticSim = _levenshteinSimilarity(p1, p2);
+    
+    if (phoneticSim >= 0.95) {
+      // Expert's refined return: ensure literal isn't garbage
+      return literalSim > 0.4 ? 0.90 : 0.80;
+    }
+    
+    if (phoneticSim >= 0.80) return 0.75;
+
+    return math.max(literalSim, phoneticSim * 0.7);
+  }
+
+  static double _levenshteinSimilarity(String s1, String s2) {
     int distance = levenshtein(s1, s2);
-    int maxLength = max(s1.length, s2.length);
+    int maxLength = math.max(s1.length, s2.length);
     return 1.0 - (distance / maxLength);
   }
 
@@ -78,9 +286,9 @@ class RecitationAlignmentEngine {
       v1[0] = i + 1;
       for (int j = 0; j < t.length; j++) {
         int cost = (s[i] == t[j]) ? 0 : 1;
-        v1[j + 1] = [v1[j] + 1, v0[j + 1] + 1, v0[j] + cost].reduce((a, b) => a < b ? a : b);
+        v1[j + 1] = math.min(v1[j] + 1, math.min(v0[j + 1] + 1, v0[j] + cost));
       }
-      for (int j = 0; j < v0.length; j++) {
+      for (int j = 0; j < t.length + 1; j++) {
         v0[j] = v1[j];
       }
     }
