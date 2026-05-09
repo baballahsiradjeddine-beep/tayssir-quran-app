@@ -41,7 +41,7 @@ class RecitationAlignmentEngine {
     // scoreMatrix[i][j] for window alignment
     List<List<double>> scoreMatrix = List.generate(n + 1, (_) => List.filled(m + 1, 0.0));
     
-    const double gapPenalty = -1.5; // High penalty to prevent silent skips
+    const double gapPenalty = -0.5; 
     const double mismatchPenalty = -1.0;
 
     // STRICT FORWARD LOGIC: 
@@ -270,9 +270,9 @@ class RecitationAlignmentEngine {
   static double _getThreshold(String word) {
     String n = ArabicUtils.normalize(word);
     if (_anchors.contains(n)) return 0.85; // Anchors always strict
-    if (word.length <= 3) return 0.85;     // Very short: إذا، في، من
+    if (word.length <= 2) return 0.90;     // Very short: هم، في، من
     if (word.length <= 4) return 0.75;     // Short: بما، قال
-    return 0.75;                            // Medium & Long words: الصلوة، يقيمون
+    return 0.75;                            // Medium & Long words
   }
 
   static double wordSimilarity(String w1, String w2) {
