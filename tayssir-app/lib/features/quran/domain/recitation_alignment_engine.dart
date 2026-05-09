@@ -307,6 +307,17 @@ class RecitationAlignmentEngine {
     String n2 = ArabicUtils.normalize(w2);
 
     double literalSim = _levenshteinSimilarity(n1, n2);
+
+    // PREFIX SENSITIVITY (Wa vs Fa)
+    // Punish mismatching critical Quranic prefixes.
+    if (n1.isNotEmpty && n2.isNotEmpty) {
+      final c1 = n1[0];
+      final c2 = n2[0];
+      if ((c1 == 'و' && c2 == 'ف') || (c1 == 'ف' && c2 == 'و')) {
+        literalSim *= 0.8; // Apply 20% penalty for Wa/Fa mismatch
+      }
+    }
+
     double threshold = _getThreshold(w2);
     
     // Tier 1: Literal Match (High weight)
@@ -318,8 +329,15 @@ class RecitationAlignmentEngine {
     double phoneticSim = _levenshteinSimilarity(p1, p2);
     
     if (phoneticSim >= 0.95) {
-      // Expert's refined return: ensure literal isn't garbage
-      return literalSim > 0.4 ? 0.90 : 0.80;
+      // Apply prefix penalty to phonetic too!
+      if (n1.isNotEmpty && n2.isNotEmpty) {
+        final c1 = n1[0];
+        final c2 = n2[0];
+        if ((c1 == 'و' && c2 == 'ف') || (c1 == 'ف' && c2 == 'و')) {
+          phoneticSim *= 0.8;
+        }
+      }
+      if (phoneticSim >= 0.95) return literalSim > 0.4 ? 0.90 : 0.80;
     }
     
     if (phoneticSim >= 0.80) return 0.75;
