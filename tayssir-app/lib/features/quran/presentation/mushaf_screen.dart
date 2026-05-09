@@ -305,11 +305,20 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     bool errorConfirmed = false;
 
     for (int i = 0; i < smoothedStatuses.length; i++) {
-      // SUCCESS PROTECTION: If a word is already locked as CORRECT, never let it turn red.
-      if (_isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) continue;
+      // SUCCESS PROTECTION: If locked as CORRECT, never let it turn RED.
+      // BUT: allow it to turn PENDING if the engine detected a gap before it.
+      if (_isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) {
+        if (newStatuses[i] == WordStatus.pending) {
+          // Engine says this word is after a gap — pull it back to pending
+          smoothedStatuses[i] = WordStatus.pending;
+          _isWordLocked[i] = false;
+          _errorConfirmationCounts.remove(i);
+        }
+        continue; // Never flip locked-correct to red (only to pending above)
+      }
 
       if (newStatuses[i] == WordStatus.incorrect) {
-        // If it was ALREADY CORRECT in this session, be extremely suspicious of turning it red
+        // If it was ALREADY CORRECT in this session, be suspicious of turning it red
         if (_wordStatuses[i] == WordStatus.correct) {
           continue; // Keep it green! STT revisions shouldn't break existing success.
         }
@@ -317,7 +326,6 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
         _errorConfirmationCounts[i] = (_errorConfirmationCounts[i] ?? 0) + 1;
         
         // FLICKER FIX: Partial results need MORE confirmations before showing red.
-        // This prevents the brief red flash caused by imperfect partial STT transcriptions.
         int requiredConfirmations = isFinal ? 2 : 4;
         
         if (_errorConfirmationCounts[i]! >= requiredConfirmations) {
@@ -332,6 +340,12 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
         _errorConfirmationCounts.remove(i);
         _isWordLocked[i] = false; 
         if (isFinal) _isWordLocked[i] = true;
+      } else if (newStatuses[i] == WordStatus.pending) {
+        // Engine explicitly reset this to pending (gap before it)
+        if (_wordStatuses[i] != WordStatus.correct || !_isWordLocked[i]) {
+          smoothedStatuses[i] = WordStatus.pending;
+          _errorConfirmationCounts.remove(i);
+        }
       }
     }
 

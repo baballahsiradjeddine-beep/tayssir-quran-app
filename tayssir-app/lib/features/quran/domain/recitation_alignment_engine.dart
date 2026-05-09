@@ -173,9 +173,28 @@ class RecitationAlignmentEngine {
       j--;
     }
 
+    // --- GAP ENFORCEMENT (Strict Sequential Mode) ---
+    // If a gap (skipped target word) was detected, ALL correct words that
+    // come AFTER the first gap must be reset to 'pending'.
+    // This prevents silently-skipped words from being credited as correct.
+    int firstGapInWindow = -1;
+    for (int k = 0; k < m; k++) {
+      if (windowStatuses[k] == WordStatus.incorrect) {
+        firstGapInWindow = k;
+        break;
+      }
+    }
+    if (firstGapInWindow >= 0) {
+      // Reset everything AFTER the first gap to pending (uncredit them)
+      for (int k = firstGapInWindow + 1; k < m; k++) {
+        if (windowStatuses[k] == WordStatus.correct) {
+          windowStatuses[k] = WordStatus.pending;
+        }
+      }
+    }
+
     // --- PEDAGOGICAL FORCE (Patient Mode) ---
     // Only force red hint if the user said something NEW that was NOT matched.
-    // i.e., the last spoken word (n) was NOT the last matched word.
     if (n > 0 && lastMatchedI < n && bestJ <= relativeLastCorrect + 1) {
       int hintIdx = relativeLastCorrect + 1;
       if (hintIdx >= 0 && hintIdx < m && windowStatuses[hintIdx] == WordStatus.pending) {
