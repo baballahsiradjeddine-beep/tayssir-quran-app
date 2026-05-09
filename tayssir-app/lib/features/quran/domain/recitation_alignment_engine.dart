@@ -30,8 +30,8 @@ class RecitationAlignmentEngine {
     int currentIdx = (lastCorrectForWindow >= 0) ? lastCorrectForWindow + 1 : 0;
     if (currentIdx >= currentStatuses.length) currentIdx = currentStatuses.length - 1;
 
-    // Window: Start 5 words before current position, end 20 words after
-    int windowStart = math.max(0, currentIdx - 5);
+    // Window: Start 2 words before current position (minimal backtrack), end 20 words after
+    int windowStart = math.max(0, currentIdx - 2);
     int windowEnd = math.min(targetWords.length, currentIdx + 20);
     List<String> windowTarget = targetWords.sublist(windowStart, windowEnd);
 

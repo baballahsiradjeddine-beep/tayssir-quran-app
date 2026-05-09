@@ -75,6 +75,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
 
 
   final Map<int, int> _errorConfirmationCounts = {};
+  final Map<int, int> _gapConfirmationCounts = {};
   
   @override
   void initState() {
@@ -143,6 +144,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     _wordStatuses = List.filled(_pageWords.length, WordStatus.pending);
     _isWordLocked = List.filled(_pageWords.length, false);
     _errorConfirmationCounts.clear();
+    _gapConfirmationCounts.clear();
     _transcriptBuffer.lastWords = [];
     _sessionStartWordIdx = 0; // Reset: new page always starts from word 0
     if (_wordStatuses.isNotEmpty) _wordStatuses[0] = WordStatus.current;
@@ -320,12 +322,20 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
       // BUT: allow it to turn PENDING if the engine detected a gap before it.
       if (_isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) {
         if (newStatuses[i] == WordStatus.pending) {
-          // Engine says this word is after a gap — pull it back to pending
-          smoothedStatuses[i] = WordStatus.pending;
-          _isWordLocked[i] = false;
-          _errorConfirmationCounts.remove(i);
+          // Engine says this word is after a gap — pull it back to pending?
+          // CONFIRMATION: Only reset if the gap persists for multiple frames
+          _gapConfirmationCounts[i] = (_gapConfirmationCounts[i] ?? 0) + 1;
+          if (_gapConfirmationCounts[i]! >= 3) {
+            smoothedStatuses[i] = WordStatus.pending;
+            _isWordLocked[i] = false;
+            _errorConfirmationCounts.remove(i);
+            _gapConfirmationCounts.remove(i);
+          }
+        } else {
+          // It's still correct according to engine (or incorrect)
+          _gapConfirmationCounts.remove(i);
         }
-        continue; // Never flip locked-correct to red (only to pending above)
+        continue; // Never flip locked-correct to red
       }
 
       if (newStatuses[i] == WordStatus.incorrect) {
