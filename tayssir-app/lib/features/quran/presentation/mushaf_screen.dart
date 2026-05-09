@@ -76,7 +76,6 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
 
 
   final Map<int, int> _errorConfirmationCounts = {};
-  final Map<int, int> _gapConfirmationCounts = {};
   
   @override
   void initState() {
@@ -145,7 +144,6 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     _wordStatuses = List.filled(_pageWords.length, WordStatus.pending);
     _isWordLocked = List.filled(_pageWords.length, false);
     _errorConfirmationCounts.clear();
-    _gapConfirmationCounts.clear();
     _transcriptBuffer.lastWords = [];
     _sessionStartWordIdx = 0; // Reset: new page always starts from word 0
     _maxReachedWordIdx = 0;
@@ -325,7 +323,6 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
       // SUCCESS PROTECTION: If locked as CORRECT, it is PERMANENT.
       // We no longer allow it to turn back to pending. This prevents visual flickers.
       if (_isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) {
-        _gapConfirmationCounts.remove(i);
         continue;
       }
 
