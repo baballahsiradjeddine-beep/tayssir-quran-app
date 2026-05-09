@@ -65,6 +65,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
   int _countdownValue = 3;
   int _startVerseNumber = -1;
   int _sessionStartWordIdx = 0; // First tracking-word index of the chosen start verse
+  int _maxReachedWordIdx = 0;  // Furthest index ever reached (for visual stability)
 
   // Word-by-Word tracking state for the entire page
   List<String> _pageWords = [];          // expanded (Muqatta'at split into letters)
@@ -147,6 +148,7 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     _gapConfirmationCounts.clear();
     _transcriptBuffer.lastWords = [];
     _sessionStartWordIdx = 0; // Reset: new page always starts from word 0
+    _maxReachedWordIdx = 0;
     if (_wordStatuses.isNotEmpty) _wordStatuses[0] = WordStatus.current;
 
     setState(() {});
@@ -320,22 +322,11 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
 
       // SUCCESS PROTECTION: If locked as CORRECT, never let it turn RED.
       // BUT: allow it to turn PENDING if the engine detected a gap before it.
+      // SUCCESS PROTECTION: If locked as CORRECT, it is PERMANENT.
+      // We no longer allow it to turn back to pending. This prevents visual flickers.
       if (_isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) {
-        if (newStatuses[i] == WordStatus.pending) {
-          // Engine says this word is after a gap — pull it back to pending?
-          // CONFIRMATION: Only reset if the gap persists for multiple frames
-          _gapConfirmationCounts[i] = (_gapConfirmationCounts[i] ?? 0) + 1;
-          if (_gapConfirmationCounts[i]! >= 3) {
-            smoothedStatuses[i] = WordStatus.pending;
-            _isWordLocked[i] = false;
-            _errorConfirmationCounts.remove(i);
-            _gapConfirmationCounts.remove(i);
-          }
-        } else {
-          // It's still correct according to engine (or incorrect)
-          _gapConfirmationCounts.remove(i);
-        }
-        continue; // Never flip locked-correct to red
+        _gapConfirmationCounts.remove(i);
+        continue;
       }
 
       if (newStatuses[i] == WordStatus.incorrect) {
@@ -360,7 +351,10 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
         smoothedStatuses[i] = WordStatus.correct;
         _errorConfirmationCounts.remove(i);
         _isWordLocked[i] = false; 
-        if (isFinal) _isWordLocked[i] = true;
+        if (isFinal) {
+          _isWordLocked[i] = true;
+          if (i > _maxReachedWordIdx) _maxReachedWordIdx = i; // Track visual progress
+        }
       } else if (newStatuses[i] == WordStatus.pending) {
         // Engine explicitly reset this to pending (gap before it)
         if (_wordStatuses[i] != WordStatus.correct || !_isWordLocked[i]) {
@@ -781,9 +775,10 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                             wordColor = textColor;
                             break;
                           case WordStatus.pending:
-                            // Show in white if: before session start OR before reading position
+                            // Show in white if: before session start OR before progress position
                             wordColor = (trackingStart < _sessionStartWordIdx ||
-                                         trackingStart <= lastCorrectTrackingIdx)
+                                         trackingStart <= lastCorrectTrackingIdx ||
+                                         trackingStart <= _maxReachedWordIdx)
                                 ? textColor
                                 : Colors.transparent;
                             break;
