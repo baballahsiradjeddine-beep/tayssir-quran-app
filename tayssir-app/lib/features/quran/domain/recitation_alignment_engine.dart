@@ -256,10 +256,13 @@ class RecitationAlignmentEngine {
 
   static double _getThreshold(String word) {
     String n = ArabicUtils.normalize(word);
-    if (_anchors.contains(n)) return 0.85; // Slightly lower but still strict for anchors
-    if (word.length <= 2) return 0.90;
-    if (word.length <= 4) return 0.70; // More tolerant for medium words
-    return 0.65;
+    if (_anchors.contains(n)) return 0.85; // Anchors always strict
+    if (word.length <= 2) return 0.90;     // Very short: هم، في، من — must be exact
+    if (word.length <= 4) return 0.75;     // Short: بما، قال
+    if (word.length <= 6) return 0.75;     // Medium: كتاب، ربهم
+    return 0.80;                            // Long words (7+ chars): STRICT
+    // Reason: long words like المفلحون vs الصالحون share prefix/suffix (0.75 sim)
+    // but are completely different words. Higher threshold prevents false acceptance.
   }
 
   static double wordSimilarity(String w1, String w2) {
