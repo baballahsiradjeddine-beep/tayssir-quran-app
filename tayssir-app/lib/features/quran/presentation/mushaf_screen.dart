@@ -64,7 +64,8 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
   bool _isSelectingVerse = false;
   int _countdownValue = 3;
   int _startVerseNumber = -1;
-  
+  int _sessionStartWordIdx = 0; // First tracking-word index of the chosen start verse
+
   // Word-by-Word tracking state for the entire page
   List<String> _pageWords = [];          // expanded (Muqatta'at split into letters)
   List<int> _pageWordVerseMapping = [];  // verse number for each tracking word
@@ -269,12 +270,14 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
   /// Fast-forward tracking state to begin at a specific verse number.
   void _seekToVerse(int verseNum) {
     bool foundVerseStart = false;
+    _sessionStartWordIdx = 0; // Reset to beginning by default
     for (int i = 0; i < _pageWords.length; i++) {
       final v = _pageWordVerseMapping[i];
       if (v < verseNum) {
         _wordStatuses[i] = WordStatus.correct;
         _isWordLocked[i] = true;
       } else if (v == verseNum && !foundVerseStart) {
+        _sessionStartWordIdx = i; // Remember where session starts
         _wordStatuses[i] = WordStatus.current;
         foundVerseStart = true;
       } else if (v == verseNum) {
@@ -755,15 +758,16 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
                           case WordStatus.partial:   
                             wordColor = Colors.orange; 
                             break;
-                          case WordStatus.current:   
-                            wordColor = Colors.transparent; 
+                          case WordStatus.current:
+                            // The next word to read must be VISIBLE (white), not hidden!
+                            wordColor = textColor;
                             break;
                           case WordStatus.pending:
-                            // Words BEFORE the reading position = visible white (already passed)
-                            // Words AFTER the reading position = hidden (not yet reached)
-                            wordColor = (trackingStart <= lastCorrectTrackingIdx)
-                                ? textColor          // before reading position → show in white
-                                : Colors.transparent; // after reading position → hidden
+                            // Show in white if: before session start OR before reading position
+                            wordColor = (trackingStart < _sessionStartWordIdx ||
+                                         trackingStart <= lastCorrectTrackingIdx)
+                                ? textColor
+                                : Colors.transparent;
                             break;
                         }
                       } else if (verseNum == _activeVerseIndex) {
