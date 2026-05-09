@@ -308,6 +308,13 @@ class _MushafScreenState extends ConsumerState<MushafScreen> {
     bool errorConfirmed = false;
 
     for (int i = 0; i < smoothedStatuses.length; i++) {
+      // PRE-START IMMUNITY: Words before the session start point are ALWAYS correct.
+      // _seekToVerse() set them — they must NEVER be changed by the engine or GAP logic.
+      if (i < _sessionStartWordIdx && _isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) {
+        smoothedStatuses[i] = WordStatus.correct; // Permanently locked
+        continue;
+      }
+
       // SUCCESS PROTECTION: If locked as CORRECT, never let it turn RED.
       // BUT: allow it to turn PENDING if the engine detected a gap before it.
       if (_isWordLocked[i] && _wordStatuses[i] == WordStatus.correct) {
